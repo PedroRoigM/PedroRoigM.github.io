@@ -40,11 +40,49 @@ export default function LenisProvider() {
 
     gsap.ticker.lagSmoothing(0);
 
+    // Anchor-link handler — Lenis intercepts native scroll so we must
+    // explicitly route #hash clicks through lenis.scrollTo().
+    // Offset = nav height (sticky, top:0) so section titles land below it.
+    const NAV_OFFSET_PX = 72;
+
+    function scrollToHash(hash: string) {
+      if (!hash.startsWith('#')) return;
+      const id = hash.slice(1);
+      const el = id ? document.getElementById(id) : null;
+      if (!el) return;
+      lenis.scrollTo(el, {
+        offset: -NAV_OFFSET_PX,
+        duration: 1.2,
+        immediate: prefersReducedMotion,
+      });
+    }
+
+    function onAnchorClick(e: MouseEvent) {
+      const a = (e.target as HTMLElement).closest('a');
+      if (!a) return;
+      const href = a.getAttribute('href') ?? '';
+      if (href.startsWith('#')) {
+        e.preventDefault();
+        history.pushState(null, '', href);
+        scrollToHash(href);
+      }
+    }
+
+    // Also handle programmatic hash changes (e.g. location.hash = '#simulation')
+    function onHashChange() {
+      if (location.hash) scrollToHash(location.hash);
+    }
+
+    document.addEventListener('click', onAnchorClick);
+    window.addEventListener('hashchange', onHashChange);
+
     return () => {
       lenis.destroy();
       gsap.ticker.remove((time) => {
         lenis.raf(time * 1000);
       });
+      document.removeEventListener('click', onAnchorClick);
+      window.removeEventListener('hashchange', onHashChange);
     };
   }, []);
 

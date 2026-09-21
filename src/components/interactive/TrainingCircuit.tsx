@@ -1,24 +1,21 @@
 /**
  * TrainingCircuit — Section 02 interactive centerpiece.
  *
- * ONE simplified track rendered at hero scale, with:
- *   - The centerline path with a saffron gradient stroke
- *   - An animated dot (the car) that auto-loops around the path on its own
- *     (paused for 3 s whenever the user touches the scrub slider)
- *   - 11 sensor rays fanning out from the car's current position IN THE
- *     FORWARD HEMISPHERE (aligned with the path tangent). Each ray is
- *     shortened to the distance at which it first exits an invisible
- *     "halo" stroke around the path — i.e. the ray terminates when it
- *     hits the track edge (the wall). Perpendicular rays therefore look
- *     short and forward rays look long.
- *   - Auto-generated checkpoints pulsing at fixed t values along the path
- *   - A scrub slider that pauses the auto-animation and lets the user
- *     position the dot manually
- *   - A short "speed tail" behind the dot (opposite the tangent) so motion
- *     direction is readable
- *   - A soft glow on the rays via an SVG <filter>
- *   - Honours `prefers-reduced-motion`: dot stays at scrub=0 with full
- *     rays; the slider still works for manual scrubbing.
+ * DUAL TRACK layout with two parallel boundaries (inner + outer), representing
+ * the real limits of the circuit. The animated dot (the car) moves BETWEEN the
+ * two lines, oscillating perpendicular to the path (left/right symmetry sway).
+ *
+ * Each of the 11 sensor rays genuinely reaches the nearest wall boundary —
+ * the ray casts from the dot position in its direction and stops at the first
+ * hit on either the inner or outer track stroke. Perpendicular rays therefore
+ * look short (near wall) and forward rays look long (open road), but now
+ * they actually touch the circuit edge.
+ *
+ * Auto-generated checkpoints pulse at fixed t values along the path.
+ * A scrub slider pauses the auto-animation and lets the user position the
+ * dot manually.
+ * Honours `prefers-reduced-motion`: dot stays at scrub=0 with full rays;
+ * the slider still works for manual scrubbing.
  *
  * The path data is the same shape used by CircuitCard, sourced from
  * `src/data/circuits/circuits.json` (barcelona) — but it's never labelled
@@ -90,6 +87,113 @@ function transformPath(sourceD: string): string {
 }
 
 // ---------------------------------------------------------------------------
+// Dual-track offset helpers
+// ---------------------------------------------------------------------------
+
+/** Perpendicular offset for each boundary in viewBox units.
+ * INNER_OFFSET moves points toward the inside of the track (right of tangent).
+ * OUTER_OFFSET moves points toward the outside of the track (left of tangent).
+ * The car oscillates between -oscAmplitude and +oscAmplitude around the centerline. */
+const INNER_OFFSET = 18; // px in viewBox (toward inside of bend)
+const OUTER_OFFSET = 18; // px in viewBox (toward outside of bend)
+const OSC_AMPLITUDE = INNER_OFFSET * 0.65; // max oscillation from center
+
+/**
+ * Offset a path by `offset` viewBox units perpendicular to its tangent.
+ *
+ * Algorithm:
+ * 1. Tokenise the path (M/L/Z only — our source uses only these).
+ * 2. Collect all coordinate pairs in order.
+ * 3. For each point, compute the tangent direction:
+ *    - For points 0..N-2: tangent = normalize(next_point - current_point)
+ *    - For the last point: tangent = normalize(current_point - prev_point)
+ *    (so the final segment points back toward the second-to-last point)
+ * 4. Normal is perpendicular: (-tangent.y, tangent.x).
+ * 5. New point = current + offset * normal.
+ * 6. Rebuild path with M and L commands. Z is passed through as-is.
+ */
+function offsetPath(sourceD: string, offset: number): string {
+  const tokens = sourceD.match(/[MLZ]|-?\d+\.?\d*/g) ?? [];
+  if (tokens.length === 0) return sourceD;
+
+  // Collect all [x, y] coordinate pairs and their command positions
+  type Pt = { x: number; y: number };
+  const pts: Pt[] = [];
+  const cmdMap: number[] = []; // maps index in pts[] to token index
+
+  for (let i = 0; i < tokens.length; ) {
+    const t = tokens[i]!;
+    if (t === 'M' || t === 'L') {
+      const x = parseFloat(tokens[i + 1]!);
+      const y = parseFloat(tokens[i + 2]!);
+      pts.push({ x, y });
+      cmdMap.push(i);
+      i += 3;
+    } else if (t === 'Z') {
+      // Z has no coordinates — skip
+      i++;
+    } else {
+      // Bare number — skip (shouldn't happen with our path format)
+      i++;
+    }
+  }
+
+  if (pts.length < 2) return sourceD;
+
+  const newPts: Pt[] = new Array(pts.length);
+
+  for (let i = 0; i < pts.length; i++) {
+    let tx: number, ty: number;
+
+    if (i < pts.length - 1) {
+      // Tangent toward the next point (forward difference)
+      const dx = pts[i + 1]!.x - pts[i]!.x;
+      const dy = pts[i + 1]!.y - pts[i]!.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      tx = len > 0 ? dx / len : 0;
+      ty = len > 0 ? dy / len : 0;
+    } else {
+      // Last point: tangent points back toward the previous point
+      const dx = pts[i]!.x - pts[i - 1]!.x;
+      const dy = pts[i]!.y - pts[i - 1]!.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+      tx = len > 0 ? dx / len : 0;
+      ty = len > 0 ? dy / len : 0;
+    }
+
+    // Normal = rotate tangent 90° (counter-clockwise for left-of-tangent)
+    const nx = -ty;
+    const ny = tx;
+
+    newPts[i] = {
+      x: pts[i]!.x + offset * nx,
+      y: pts[i]!.y + offset * ny,
+    };
+  }
+
+  // Rebuild path string: tokens still have the original structure,
+  // we just swap coordinate values.
+  const result = tokens.map((t, i) => {
+    if (t === 'M' || t === 'L') {
+      const x = parseFloat(tokens[i + 1]!);
+      const y = parseFloat(tokens[i + 2]!);
+      // Find this coordinate pair in our pts array to get the new position
+      // Use numeric comparison since floats are exact from toFixed
+      const ptIdx = pts.findIndex(
+        (p) => Math.abs(p.x - x) < 0.01 && Math.abs(p.y - y) < 0.01
+      );
+      if (ptIdx >= 0) {
+        return `${t} ${newPts[ptIdx]!.x.toFixed(2)} ${newPts[ptIdx]!.y.toFixed(2)}`;
+      }
+      return `${t} ${x.toFixed(2)} ${y.toFixed(2)}`;
+    }
+    return t;
+  });
+
+  return result.join(' ');
+}
+
+// ---------------------------------------------------------------------------
 // Auto-animation parameters
 // ---------------------------------------------------------------------------
 
@@ -106,15 +210,12 @@ const USER_OVERRIDE_TIMEOUT_MS = 3_000;
 // ---------------------------------------------------------------------------
 const N_RAYS = 11;
 const RAY_SPREAD_DEG = 180; // forward hemisphere
-const RAY_LENGTH = 110;
+const RAY_MAX_LENGTH = 110; // max cast distance in viewBox units
+const RAY_CAST_STEP = 2; // step size for ray marching (viewBox px)
 
 /** Sample distance for the path tangent (in length units). 0.5 keeps the
  * derivative local enough for tight curves. */
 const TANGENT_DELTA = 0.5;
-
-/** Hit-target halo stroke width. The "wall" is the edge of this stroke.
- * Rays terminate when they first exit the halo. */
-const HALO_STROKE_WIDTH = 26;
 
 /** Length of the small trail behind the dot, in user units. */
 const TAIL_LENGTH = 18;
@@ -156,13 +257,56 @@ interface Ray {
   actualLength: number;
 }
 
+/**
+ * Cast a ray from (ox, oy) in direction (dirX, dirY) until it hits
+ * either `innerPath` or `outerPath`. Returns the hit position relative
+ * to the origin (so x2,y2 are in the car's local frame).
+ *
+ * The ray steps by `step` viewBox units. If no boundary is hit within
+ * `maxLen`, returns the endpoint at maxLen.
+ */
+function castRayToBoundary(
+  ox: number,
+  oy: number,
+  dirX: number,
+  dirY: number,
+  innerPath: SVGPathElement,
+  outerPath: SVGPathElement,
+  maxLen: number,
+  step: number
+): { x2: number; y2: number; actualLength: number } {
+  for (let dist = step; dist <= maxLen; dist += step) {
+    const sx = ox + dirX * dist;
+    const sy = oy + dirY * dist;
+
+    if (
+      isInsideStroke(innerPath, sx, sy) ||
+      isInsideStroke(outerPath, sx, sy)
+    ) {
+      return {
+        x2: dirX * dist,
+        y2: dirY * dist,
+        actualLength: dist,
+      };
+    }
+  }
+
+  // No hit — cap at maxLen
+  return {
+    x2: dirX * maxLen,
+    y2: dirY * maxLen,
+    actualLength: maxLen,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // Component
 // ---------------------------------------------------------------------------
 
 export default function TrainingCircuit({ locale }: Props) {
   const pathRef = useRef<SVGPathElement | null>(null);
-  const haloPathRef = useRef<SVGPathElement | null>(null);
+  const innerPathRef = useRef<SVGPathElement | null>(null);
+  const outerPathRef = useRef<SVGPathElement | null>(null);
   const carGroupRef = useRef<SVGGElement | null>(null);
   const tailRef = useRef<SVGLineElement | null>(null);
 
@@ -171,7 +315,7 @@ export default function TrainingCircuit({ locale }: Props) {
   const [scrub, setScrub] = useState<number>(0);
   const [pathLength, setPathLength] = useState<number>(0);
   const [rays, setRays] = useState<Ray[]>(() =>
-    Array.from({ length: N_RAYS }, () => ({ x2: 0, y2: 0, actualLength: RAY_LENGTH }))
+    Array.from({ length: N_RAYS }, () => ({ x2: 0, y2: 0, actualLength: RAY_MAX_LENGTH }))
   );
 
   // Pulse animation flag for checkpoints — flip every ~1.1 s
@@ -250,26 +394,55 @@ export default function TrainingCircuit({ locale }: Props) {
     });
   }, [pathLength]);
 
+  // Pre-compute transformed path strings (inner/outer boundaries)
+  const { innerD, outerD } = useMemo(() => {
+    const base = transformPath(TRAINING_CIRCUIT.pathD);
+    return {
+      innerD: offsetPath(base, -INNER_OFFSET),
+      outerD: offsetPath(base, OUTER_OFFSET),
+    };
+  }, []);
+
   /**
    * Compute the 11 rays (and update car position + tail) for a given scrub
    * value. Tangent is computed from `getPointAtLength(t - δ)` and
    * `getPointAtLength(t + δ)` so the rays always face forward.
    *
-   * Ray length is approximated without sampling against the halo — we use
-   * the local path-curvature scalar so forward rays look long and
-   * perpendicular rays look short. This is stable, fast, and visible.
+   * The dot position oscillates perpendicular to the path using a sinusoidal
+   * phase derived from scrub (completing one full oscillation per quarter-lap).
+   *
+   * Each ray is cast from the dot position in its direction until it hits
+   * either the inner or outer boundary path (using isPointInStroke). This
+   * gives genuine wall-contact rather than the cosine approximation.
    */
   const updateVisuals = (scrubVal: number): void => {
     const p = pathRef.current;
-    if (!p || pathLength === 0) return;
+    const innerP = innerPathRef.current;
+    const outerP = outerPathRef.current;
+    if (!p || !innerP || !outerP || pathLength === 0) return;
 
     const target = scrubVal * pathLength;
-    const pt = p.getPointAtLength(target);
 
     // Tangent (path direction at the dot)
     const p0 = getPointAtLengthWrapped(p, pathLength, target - TANGENT_DELTA);
     const p1 = getPointAtLengthWrapped(p, pathLength, target + TANGENT_DELTA);
     const tangentAngle = Math.atan2(p1.y - p0.y, p1.x - p0.x);
+
+    // Normal = perpendicular to tangent (left-of-tangent direction)
+    // Used to offset the dot between inner and outer tracks
+    const normalAngle = tangentAngle - Math.PI / 2;
+
+    // Oscillation: sinusoidal sway between inner and outer boundaries
+    // One full oscillation per quarter-lap (×4 per lap)
+    const oscPhase = (scrubVal * Math.PI * 4) % (Math.PI * 2);
+    const dotOffset = Math.sin(oscPhase) * OSC_AMPLITUDE;
+
+    // Base position on path
+    const pt = p.getPointAtLength(target);
+
+    // Final dot position: base + perpendicular offset
+    const dotX = pt.x + Math.cos(normalAngle) * dotOffset;
+    const dotY = pt.y + Math.sin(normalAngle) * dotOffset;
 
     const half = RAY_SPREAD_DEG / 2;
     const newRays: Ray[] = new Array(N_RAYS);
@@ -281,27 +454,29 @@ export default function TrainingCircuit({ locale }: Props) {
       const dirX = Math.cos(rayAngle);
       const dirY = Math.sin(rayAngle);
 
-      // Forward rays (low |spreadDeg|) stay long; perpendicular rays stay short.
-      // This visually approximates "rays cut off by the track walls" without
-      // needing the actual halo hit-test (which was failing in some browsers).
-      const cosForward = Math.cos((spreadDeg * Math.PI) / 180); // 1 forward, 0 lateral
-      const length = RAY_LENGTH * (0.4 + 0.6 * cosForward);
+      // Cast ray from dot position (NOT from the path-center dot)
+      // The dot is already offset from the path center, so rays originate there
+      const hit = castRayToBoundary(
+        dotX,
+        dotY,
+        dirX,
+        dirY,
+        innerP,
+        outerP,
+        RAY_MAX_LENGTH,
+        RAY_CAST_STEP
+      );
 
-      newRays[i] = {
-        x2: dirX * length,
-        y2: dirY * length,
-        actualLength: length,
-      };
+      newRays[i] = hit;
     }
 
     setRays(newRays);
 
-    // Move the car group to the dot's position (write directly to avoid
-    // a React re-render just for the transform).
+    // Move the car group to the oscillation-offset position
     if (carGroupRef.current) {
       carGroupRef.current.setAttribute(
         'transform',
-        `translate(${pt.x.toFixed(2)} ${pt.y.toFixed(2)})`
+        `translate(${dotX.toFixed(2)} ${dotY.toFixed(2)})`
       );
     }
 
@@ -450,63 +625,92 @@ export default function TrainingCircuit({ locale }: Props) {
           ))}
         </g>
 
-        {/* Auto-generated checkpoints along the path */}
-        {checkpoints.map((c, i) => (
-          <g key={`cp-${i}`}>
-            <circle
-              cx={c.x}
-              cy={c.y}
-              r={pulseOn ? 5 : 3.5}
-              fill="var(--accent)"
-              opacity={pulseOn ? 0.95 : 0.55}
-              style={{
-                transition:
-                  'r 0.6s var(--motion-ease-out), opacity 0.6s var(--motion-ease-out)',
-              }}
-            />
-            <circle
-              cx={c.x}
-              cy={c.y}
-              r={pulseOn ? 9 : 7}
-              fill="none"
-              stroke="var(--accent)"
-              strokeWidth={0.8}
-              opacity={pulseOn ? 0.45 : 0.15}
-              style={{
-                transition:
-                  'r 0.6s var(--motion-ease-out), opacity 0.6s var(--motion-ease-out)',
-              }}
-            />
-            {/* No on-track labels — they overlapped the path and the
-                rays. Checkpoint count lives in the HUD strip below. */}
-          </g>
-        ))}
+        {/* Track surface fill — filled band between inner and outer boundaries */}
+        <path
+          d={outerD}
+          fill="var(--ink)"
+          opacity={0.18}
+          stroke="none"
+          aria-hidden="true"
+        />
 
-        {/* Centerline path (the visible track surface) */}
+        {/* Outer boundary path (outside of the track) */}
+        <path
+          d={outerD}
+          fill="none"
+          stroke="var(--asphalt)"
+          strokeWidth={1.2}
+          strokeOpacity={0.55}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        />
+
+        {/* Inner boundary path (inside of the track) */}
+        <path
+          ref={innerPathRef}
+          d={innerD}
+          fill="none"
+          stroke="var(--asphalt)"
+          strokeWidth={1.2}
+          strokeOpacity={0.55}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        />
+
+        {/* Centerline path — faint reference line */}
         <path
           ref={pathRef}
           d={transformPath(TRAINING_CIRCUIT.pathD)}
           fill="none"
           stroke="url(#training-path-grad)"
-          strokeWidth={2}
+          strokeWidth={1}
+          strokeOpacity={0.35}
           strokeLinecap="round"
           strokeLinejoin="round"
+          aria-hidden="true"
         />
 
-        {/* Invisible halo path — same geometry as the centerline but a
-            thick stroke that the sensor rays "cut off" against.
-            `stroke-opacity: 0` keeps it invisible; `pointer-events: none`
-            so it never intercepts clicks. The `id` is set via ref so the
-            animation loop can call `isPointInStroke` on it. */}
+        {/* Auto-generated checkpoints along the path — smaller than before */}
+        {checkpoints.map((c, i) => (
+          <g key={`cp-${i}`}>
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={pulseOn ? 3.5 : 2.5}
+              fill="var(--accent)"
+              opacity={pulseOn ? 0.9 : 0.5}
+              style={{
+                transition:
+                  'r 0.6s var(--motion-ease-out), opacity 0.6s var(--motion-ease-out)',
+              }}
+            />
+            <circle
+              cx={c.x}
+              cy={c.y}
+              r={pulseOn ? 7 : 5}
+              fill="none"
+              stroke="var(--accent)"
+              strokeWidth={0.7}
+              opacity={pulseOn ? 0.4 : 0.15}
+              style={{
+                transition:
+                  'r 0.6s var(--motion-ease-out), opacity 0.6s var(--motion-ease-out)',
+              }}
+            />
+          </g>
+        ))}
+
+        {/* Invisible outer path ref — needed for ray casting against the outer boundary.
+            We keep it in the DOM but invisible, just like the inner path. */}
         <path
-          ref={haloPathRef}
-          d={transformPath(TRAINING_CIRCUIT.pathD)}
+          ref={outerPathRef}
+          d={outerD}
           fill="none"
           stroke="#000"
           strokeOpacity={0}
-          strokeWidth={HALO_STROKE_WIDTH}
-          strokeLinecap="round"
-          strokeLinejoin="round"
+          strokeWidth={1}
           pointerEvents="none"
           aria-hidden="true"
         />
@@ -524,9 +728,9 @@ export default function TrainingCircuit({ locale }: Props) {
             aria-hidden="true"
           />
 
-          {/* 11 sensor rays — pointed forward along the tangent. The
-              lengths vary so perpendicular rays look short (cut by wall)
-              and forward rays look long (open road). */}
+          {/* 11 sensor rays — cast from the dot position to the nearest boundary.
+              Perpendicular rays hit close walls (short); forward rays travel far
+              (long), genuinely reaching the track edge. */}
           <g filter="url(#ray-glow)">
             {rays.map((r, i) => (
               <line
@@ -535,11 +739,11 @@ export default function TrainingCircuit({ locale }: Props) {
                 y1={0}
                 x2={r.x2}
                 y2={r.y2}
-                stroke="var(--accent)"
+                stroke="var(--secondary)"
                 strokeWidth={3.2}
                 strokeDasharray="5 5"
                 strokeLinecap="round"
-                opacity={0.85}
+                opacity={0.9}
                 vectorEffect="non-scaling-stroke"
                 aria-hidden="true"
               />

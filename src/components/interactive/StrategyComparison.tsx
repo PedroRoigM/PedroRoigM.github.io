@@ -222,6 +222,7 @@ export default function StrategyComparison({ locale, data }: Props) {
           unit="%"
           decimals={1}
           className="strat-comp__fade"
+          locale={locale}
         />
         <KpiCard
           copy={copy.kpi2}
@@ -231,6 +232,7 @@ export default function StrategyComparison({ locale, data }: Props) {
           unit="k"
           decimals={0}
           className="strat-comp__fade"
+          locale={locale}
         />
         <KpiCard
           copy={copy.kpi3}
@@ -240,6 +242,7 @@ export default function StrategyComparison({ locale, data }: Props) {
           unit="s"
           decimals={2}
           className="strat-comp__fade"
+          locale={locale}
         />
       </div>
 
