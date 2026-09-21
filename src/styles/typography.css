@@ -1,0 +1,139 @@
+/* ============================================================================
+ * Typography — Type scale application
+ * ============================================================================
+ * Mobile-first. Desktop sizes are applied via media queries.
+ * Numerals use tabular-nums for telemetry-grade alignment.
+ * ========================================================================= */
+
+body {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  color: var(--color-fg);
+  font-feature-settings:
+    'cv11' on, /* Alternate single-storey 'a' */
+    'ss03' on, /* Open digit '4' */
+    'ss04' on; /* Open digit '6' and '9' */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-fg);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+/* Hero title — largest size */
+.h-hero {
+  font-size: var(--text-3xl);
+  font-weight: 600;
+  line-height: var(--leading-tight);
+  letter-spacing: var(--tracking-tight);
+  font-family: var(--font-display);
+}
+
+@media (min-width: 768px) {
+  .h-hero {
+    font-size: var(--text-4xl);
+  }
+}
+
+/* H2 — section titles */
+.h-section {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-snug);
+  font-family: var(--font-display);
+}
+
+@media (min-width: 768px) {
+  .h-section {
+    font-size: var(--text-2xl);
+  }
+}
+
+/* H3 — sub-section */
+.h-sub {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  line-height: var(--leading-snug);
+  letter-spacing: var(--tracking-snug);
+  font-family: var(--font-display);
+}
+
+/* Body */
+.body {
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+@media (min-width: 768px) {
+  .body {
+    font-size: var(--text-md);
+  }
+}
+
+/* Caption / small */
+.caption {
+  font-size: var(--text-xs);
+  font-family: var(--font-body);
+  color: var(--color-fg-muted);
+  line-height: var(--leading-normal);
+}
+
+/* Telemetry label — uppercase, tracked, mono */
+.telemetry-label {
+  font-size: var(--text-xs);
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-widest);
+  color: var(--color-brand);
+  line-height: var(--leading-normal);
+}
+
+/* KPI number — large mono with tabular nums */
+.kpi-number {
+  font-family: var(--font-display);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' on;
+  font-weight: 600;
+  letter-spacing: var(--tracking-snug);
+  color: var(--color-highlight);
+}
+
+/* Body large — emphasized prose */
+.body-lg {
+  font-size: var(--text-md);
+  line-height: var(--leading-relaxed);
+  font-family: var(--font-body);
+  color: var(--color-fg);
+}
+
+@media (min-width: 768px) {
+  .body-lg {
+    font-size: var(--text-lg);
+  }
+}
+
+/* Selection */
+::selection {
+  background: var(--color-highlight);
+  color: var(--ink);
+}

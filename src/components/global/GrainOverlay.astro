@@ -1,0 +1,55 @@
+---
+/**
+ * GrainOverlay — Sutil capa de "carbon-fibre" noise sobre el ink.
+ * Inspirado en la textura de Formula1.com pero al 5% de opacity.
+ * SVG inline para no añadir request externo.
+ */
+const { opacity = 0.05, blendMode = 'overlay' } = Astro.props;
+---
+
+<div
+  class="grain-overlay"
+  aria-hidden="true"
+  style={`--grain-opacity: ${opacity}; --grain-blend: ${blendMode};`}
+>
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <filter id="noise">
+      <feTurbulence
+        type="fractalNoise"
+        baseFrequency="0.9"
+        numOctaves="3"
+        stitchTiles="stitch"
+      />
+      <feColorMatrix
+        type="matrix"
+        values="0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0 0
+                0 0 0 0.6 0"
+      />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#noise)" />
+  </svg>
+</div>
+
+<style>
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    pointer-events: none;
+    opacity: var(--grain-opacity, 0.05);
+    mix-blend-mode: var(--grain-blend, overlay);
+  }
+
+  .grain-overlay svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grain-overlay {
+      display: none;
+    }
+  }
+</style>

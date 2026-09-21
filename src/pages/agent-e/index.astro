@@ -1,0 +1,25 @@
+---
+/**
+ * Agent E — dedicated preview page that ONLY renders Sections 04 and 05.
+ * This page exists so the agent-E build can succeed even if other agents'
+ * sections have syntax errors. Mounted at /agent-e/ so it never replaces the
+ * production index.astro.
+ *
+ * IMPORTANT: This file is only for screenshots during development. The
+ * production /index.astro integration is done by editing that file directly.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import StrategyDataSection from '../../components/sections/StrategyDataSection.astro';
+import FastF1Section from '../../components/sections/FastF1Section.astro';
+---
+
+<BaseLayout
+  title="Agent E — Sections 04 & 05 preview"
+  description="Sections 04 (Datos y Estrategia) and 05 (Validación FastF1) for screenshot verification."
+  locale="es"
+>
+  <main id="main-content">
+    <StrategyDataSection locale="es" />
+    <FastF1Section locale="es" />
+  </main>
+</BaseLayout>

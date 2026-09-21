@@ -1,0 +1,83 @@
+---
+/**
+ * BaseLayout — Wrapper global.
+ * - Carga fuentes auto-hospedadas
+ * - Aplica tokens, reset y typography
+ * - Monta GrainOverlay
+ * - Monta LenisProvider (cliente, client:load)
+ * - Meta tags SEO base
+ */
+import '@fontsource-variable/inter';
+import '@fontsource-variable/geist-mono';
+import '../styles/tokens.css';
+import '../styles/reset.css';
+import '../styles/typography.css';
+import GrainOverlay from '../components/global/GrainOverlay.astro';
+import LenisProvider from '../components/global/LenisProvider';
+import Nav from '../components/global/Nav.astro';
+
+interface Props {
+  title: string;
+  description: string;
+  locale: 'es' | 'en';
+  /** Optional canonical URL override */
+  canonical?: string;
+}
+
+const { title, description, locale, canonical } = Astro.props;
+const canonicalUrl =
+  canonical ??
+  new URL(Astro.url.pathname, Astro.site ?? 'https://pedro-roig-morera.dev').toString();
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:locale" content={locale === 'es' ? 'es_ES' : 'en_US'} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+
+    <!-- Theme color -->
+    <meta name="theme-color" content="#0a0e14" />
+  </head>
+  <body>
+    <GrainOverlay />
+    <Nav locale={locale} />
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <LenisProvider client:load />
+
+    <style is:global>
+      /* Page-level ambient background — gradient subtle on body */
+      body {
+        background:
+          radial-gradient(
+            ellipse 80% 60% at 50% 0%,
+            rgba(2, 48, 71, 0.4) 0%,
+            transparent 50%
+          ),
+          linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
+        background-attachment: fixed;
+      }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,346 @@
+---
+/**
+ * StackSection — Sección 06 del portfolio: Stack & Créditos.
+ *
+ * Layout:
+ *   1. Section header (kicker / h2 / lead)
+ *   2. Tech grid — 11 tools used in the project, each with a hover tooltip
+ *   3. Closing credit line
+ *
+ * Bilingual via `locale` prop.
+ */
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const stack = [
+  {
+    name: 'Python',
+    cat: 'backend',
+    tip: {
+      es: 'Lenguaje principal del simulador. Ecosistema científico maduro.',
+      en: 'Main simulator language. Mature scientific ecosystem.',
+    },
+  },
+  {
+    name: 'PyTorch',
+    cat: 'backend',
+    tip: {
+      es: 'Redes neuronales para el controlador de neuroevolución.',
+      en: 'Neural networks for the neuroevolution controller.',
+    },
+  },
+  {
+    name: 'Gymnasium',
+    cat: 'backend',
+    tip: {
+      es: 'API estándar para entornos de RL.',
+      en: 'Standard RL environment API.',
+    },
+  },
+  {
+    name: 'NumPy / SciPy',
+    cat: 'backend',
+    tip: {
+      es: 'Cálculo numérico vectorizado. Pacejka + inercias.',
+      en: 'Vectorized numerical computation. Pacejka + inertias.',
+    },
+  },
+  {
+    name: 'Shapely',
+    cat: 'backend',
+    tip: {
+      es: 'Geometría para los 11 rayos sensor.',
+      en: 'Geometry for the 11 sensor rays.',
+    },
+  },
+  {
+    name: 'FastF1',
+    cat: 'backend',
+    tip: {
+      es: 'Datos reales de telemetría F1 para validación.',
+      en: 'Real F1 telemetry data for validation.',
+    },
+  },
+  {
+    name: 'Astro',
+    cat: 'frontend',
+    tip: {
+      es: '0 KB JS por defecto. Perfecto para portfolios rápidos.',
+      en: '0 KB JS by default. Perfect for fast portfolios.',
+    },
+  },
+  {
+    name: 'React 19',
+    cat: 'frontend',
+    tip: {
+      es: 'Islas interactivas para los bits que lo necesitan.',
+      en: 'Interactive islands for the bits that need it.',
+    },
+  },
+  {
+    name: 'GSAP',
+    cat: 'frontend',
+    tip: {
+      es: 'Animaciones de calidad cinematográfica.',
+      en: 'Cinematic-quality animations.',
+    },
+  },
+  {
+    name: 'Three.js',
+    cat: 'frontend',
+    tip: {
+      es: 'Modelo 3D del F1 con Draco compression.',
+      en: 'F1 3D model with Draco compression.',
+    },
+  },
+  {
+    name: 'Lenis',
+    cat: 'frontend',
+    tip: {
+      es: 'Smooth scroll premium.',
+      en: 'Premium smooth scroll.',
+    },
+  },
+];
+
+const copy = {
+  es: {
+    kicker: '// 06 — STACK & CRÉDITOS',
+    title: 'Python, TypeScript,\ny mucho más',
+    lead: 'Lo que hay debajo del capó. El simulador está escrito en Python con PyTorch, Gymnasium y FastF1. El portfolio en Astro + React + GSAP. Todo open-source, todo reproducible.',
+    cats: { backend: 'Backend · Python', frontend: 'Frontend · Web' },
+    credit:
+      'Diseñado y construido con Astro · GSAP · Three.js. Sin frameworks innecesarios.',
+  },
+  en: {
+    kicker: '// 06 — STACK & CREDITS',
+    title: 'Python, TypeScript,\nand more',
+    lead: "What's under the hood. The simulator is written in Python with PyTorch, Gymnasium and FastF1. The portfolio in Astro + React + GSAP. All open-source, all reproducible.",
+    cats: { backend: 'Backend · Python', frontend: 'Frontend · Web' },
+    credit:
+      'Designed and built with Astro · GSAP · Three.js. No unnecessary frameworks.',
+  },
+}[locale];
+---
+
+<section class="stack-section" data-section="stack" aria-labelledby="stack-title">
+  <div class="stack-section__inner">
+    <header class="stack-section__header">
+      <span class="stack-section__kicker">{copy.kicker}</span>
+      <h2 id="stack-title" class="stack-section__title">
+        {copy.title.split('\n').map((line) => (
+          <span class="stack-section__title-line">{line}</span>
+        ))}
+      </h2>
+      <p class="stack-section__lead">{copy.lead}</p>
+    </header>
+
+    <div class="stack-section__groups">
+      <div class="stack-section__group">
+        <span class="stack-section__cat">{copy.cats.backend}</span>
+        <ul class="stack-section__grid">
+          {stack
+            .filter((t) => t.cat === 'backend')
+            .map((tech) => (
+              <li class="stack-card" data-tip={tech.tip[locale]}>
+                <span class="stack-card__name">{tech.name}</span>
+                <span class="stack-card__tip">{tech.tip[locale]}</span>
+              </li>
+            ))}
+        </ul>
+      </div>
+
+      <div class="stack-section__group">
+        <span class="stack-section__cat">{copy.cats.frontend}</span>
+        <ul class="stack-section__grid">
+          {stack
+            .filter((t) => t.cat === 'frontend')
+            .map((tech) => (
+              <li class="stack-card" data-tip={tech.tip[locale]}>
+                <span class="stack-card__name">{tech.name}</span>
+                <span class="stack-card__tip">{tech.tip[locale]}</span>
+              </li>
+            ))}
+        </ul>
+      </div>
+    </div>
+
+    <p class="stack-section__credit">{copy.credit}</p>
+  </div>
+</section>
+
+<style>
+  .stack-section {
+    padding: var(--section-padding-y) var(--space-5);
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(2, 48, 71, 0.15) 100%
+    );
+  }
+
+  .stack-section__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .stack-section__header {
+    margin-bottom: var(--space-12);
+    max-width: 64ch;
+  }
+
+  .stack-section__kicker {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin-bottom: var(--space-5);
+  }
+
+  .stack-section__title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-5);
+  }
+
+  .stack-section__title-line {
+    display: block;
+  }
+
+  .stack-section__lead {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+
+  .stack-section__groups {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+    margin-bottom: var(--space-12);
+  }
+
+  .stack-section__group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .stack-section__cat {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    padding-bottom: var(--space-3);
+    border-bottom: var(--border-thin);
+  }
+
+  .stack-section__grid {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .stack-card {
+    position: relative;
+    padding: var(--space-5);
+    background: var(--primary);
+    border: var(--border-thin);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    cursor: default;
+    transition:
+      transform var(--motion-duration-short) var(--motion-ease-out),
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      box-shadow var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .stack-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--color-brand);
+    box-shadow: var(--shadow-md);
+  }
+
+  .stack-card__name {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 600;
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+  }
+
+  .stack-card__tip {
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%) translateY(4px);
+    padding: var(--space-3) var(--space-4);
+    background: var(--ink);
+    border: var(--border-default);
+    border-radius: var(--radius-md);
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    line-height: 1.4;
+    color: var(--color-fg);
+    width: 240px;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    transition:
+      opacity var(--motion-duration-short) var(--motion-ease-out),
+      transform var(--motion-duration-short) var(--motion-ease-out);
+    z-index: var(--z-overlay);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .stack-card:hover .stack-card__tip,
+  .stack-card:focus-within .stack-card__tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .stack-card__tip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--rule-strong);
+  }
+
+  .stack-section__credit {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    text-align: center;
+    padding-top: var(--space-8);
+    border-top: var(--border-thin);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .stack-card,
+    .stack-card__tip {
+      transition: none;
+    }
+  }
+</style>

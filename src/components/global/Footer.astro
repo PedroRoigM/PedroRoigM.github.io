@@ -1,0 +1,269 @@
+---
+/**
+ * Footer — Pie de página global.
+ *
+ * 3 columns on desktop (author, contact, mini-nav), stack on mobile.
+ * Background `--primary` (navy) para separar visualmente del main.
+ */
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const copy = {
+  es: {
+    role: 'Ingeniero de software · F1 fanático',
+    contactTitle: 'Contacto',
+    navTitle: 'Secciones',
+    navItems: [
+      { label: 'Física', href: '#physics' },
+      { label: 'Simulación', href: '#simulation' },
+      { label: 'Neuroevolución', href: '#neuroevolution' },
+      { label: 'Datos', href: '#strategy-data' },
+      { label: 'Validación FastF1', href: '#fastf1' },
+      { label: 'Stack', href: '#stack' },
+    ],
+    email: 'pedro.roig@ermine.es',
+    github: 'github.com/pedroroigmorera',
+    linkedin: 'linkedin.com/in/pedroroigmorera',
+    copyright: '© 2026 Pedro Roig Morera',
+    design:
+      'Diseñado y construido con Astro · GSAP · Three.js. Sin frameworks innecesarios.',
+  },
+  en: {
+    role: 'Software engineer · F1 enthusiast',
+    contactTitle: 'Contact',
+    navTitle: 'Sections',
+    navItems: [
+      { label: 'Physics', href: '#physics' },
+      { label: 'Simulation', href: '#simulation' },
+      { label: 'Neuroevolution', href: '#neuroevolution' },
+      { label: 'Data', href: '#strategy-data' },
+      { label: 'FastF1 validation', href: '#fastf1' },
+      { label: 'Stack', href: '#stack' },
+    ],
+    email: 'pedro.roig@ermine.es',
+    github: 'github.com/pedroroigmorera',
+    linkedin: 'linkedin.com/in/pedroroigmorera',
+    copyright: '© 2026 Pedro Roig Morera',
+    design:
+      'Designed and built with Astro · GSAP · Three.js. No unnecessary frameworks.',
+  },
+}[locale];
+---
+
+<footer class="footer">
+  <div class="footer__inner">
+    <div class="footer__grid">
+      <div class="footer__col footer__col--author">
+        <span class="footer__brand">PR</span>
+        <h3 class="footer__name">Pedro Roig Morera</h3>
+        <p class="footer__role">{copy.role}</p>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__heading">{copy.contactTitle}</h4>
+        <ul class="footer__list">
+          <li>
+            <a href={`mailto:${copy.email}`} class="footer__chip" aria-label="Email">
+              <span class="footer__chip-icon" aria-hidden="true">@</span>
+              <span class="footer__chip-label">{copy.email}</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href={`https://${copy.github}`}
+              class="footer__chip"
+              target="_blank"
+              rel="noopener"
+              aria-label="GitHub"
+            >
+              <span class="footer__chip-icon" aria-hidden="true">{`</>`}</span>
+              <span class="footer__chip-label">{copy.github}</span>
+            </a>
+          </li>
+          <li>
+            <a
+              href={`https://${copy.linkedin}`}
+              class="footer__chip"
+              target="_blank"
+              rel="noopener"
+              aria-label="LinkedIn"
+            >
+              <span class="footer__chip-icon" aria-hidden="true">in</span>
+              <span class="footer__chip-label">{copy.linkedin}</span>
+            </a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="footer__col">
+        <h4 class="footer__heading">{copy.navTitle}</h4>
+        <ul class="footer__list">
+          {copy.navItems.map((item) => (
+            <li>
+              <a href={item.href} class="footer__link">{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span class="footer__copy">{copy.copyright}</span>
+      <span class="footer__design">{copy.design}</span>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--primary);
+    border-top: var(--border-thin);
+    padding: var(--space-16) var(--space-5) var(--space-8);
+    margin-top: var(--space-16);
+    color: var(--color-fg);
+  }
+
+  .footer__inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+  }
+
+  .footer__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+    padding-bottom: var(--space-10);
+    border-bottom: var(--border-thin);
+  }
+
+  @media (min-width: 768px) {
+    .footer__grid {
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: var(--space-12);
+    }
+  }
+
+  .footer__col--author {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer__brand {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: var(--color-brand);
+    color: var(--ink);
+    border-radius: var(--radius-sm);
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 700;
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: var(--space-2);
+  }
+
+  .footer__name {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+  }
+
+  .footer__role {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+  }
+
+  .footer__heading {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin-bottom: var(--space-4);
+    font-weight: 600;
+  }
+
+  .footer__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .footer__link {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg-muted);
+    transition: color var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .footer__link:hover {
+    color: var(--color-brand);
+  }
+
+  .footer__chip {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-2) var(--space-3);
+    background: var(--ink);
+    border: var(--border-thin);
+    border-radius: var(--radius-md);
+    transition:
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      transform var(--motion-duration-short) var(--motion-ease-out);
+    max-width: 100%;
+  }
+
+  .footer__chip:hover {
+    border-color: var(--color-brand);
+    transform: translateY(-1px);
+  }
+
+  .footer__chip-icon {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-brand);
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .footer__chip-label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    color: var(--color-fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .footer__bottom {
+    padding-top: var(--space-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    align-items: center;
+    text-align: center;
+  }
+
+  .footer__copy,
+  .footer__design {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+  }
+</style>

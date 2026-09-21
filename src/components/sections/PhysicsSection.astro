@@ -1,0 +1,344 @@
+---
+/**
+ * PhysicsSection — Sección 01 del portfolio: Física del vehículo.
+ *
+ * Layout (per PLAN.md §3.2):
+ *   - Split 50/50 (intro · visualizador interactivo).
+ *   - Below: grid 2×2 con mini-cards de plots reales del TFG.
+ *
+ * El visualizador interactivo se monta como React island (client:visible) —
+ * sólo se hidrata al entrar en viewport, evitando JS inicial innecesario.
+ *
+ * Bilingüe vía prop `locale`. El reveal on scroll se gestiona aquí con un
+ * IntersectionObserver ligero que añade `.is-visible` a los hijos.
+ */
+import RideHeightSlider from '../interactive/RideHeightSlider';
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const content = {
+  es: {
+    kicker: '// 01 — FÍSICA DEL VEHÍCULO',
+    title: 'Pacejka, aerodinámica,\nmasa efectiva',
+    intro:
+      'El simulador usa parámetros reales de un F1 2024 — fórmula mágica de Pacejka \'94 para neumáticos, modelos aerodinámicos por zonas y masa efectiva con inercias rotacionales. Tres configuraciones (Monaco, Barcelona, Monza) y cinco compuestos (C1–C5).',
+    cardLabels: {
+      pacejka: 'Pacejka \'94',
+      downforce: 'Downforce',
+      drag: 'Drag',
+      tyreGrip: 'Tyre grip',
+    },
+  },
+  en: {
+    kicker: '// 01 — VEHICLE PHYSICS',
+    title: 'Pacejka, aerodynamics,\neffective mass',
+    intro:
+      'The simulator uses real 2024 F1 parameters — Pacejka \'94 magic formula for tyres, zone-based aerodynamic models and effective mass with rotational inertias. Three setups (Monaco, Barcelona, Monza) and five compounds (C1–C5).',
+    cardLabels: {
+      pacejka: 'Pacejka \'94',
+      downforce: 'Downforce',
+      drag: 'Drag',
+      tyreGrip: 'Tyre grip',
+    },
+  },
+}[locale];
+
+const titleLines = content.title.split('\n');
+
+const cards = [
+  { src: '/img/physics/pacejka.webp',   label: content.cardLabels.pacejka,   alt: locale === 'es' ? 'Curva Pacejka' : 'Pacejka curve' },
+  { src: '/img/physics/downforce.webp', label: content.cardLabels.downforce, alt: locale === 'es' ? 'Carga aerodinámica vs velocidad' : 'Downforce vs velocity' },
+  { src: '/img/physics/drag.webp',      label: content.cardLabels.drag,      alt: locale === 'es' ? 'Drag vs velocidad' : 'Drag vs velocity' },
+  { src: '/img/physics/tyre-grip.webp', label: content.cardLabels.tyreGrip,  alt: locale === 'es' ? 'Curva de agarre del neumático' : 'Tyre grip curve' },
+];
+---
+
+<section
+  id="physics"
+  class="physics-section"
+  data-section="physics"
+  aria-labelledby="physics-title"
+>
+  <div class="physics-section__container">
+    <!-- Top: split 50/50 — intro · visualizer -->
+    <div class="physics-section__top">
+      <div class="physics-section__intro">
+        <span class="physics-section__kicker reveal" style="--reveal-delay: 0ms">
+          {content.kicker}
+        </span>
+        <h2 id="physics-title" class="physics-section__title reveal" style="--reveal-delay: 60ms">
+          {titleLines.map((line) => (
+            <span class="physics-section__title-line">{line}</span>
+          ))}
+        </h2>
+        <p class="physics-section__body reveal" style="--reveal-delay: 140ms">
+          {content.intro}
+        </p>
+      </div>
+
+      <div class="physics-section__visual reveal" style="--reveal-delay: 220ms">
+        <RideHeightSlider client:visible locale={locale} />
+      </div>
+    </div>
+
+    <!-- Bottom: 2×2 mini-cards with real physics plots -->
+    <div class="physics-section__cards" role="list">
+      {cards.map((card, i) => (
+        <figure class="physics-card reveal" role="listitem" style={`--reveal-delay: ${320 + i * 60}ms`}>
+          <div class="physics-card__media">
+            <img
+              src={card.src}
+              alt={card.alt}
+              loading="lazy"
+              decoding="async"
+              width="800"
+              height="600"
+            />
+          </div>
+          <figcaption class="physics-card__label">{card.label}</figcaption>
+        </figure>
+      ))}
+    </div>
+  </div>
+</section>
+
+<script>
+  /**
+   * Reveal-on-scroll: when the section enters the viewport, every child with
+   * the .reveal class gets .is-visible. Stagger is done via inline
+   * --reveal-delay custom property (50ms steps from the Astro template).
+   */
+  const init = () => {
+    const sections = document.querySelectorAll<HTMLElement>('[data-section="physics"]');
+    for (const section of sections) {
+      if (section.dataset.revealBound === '1') continue;
+      section.dataset.revealBound = '1';
+
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reducedMotion) {
+        section.querySelectorAll('.reveal').forEach((el) => el.classList.add('is-visible'));
+        return;
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const target = entry.target as HTMLElement;
+            target.classList.add('is-visible');
+            const reveals = target.querySelectorAll<HTMLElement>('.reveal');
+            reveals.forEach((el, idx) => {
+              // Each reveal honors its inline --reveal-delay plus a small
+              // additional stagger so the first child of each row still
+              // feels organic if delays happen to collide.
+              const delayVar = parseFloat(el.style.getPropertyValue('--reveal-delay')) || idx * 60;
+              window.setTimeout(() => el.classList.add('is-visible'), delayVar);
+            });
+            observer.unobserve(target);
+          }
+        },
+        { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+      );
+      observer.observe(section);
+    }
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  /* ============================================================================
+   * PhysicsSection — split 50/50 + 2×2 mini-cards
+   * ========================================================================= */
+  .physics-section {
+    position: relative;
+    padding: var(--section-padding-y) var(--space-5);
+    background: linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
+    scroll-margin-top: 80px;
+  }
+
+  @media (min-width: 768px) {
+    .physics-section {
+      padding: var(--section-padding-y) var(--space-8);
+    }
+  }
+
+  .physics-section__container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /* Top split --------------------------------------------------------------- */
+  .physics-section__top {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+
+  @media (min-width: 1024px) {
+    .physics-section__top {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: var(--space-10);
+      align-items: center;
+    }
+  }
+
+  /* Intro column ------------------------------------------------------------ */
+  .physics-section__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 56ch;
+  }
+
+  .physics-section__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    line-height: var(--leading-normal);
+  }
+
+  .physics-section__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .physics-section__title-line {
+    display: block;
+  }
+
+  .physics-section__body {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    max-width: 52ch;
+  }
+
+  @media (min-width: 768px) {
+    .physics-section__body {
+      font-size: var(--text-md);
+    }
+  }
+
+  /* Visual column ------------------------------------------------------------ */
+  .physics-section__visual {
+    width: 100%;
+    min-width: 0; /* allow grid child to shrink */
+  }
+
+  /* Cards -------------------------------------------------------------------- */
+  .physics-section__cards {
+    display: grid;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 540px) {
+    .physics-section__cards {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .physics-section__cards {
+      gap: var(--space-6);
+    }
+  }
+
+  .physics-card {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition:
+      transform var(--motion-duration-short) var(--motion-ease-out),
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      box-shadow var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .physics-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--rule-strong);
+    box-shadow: var(--shadow-md);
+  }
+
+  .physics-card__media {
+    aspect-ratio: 16 / 9;
+    background:
+      radial-gradient(ellipse at center, rgba(2, 48, 71, 0.5) 0%, transparent 70%),
+      var(--ink);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .physics-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    padding: var(--space-2);
+  }
+
+  .physics-card__label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    padding: var(--space-3) var(--space-4) var(--space-4);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* ============================================================================
+   * Reveal animation — opacity 0→1, translateY(20px)→0
+   * ========================================================================= */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--motion-duration-long) var(--motion-ease-out),
+      transform var(--motion-duration-long) var(--motion-ease-out);
+    will-change: opacity, transform;
+  }
+
+  .is-visible.reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .physics-card {
+      transition: none;
+    }
+  }
+</style>

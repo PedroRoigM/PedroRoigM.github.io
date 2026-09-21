@@ -1,0 +1,428 @@
+---
+/**
+ * NeuroevolutionSection — Sección 03 (STAR) del portfolio.
+ *
+ * Cuenta la historia del entrenamiento evolutivo: 124s → 66s en 98
+ * generaciones. Estructura:
+ *
+ *   1. Headline cinematográfico: 124.0 → 66.0 con flecha SVG animada
+ *   2. Curva de aprendizaje: SVG scrubbable (isla React)
+ *   3. Tres razones por las que se eligió neuroevolución sobre PPO
+ *   4. Diagrama de arquitectura del controlador (isla React)
+ *
+ * Las dos islas React son independientes — no necesitan compartir estado.
+ * Por eso no usamos un wrapper como SimulationInteractive.
+ */
+import GenerationTimeline from '../interactive/GenerationTimeline';
+import NNDiagram from '../interactive/NNDiagram';
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const content = {
+  es: {
+    kicker: '// 03 — CONDUCCIÓN AUTÓNOMA',
+    titleLines: ['Neuroevolución:', '124s → 66s'],
+    subtitle: '98 generaciones de neuroevolución · −46.8% por vuelta',
+    timelineTitle: 'Curva de aprendizaje',
+    timelineHint: 'Arrastra para explorar la curva',
+    reasonsTitle: 'Por qué neuroevolución y no PPO',
+    nnTitle: 'Arquitectura del controlador',
+    reasons: [
+      {
+        num: '01',
+        title: 'Arquitectura compacta',
+        body: '~5.000 parámetros donde PPO no aporta. Sin gradientes, sin replay buffer. Cada red es una solución completa y evaluable de forma independiente.',
+      },
+      {
+        num: '02',
+        title: 'Robusto a óptimos locales',
+        body: 'El agente debe aprender a NO chocar, no a maximizar reward. La presión evolutiva evita la trampa de quedarse quieto para sobrevivir.',
+      },
+      {
+        num: '03',
+        title: 'Paralelización masiva',
+        body: '100 individuos evaluados en paralelo por generación. Inferencia rápida (forward pass de 25K params). CPU utilization 100%.',
+      },
+    ],
+  },
+  en: {
+    kicker: '// 03 — AUTONOMOUS DRIVING',
+    titleLines: ['Neuroevolution:', '124s → 66s'],
+    subtitle: '98 generations of neuroevolution · −46.8% per lap',
+    timelineTitle: 'Learning curve',
+    timelineHint: 'Drag to explore the curve',
+    reasonsTitle: 'Why neuroevolution over PPO',
+    nnTitle: 'Controller architecture',
+    reasons: [
+      {
+        num: '01',
+        title: 'Compact architecture',
+        body: '~5,000 parameters where PPO adds no value. No gradients, no replay buffer. Each network is a complete, independently evaluable solution.',
+      },
+      {
+        num: '02',
+        title: 'Robust to local optima',
+        body: 'The agent must learn NOT to crash, not to maximize reward. Evolutionary pressure avoids the trap of staying still to survive.',
+      },
+      {
+        num: '03',
+        title: 'Massive parallelization',
+        body: '100 individuals evaluated in parallel per generation. Fast inference (25K-param forward pass). 100% CPU utilization.',
+      },
+    ],
+  },
+}[locale];
+
+const reasons = content.reasons;
+---
+
+<section class="neuro-section" data-section="neuroevolution" aria-labelledby="neuro-title">
+  <div class="neuro-section__inner">
+    <!-- ============================================================== -->
+    <!-- Part 1 — Headline                                                -->
+    <!-- ============================================================== -->
+    <header class="neuro-section__header">
+      <span class="neuro-section__kicker">{content.kicker}</span>
+      <h2 id="neuro-title" class="neuro-section__title">
+        {content.titleLines.map((line) => (
+          <span class="neuro-section__title-line">{line}</span>
+        ))}
+      </h2>
+    </header>
+
+    <div class="neuro-headline" aria-hidden="true">
+      <div class="neuro-headline__num neuro-headline__num--start">
+        <span class="neuro-headline__value">124.0</span>
+        <span class="neuro-headline__unit">s</span>
+      </div>
+
+      <svg
+        class="neuro-headline__arrow"
+        viewBox="0 0 220 32"
+        preserveAspectRatio="none"
+        role="presentation"
+      >
+        <line
+          x1="4"
+          y1="16"
+          x2="200"
+          y2="16"
+          stroke="var(--accent)"
+          stroke-width="1.5"
+          stroke-dasharray="6 4"
+          vector-effect="non-scaling-stroke"
+        />
+        <polygon
+          points="200,8 216,16 200,24"
+          fill="var(--accent)"
+        />
+      </svg>
+
+      <div class="neuro-headline__num neuro-headline__num--end">
+        <span class="neuro-headline__value">66.0</span>
+        <span class="neuro-headline__unit">s</span>
+      </div>
+    </div>
+
+    <p class="neuro-section__subtitle">{content.subtitle}</p>
+
+    <!-- ============================================================== -->
+    <!-- Part 2 — Timeline                                                -->
+    <!-- ============================================================== -->
+    <div class="neuro-block">
+      <div class="neuro-block__header">
+        <h3 class="neuro-block__title">{content.timelineTitle}</h3>
+        <span class="neuro-block__hint">{content.timelineHint}</span>
+      </div>
+      <div class="neuro-block__chart">
+        <GenerationTimeline client:visible locale={locale} />
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- Part 3 — Reasons                                                 -->
+    <!-- ============================================================== -->
+    <div class="neuro-block">
+      <h3 class="neuro-block__title">{content.reasonsTitle}</h3>
+      <div class="neuro-reasons" role="list">
+        {reasons.map((r) => (
+          <article class="neuro-reason" role="listitem">
+            <span class="neuro-reason__num">{r.num}</span>
+            <h4 class="neuro-reason__title">{r.title}</h4>
+            <p class="neuro-reason__body">{r.body}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- Part 4 — NN Diagram                                              -->
+    <!-- ============================================================== -->
+    <div class="neuro-block">
+      <h3 class="neuro-block__title">{content.nnTitle}</h3>
+      <div class="neuro-block__nn">
+        <NNDiagram client:visible locale={locale} />
+      </div>
+    </div>
+  </div>
+</section>
+
+<style is:global>
+  /* ==========================================================================
+     NeuroevolutionSection — global styles so the React islands (GenerationTimeline
+     + NNDiagram) can be styled from the section's CSS.
+     All values come from tokens.css — no hardcoded hex, ms, or easings.
+     ========================================================================== */
+
+  .neuro-section {
+    position: relative;
+    padding: var(--section-padding-y) var(--space-5);
+    border-top: var(--border-thin);
+  }
+
+  .neuro-section__inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /* ---- Header ----------------------------------------------------------- */
+  .neuro-section__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 880px;
+  }
+
+  .neuro-section__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+  }
+
+  .neuro-section__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-tight);
+    color: var(--color-fg);
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .neuro-section__title-line {
+    display: block;
+  }
+
+  /* ---- Headline (124 → 66) --------------------------------------------- */
+  .neuro-headline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-4);
+    background: linear-gradient(180deg, var(--primary) 0%, var(--ink-2) 100%);
+    border: var(--border-default);
+    border-radius: var(--radius-lg);
+  }
+
+  .neuro-headline__num {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .neuro-headline__num--start .neuro-headline__value {
+    color: var(--text-dim);
+    opacity: 0.55;
+  }
+
+  .neuro-headline__num--end .neuro-headline__value {
+    color: var(--accent);
+    text-shadow: 0 0 16px rgba(255, 183, 3, 0.45);
+  }
+
+  .neuro-headline__value {
+    font-weight: 600;
+    font-size: clamp(3.5rem, 9vw, 6rem);
+    letter-spacing: var(--tracking-snug);
+  }
+
+  .neuro-headline__unit {
+    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+
+  .neuro-headline__arrow {
+    flex: 1 1 auto;
+    height: 32px;
+    min-width: 120px;
+    max-width: 320px;
+    overflow: visible;
+    animation: neuro-headline-arrow-dash 1.4s linear infinite;
+  }
+
+  @keyframes neuro-headline-arrow-dash {
+    to {
+      stroke-dashoffset: -20;
+    }
+  }
+
+  .neuro-section__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    text-align: center;
+    margin: 0;
+  }
+
+  /* ---- Block (Timeline / Reasons / NN diagram) ------------------------- */
+  .neuro-block {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+  }
+
+  .neuro-block__header {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+    padding-bottom: var(--space-3);
+    border-bottom: var(--border-thin);
+  }
+
+  .neuro-block__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-lg);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .neuro-block__hint {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+  }
+
+  .neuro-block__chart {
+    width: 100%;
+    background: var(--ink);
+    border: var(--border-thin);
+    border-radius: var(--radius-md);
+    padding: var(--space-4);
+  }
+
+  .neuro-block__nn {
+    width: 100%;
+    background: var(--ink);
+    border: var(--border-thin);
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-4);
+  }
+
+  /* ---- Reason cards ---------------------------------------------------- */
+  .neuro-reasons {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 768px) {
+    .neuro-reasons {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  .neuro-reason {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    background: var(--primary);
+    border: var(--border-default);
+    border-radius: var(--radius-md);
+    transition:
+      transform var(--motion-duration-short) var(--motion-ease-out),
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      box-shadow var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .neuro-reason:hover,
+  .neuro-reason:focus-within {
+    transform: translateY(-4px);
+    border-color: var(--secondary);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.35);
+  }
+
+  .neuro-reason__num {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    color: var(--accent);
+    letter-spacing: var(--tracking-tight);
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .neuro-reason__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: var(--text-md);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-snug);
+    margin: 0;
+  }
+
+  .neuro-reason__body {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+
+  /* ---- Responsive ----------------------------------------------------- */
+  @media (max-width: 640px) {
+    .neuro-section {
+      padding: var(--space-10) var(--space-4);
+    }
+
+    .neuro-headline {
+      gap: var(--space-3);
+      padding: var(--space-4) var(--space-3);
+    }
+
+    .neuro-headline__arrow {
+      min-width: 60px;
+      max-width: 120px;
+    }
+
+    .neuro-block__header {
+      flex-direction: column;
+      gap: var(--space-2);
+      align-items: flex-start;
+    }
+  }
+</style>

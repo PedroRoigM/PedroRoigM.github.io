@@ -1,0 +1,189 @@
+---
+/**
+ * Hero — Apertura del portfolio.
+ * Headline en Geist Mono, subhead en Inter, counter animado "11.200",
+ * modelo 3D F1 lazy-loaded a la derecha.
+ */
+import Counter from './Counter';
+import F1Model from './F1Model';
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+const content = {
+  es: {
+    kicker: '// 00 — TRABAJO DE FIN DE GRADO',
+    title: 'Sistema Multi-Agente\npara Gestión Estratégica\nen F1',
+    subtitle:
+      'Física + neuroevolución + datos reales. Once mil doscientas líneas de código, validadas contra FastF1.',
+    codeLabel: 'líneas de código',
+    counterValue: 11200,
+  },
+  en: {
+    kicker: '// 00 — FINAL DEGREE PROJECT',
+    title: 'Multi-Agent System\nfor Strategic Management\nin F1',
+    subtitle:
+      'Physics + neuroevolution + real-world data. Eleven thousand two hundred lines of code, validated against FastF1.',
+    codeLabel: 'lines of code',
+    counterValue: 11200,
+  },
+}[locale];
+
+// Split the title into lines but allow wrapping based on natural breakpoints
+const titleLines = content.title.split('\n');
+---
+
+<section class="hero" aria-labelledby="hero-title">
+  <div class="hero__content">
+    <span class="hero__kicker">{content.kicker}</span>
+    <h1 id="hero-title" class="hero__title">
+      {titleLines.map((line) => (
+        <span class="hero__line">{line}</span>
+      ))}
+    </h1>
+    <p class="hero__subtitle">{content.subtitle}</p>
+
+    <div class="hero__stat">
+      <span class="hero__stat-number">
+        <Counter
+          client:visible
+          target={content.counterValue}
+          duration={1.8}
+          locale={locale === 'es' ? 'es-ES' : 'en-US'}
+        />
+      </span>
+      <span class="hero__stat-label">{content.codeLabel}</span>
+    </div>
+  </div>
+
+  <div class="hero__visual">
+    <F1Model client:visible />
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: min(92vh, 800px);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+    padding: var(--space-10) var(--space-5) var(--space-12);
+    max-width: var(--max-width);
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  @media (min-width: 1024px) {
+    .hero {
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: var(--space-10);
+      padding: var(--space-12) var(--space-8);
+    }
+  }
+
+  .hero__content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    z-index: 2;
+    position: relative;
+  }
+
+  .hero__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    line-height: var(--leading-normal);
+  }
+
+  .hero__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.0;
+    letter-spacing: -0.035em;
+    color: var(--color-fg);
+    margin: 0;
+    /* Fluid clamp: 36px mobile → 64px desktop, scales with viewport */
+    font-size: clamp(2.25rem, 5.5vw, 4rem);
+  }
+
+  .hero__line {
+    display: block;
+  }
+
+  /* On wide screens, compact a bit to keep visual weight balanced with the car */
+  @media (min-width: 1024px) {
+    .hero__title {
+      font-size: clamp(2.5rem, 3.5vw, 3.5rem);
+    }
+  }
+
+  .hero__subtitle {
+    font-family: var(--font-body);
+    font-size: var(--text-base);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    max-width: 56ch;
+  }
+
+  @media (min-width: 768px) {
+    .hero__subtitle {
+      font-size: var(--text-md);
+    }
+  }
+
+  .hero__stat {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    padding: var(--space-4) 0;
+    border-top: var(--border-thin);
+    border-bottom: var(--border-thin);
+    margin-top: var(--space-3);
+  }
+
+  .hero__stat-number {
+    font-family: var(--font-display);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: 'tnum' on;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    font-weight: 600;
+    color: var(--color-highlight);
+    letter-spacing: var(--tracking-tight);
+    line-height: 1;
+  }
+
+  .hero__stat-label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+  }
+
+  .hero__visual {
+    position: relative;
+    aspect-ratio: 1.1;
+    min-height: 320px;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(33, 158, 188, 0.08) 0%,
+      transparent 70%
+    );
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+
+  @media (max-width: 1023px) {
+    .hero__visual {
+      min-height: 320px;
+      order: -1;
+    }
+  }
+</style>

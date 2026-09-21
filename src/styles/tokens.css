@@ -1,0 +1,169 @@
+/* ============================================================================
+ * Design Tokens — Sistema de diseño
+ * ============================================================================
+ * Inspirado en el lenguaje F1 + sistema de motion de Porsche Design System.
+ * Todos los valores del portfolio consumen estas variables. Ningún hex, ms o
+ * easing hardcoded en componentes.
+ * ========================================================================= */
+
+:root {
+  /* --------------------------------------------------------------------------
+   * Color Palette — extends the TFG palette (#023047 / #219ebc / #ffb703 /
+   * #8ecae6) with a deeper black for true F1 darkness + functional greys.
+   * ------------------------------------------------------------------------ */
+  --ink: #0a0e14; /* Background principal — más profundo que --primary */
+  --ink-2: #0d141d; /* Ligeramente más claro para gradient de fondo */
+  --primary: #023047; /* Navy TFG — backgrounds secundarios, panels */
+  --primary-2: #03263a; /* Variante un poco más clara */
+  --secondary: #219ebc; /* Cerulean TFG — interactividad, hover, lines */
+  --accent: #ffb703; /* Amber TFG — KPIs, momentos narrativos clave */
+  --accent-2: #ffd166; /* Variante más clara para glow */
+  --light: #8ecae6; /* Tints, highlights suaves */
+  --text: #f5f7fa; /* Texto principal sobre dark */
+  --text-dim: #94a3b8; /* Texto secundario, captions, leyendas */
+  --rule: #1a2332; /* Borders sutiles, separadores */
+  --rule-strong: #2a3447; /* Borders para emphasis */
+
+  /* --------------------------------------------------------------------------
+   * Color Aliases — semantic naming so components don't hardcode colors
+   * ------------------------------------------------------------------------ */
+  --color-bg: var(--ink);
+  --color-bg-elevated: var(--primary);
+  --color-fg: var(--text);
+  --color-fg-muted: var(--text-dim);
+  --color-border: var(--rule);
+  --color-brand: var(--secondary);
+  --color-highlight: var(--accent);
+  --color-accent-soft: var(--light);
+
+  /* --------------------------------------------------------------------------
+   * Motion Durations — Porsche Design System-inspired
+   * https://designsystem.porsche.com/v3/styles/motion/
+   * ------------------------------------------------------------------------ */
+  --motion-duration-short: 0.25s; /* Hover effects, button states, focus */
+  --motion-duration-moderate: 0.4s; /* Modals, carousels, link tiles */
+  --motion-duration-long: 0.6s; /* Notifications, flyouts, panel reveals */
+  --motion-duration-very-long: 1.2s; /* Spinners, skeleton loaders, hero */
+  --motion-duration-hero: 1.5s; /* Counter animations, hero reveals */
+
+  /* --------------------------------------------------------------------------
+   * Easing Curves — custom cubic-beziers with personality
+   * Never use `linear` for UI motion. Only for spinners.
+   * ------------------------------------------------------------------------ */
+  --motion-ease-out: cubic-bezier(0.16, 1, 0.3, 1); /* Decelerated arrival — "land" */
+  --motion-ease-in: cubic-bezier(0.7, 0, 0.84, 0); /* Accelerated exit */
+  --motion-ease-in-out: cubic-bezier(0.65, 0, 0.35, 1); /* Smooth both ends */
+  --motion-ease-base: cubic-bezier(0.25, 0.1, 0.25, 1); /* Default UI fallback */
+  --motion-ease-scrub: cubic-bezier(0.65, 0, 0.35, 1); /* Scroll-scrubbed */
+
+  /* --------------------------------------------------------------------------
+   * Stagger — between sibling elements entering viewport
+   * ------------------------------------------------------------------------ */
+  --motion-stagger: 60ms;
+  --motion-stagger-tight: 30ms;
+  --motion-stagger-loose: 100ms;
+
+  /* --------------------------------------------------------------------------
+   * Typography — Inter (body) + Geist Mono (display / telemetry)
+   * https://rsms.me/inter/  https://github.com/vercel/geist-font
+   * ------------------------------------------------------------------------ */
+  --font-display:
+    'Geist Mono Variable', ui-monospace, 'SF Mono', 'Cascadia Mono', 'Roboto Mono',
+    Menlo, Consolas, monospace;
+  --font-body:
+    'Inter Variable', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui,
+    Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  --font-mono:
+    'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+
+  /* Type scale — mobile-first */
+  --text-xs: 0.75rem; /* 12px — captions, labels */
+  --text-sm: 0.875rem; /* 14px — secondary */
+  --text-base: 1rem; /* 16px — body */
+  --text-md: 1.125rem; /* 18px — large body */
+  --text-lg: 1.5rem; /* 24px — h3 */
+  --text-xl: 2rem; /* 32px — h2 mobile */
+  --text-2xl: 2.5rem; /* 40px — h2 desktop */
+  --text-3xl: 3.5rem; /* 56px — hero mobile */
+  --text-4xl: 5rem; /* 80px — hero desktop */
+  --text-5xl: 6rem; /* 96px — hero large */
+
+  /* Line heights */
+  --leading-tight: 1.05; /* Hero titles */
+  --leading-snug: 1.25; /* h2, h3 */
+  --leading-normal: 1.5; /* Subheads */
+  --leading-relaxed: 1.6; /* Body */
+
+  /* Letter spacing */
+  --tracking-tight: -0.04em; /* Hero, large display */
+  --tracking-snug: -0.02em; /* h2, h3 */
+  --tracking-normal: 0; /* Body */
+  --tracking-wide: 0.05em; /* Labels */
+  --tracking-widest: 0.1em; /* Uppercase telemetry captions */
+
+  /* --------------------------------------------------------------------------
+   * Spacing — 8px grid
+   * ------------------------------------------------------------------------ */
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.5rem; /* 24 */
+  --space-6: 2rem; /* 32 */
+  --space-7: 2.5rem; /* 40 */
+  --space-8: 3rem; /* 48 */
+  --space-10: 4rem; /* 64 */
+  --space-12: 5rem; /* 80 */
+  --space-16: 7rem; /* 112 */
+  --space-20: 9rem; /* 144 */
+
+  /* Section padding (vertical) */
+  --section-padding-y: var(--space-12); /* mobile */
+  --section-padding-y-lg: var(--space-20); /* desktop */
+
+  /* --------------------------------------------------------------------------
+   * Layout
+   * ------------------------------------------------------------------------ */
+  --max-width: 1280px;
+  --max-width-prose: 68ch;
+  --grid-gutter: 24px;
+
+  /* --------------------------------------------------------------------------
+   * Borders & Shadows
+   * ------------------------------------------------------------------------ */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+
+  --border-thin: 1px solid var(--rule);
+  --border-default: 1px solid var(--rule-strong);
+
+  --shadow-sm: 0 2px 8px rgb(0 0 0 / 0.2);
+  --shadow-md: 0 8px 24px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 16px 48px rgb(0 0 0 / 0.4);
+  --shadow-glow: 0 0 32px rgb(33 158 188 / 0.3);
+
+  /* --------------------------------------------------------------------------
+   * Z-index scale
+   * ------------------------------------------------------------------------ */
+  --z-base: 1;
+  --z-overlay: 10;
+  --z-nav: 100;
+  --z-modal: 1000;
+  --z-cursor: 9999;
+
+  /* --------------------------------------------------------------------------
+   * Container query breakpoints (for component-level responsiveness)
+   * ------------------------------------------------------------------------ */
+  --bp-sm: 640px;
+  --bp-md: 768px;
+  --bp-lg: 1024px;
+  --bp-xl: 1280px;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --section-padding-y: var(--section-padding-y-lg);
+  }
+}

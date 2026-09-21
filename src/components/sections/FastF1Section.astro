@@ -1,0 +1,291 @@
+---
+/**
+ * FastF1Section — Sección 05 del portfolio: Validación con datos reales.
+ *
+ * Layout:
+ *   1. Section header (kicker / h2 / lead).
+ *   2. Three-column comparison card (Bahrain / Barcelona / Monza). Each column
+ *      shows a mini bar chart of model-vs-real pit stops + a quote + a ✓ badge.
+ *   3. Footer note referencing section 4.9 of the TFG.
+ *
+ * Bilingual via the `locale` prop. The interactive comparison is a React island
+ * (client:visible) so it hydrates only when scrolled into view.
+ */
+import FastF1Comparison from '../interactive/FastF1Comparison';
+import validationRaw from '../../data/fastf1_validation.json';
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+// Narrow the JSON once. The sampling script guarantees the shape; TypeScript
+// is happy after the explicit cast.
+type ValidationCircuit = {
+  id: 'barcelona' | 'bahrain' | 'monza';
+  name: string;
+  country: string;
+  length_km: number;
+  turns: number;
+  downforce_level: string;
+  lap_time_baseline_s: number;
+  model: {
+    predicted_stops: number;
+    predicted_window_laps: [number, number];
+    predicted_compounds: string[];
+    predicted_total_stint_laps: number;
+    completion_pct: number;
+    avg_reward: number;
+  };
+  real: {
+    actual_stops: number;
+    typical_window_laps: [number, number];
+    common_compounds: string[];
+    reference_team: string;
+    notes: string;
+    lap_times: {
+      soft: { best_s: number; avg_s: number; final_wear_pct: number; laps_completed: number };
+      medium: { best_s: number; avg_s: number; final_wear_pct: number; laps_completed: number };
+      hard: { best_s: number; avg_s: number; final_wear_pct: number; laps_completed: number };
+    };
+  };
+  validation: {
+    stops_match: boolean;
+    window_overlap_pct: number;
+    confidence: number;
+    quote_es: string;
+    quote_en: string;
+  };
+};
+
+type ValidationPayload = {
+  circuits: ValidationCircuit[];
+  footer: { es: string; en: string };
+};
+
+const validationData = validationRaw as unknown as ValidationPayload;
+
+const content = {
+  es: {
+    kicker: '// 05 — VALIDACIÓN CON DATOS REALES',
+    title: 'Bahrain, Barcelona, Monza\n—validado en pista',
+    lead: 'Los datos reales de F1 validan el modelo. No es simulación, es contraste empírico: las paradas que el agente decide caen dentro de las ventanas que los equipos reales ejecutaron en cada Gran Premio.',
+    footer: validationData.footer.es,
+  },
+  en: {
+    kicker: '// 05 — REAL-DATA VALIDATION',
+    title: 'Bahrain, Barcelona, Monza\n—validated on track',
+    lead: 'Real F1 data validates the model. This is not simulation, it is empirical contrast: the agent\u2019s pit decisions fall inside the windows that real teams executed at each Grand Prix.',
+    footer: validationData.footer.en,
+  },
+}[locale];
+
+const titleLines = content.title.split('\n');
+---
+
+<section
+  id="fastf1"
+  class="fastf1-section"
+  data-section="fastf1"
+  aria-labelledby="fastf1-title"
+>
+  <div class="fastf1-section__container">
+    <!-- Header -->
+    <header class="fastf1-section__head">
+      <span class="fastf1-section__kicker reveal" style="--reveal-delay: 0ms">
+        {content.kicker}
+      </span>
+      <h2
+        id="fastf1-title"
+        class="fastf1-section__title reveal"
+        style="--reveal-delay: 60ms"
+      >
+        {titleLines.map((line) => (
+          <span class="fastf1-section__title-line">{line}</span>
+        ))}
+      </h2>
+      <p
+        class="fastf1-section__lead reveal"
+        style="--reveal-delay: 140ms"
+      >
+        {content.lead}
+      </p>
+    </header>
+
+    <!-- Three-column comparison -->
+    <div class="fastf1-section__grid reveal" style="--reveal-delay: 240ms">
+      <FastF1Comparison client:visible locale={locale} data={validationData} />
+    </div>
+
+    <!-- Footer note -->
+    <p class="fastf1-section__footer reveal" style="--reveal-delay: 360ms">
+      {content.footer}
+    </p>
+  </div>
+</section>
+
+<script>
+  /**
+   * Reveal-on-scroll — same pattern as StrategyDataSection. When the section
+   * enters the viewport, every child with the .reveal class gets
+   * .is-visible. Stagger is driven by the inline --reveal-delay.
+   */
+  const init = () => {
+    const section = document.querySelector<HTMLElement>('[data-section="fastf1"]');
+    if (!section) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reveals = section.querySelectorAll<HTMLElement>('.reveal');
+
+    if (reducedMotion) {
+      reveals.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const target = entry.target as HTMLElement;
+          target.classList.add('is-visible');
+          target.querySelectorAll<HTMLElement>('.reveal').forEach((el, idx) => {
+            const delayVar = parseFloat(el.style.getPropertyValue('--reveal-delay')) || idx * 80;
+            window.setTimeout(() => el.classList.add('is-visible'), delayVar);
+          });
+          observer.unobserve(target);
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+    observer.observe(section);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  /* ============================================================================
+   * FastF1Section — header → 3-column comparison → footer
+   * ========================================================================= */
+  .fastf1-section {
+    position: relative;
+    padding: var(--section-padding-y) var(--space-5);
+    background:
+      radial-gradient(
+        ellipse 60% 50% at 50% 0%,
+        rgba(33, 158, 188, 0.06) 0%,
+        transparent 70%
+      ),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
+    scroll-margin-top: 80px;
+  }
+
+  @media (min-width: 768px) {
+    .fastf1-section {
+      padding: var(--section-padding-y) var(--space-8);
+    }
+  }
+
+  .fastf1-section__container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /* Header ------------------------------------------------------------------- */
+  .fastf1-section__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 64ch;
+  }
+
+  .fastf1-section__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    line-height: var(--leading-normal);
+  }
+
+  .fastf1-section__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .fastf1-section__title-line {
+    display: block;
+  }
+
+  .fastf1-section__lead {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+  }
+
+  /* Grid wrapper ------------------------------------------------------------- */
+  .fastf1-section__grid {
+    background: var(--primary);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+  }
+
+  @media (min-width: 768px) {
+    .fastf1-section__grid {
+      padding: var(--space-6);
+    }
+  }
+
+  /* Footer ------------------------------------------------------------------- */
+  .fastf1-section__footer {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-muted);
+    text-align: center;
+    max-width: 60ch;
+    margin: 0 auto;
+    border-top: 1px solid var(--rule);
+    padding-top: var(--space-5);
+  }
+
+  /* ============================================================================
+   * Reveal animation — same pattern as StrategySection
+   * ========================================================================= */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--motion-duration-long) var(--motion-ease-out),
+      transform var(--motion-duration-long) var(--motion-ease-out);
+    will-change: opacity, transform;
+  }
+
+  .is-visible.reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>

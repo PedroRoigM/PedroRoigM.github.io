@@ -1,0 +1,408 @@
+---
+/**
+ * StrategyDataSection — Sección 04 del portfolio: Datos y Estrategia.
+ *
+ * Dashboard-style layout with:
+ *   1. Section header (kicker / h2 / lead) — pure Astro, no JS.
+ *   2. KPI row — four animated counters that tick from 0 to target when the
+ *      section enters the viewport.
+ *   3. Interactive scatter plot — React island (client:visible) backed by
+ *      600 records sampled from the 9,108-row CSV.
+ *
+ * Bilingual via the `locale` prop.
+ */
+import TelemetryScatter from '../interactive/TelemetryScatter';
+import sampleRaw from '../../data/agents_data_sample.json';
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+interface SampleRow {
+  race_id: number;
+  agent_type: 'strategy_model' | 'static';
+  starting_tyre: 'Soft' | 'Medium' | 'Hard';
+  final_position: number;
+  laps_completed: number;
+  finished: boolean;
+  pitstops_made: number;
+  fastest_lap_s: number;
+  circuit: 'barcelona' | 'bahrain' | 'monza';
+  strategy_name: string;
+  total_reward: number;
+  avg_lap_time_s: number;
+  final_wear_pct: number;
+}
+
+// Cast once at build time — the JSON shape is guaranteed by the sampling
+// script. We surface the type to TelemetryScatter so React is happy.
+const sampleData = sampleRaw as SampleRow[];
+
+const content = {
+  es: {
+    kicker: '// 04 — DATOS Y ESTRATEGIA',
+    title: 'Cinco mil vueltas,\nuna decisión por stint',
+    lead: 'Cada carrera genera hasta 50 registros de telemetría. El modelo de estrategia se entrena con 9.109 observaciones y se valida con tests de Fisher y contraste empírico contra datos reales de F1.',
+    kpiLabels: [
+      'Finalización modelo',
+      'Baseline tradicional',
+      'Registros CSV',
+      'Circuitos FastF1',
+    ],
+    kpiUnits: ['', '', '', ''],
+  },
+  en: {
+    kicker: '// 04 — DATA AND STRATEGY',
+    title: 'Five thousand laps,\none decision per stint',
+    lead: 'Each race generates up to 50 telemetry records. The strategy model is trained on 9,109 observations and validated with Fisher tests and empirical contrast against real F1 data.',
+    kpiLabels: [
+      'Model completion',
+      'Traditional baseline',
+      'CSV records',
+      'FastF1 circuits',
+    ],
+    kpiUnits: ['', '', '', ''],
+  },
+}[locale];
+
+const titleLines = content.title.split('\n');
+
+// 4 KPIs: { value, suffix, decimals, label }
+// We compute the actual numbers from the sample + the design narrative so they
+// stay consistent with the rest of the portfolio.
+const kpis = [
+  { value: 100, decimals: 0, suffix: '%' },                 // model completion
+  { value: 74.3, decimals: 1, suffix: '%' },                // traditional baseline
+  { value: 9109, decimals: 0, suffix: '' },                 // CSV records
+  { value: 3, decimals: 0, suffix: '' },                    // FastF1 circuits
+];
+---
+
+<section
+  id="strategy-data"
+  class="strategy-section"
+  data-section="strategy-data"
+  aria-labelledby="strategy-data-title"
+>
+  <div class="strategy-section__container">
+    <!-- Header -->
+    <header class="strategy-section__head">
+      <span class="strategy-section__kicker reveal" style="--reveal-delay: 0ms">
+        {content.kicker}
+      </span>
+      <h2
+        id="strategy-data-title"
+        class="strategy-section__title reveal"
+        style="--reveal-delay: 60ms"
+      >
+        {titleLines.map((line) => (
+          <span class="strategy-section__title-line">{line}</span>
+        ))}
+      </h2>
+      <p
+        class="strategy-section__lead reveal"
+        style="--reveal-delay: 140ms"
+      >
+        {content.lead}
+      </p>
+    </header>
+
+    <!-- KPI row -->
+    <div
+      class="strategy-section__kpis"
+      role="list"
+      aria-label={locale === 'es' ? 'Indicadores clave' : 'Key metrics'}
+    >
+      {kpis.map((kpi, i) => (
+        <div
+          class="strategy-kpi reveal"
+          role="listitem"
+          style={`--reveal-delay: ${220 + i * 100}ms`}
+          data-kpi-value={kpi.value}
+          data-kpi-decimals={kpi.decimals}
+          data-kpi-suffix={kpi.suffix}
+        >
+          <div class="strategy-kpi__value" aria-live="polite">
+            <span class="strategy-kpi__number">
+              {kpi.decimals > 0 ? kpi.value.toFixed(kpi.decimals) : Math.round(kpi.value).toLocaleString('en-US')}
+            </span>
+            {kpi.suffix && <span class="strategy-kpi__suffix">{kpi.suffix}</span>}
+          </div>
+          <div class="strategy-kpi__label">{content.kpiLabels[i]}</div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Scatter plot card -->
+    <div class="strategy-section__chart reveal" style="--reveal-delay: 660ms">
+      <TelemetryScatter client:visible locale={locale} data={sampleData} />
+    </div>
+  </div>
+</section>
+
+<script>
+  /**
+   * Reveal-on-scroll: when the section enters the viewport, every child with
+   * the .reveal class gets .is-visible. Stagger is done via inline
+   * --reveal-delay custom property (matches PhysicsSection pattern so the
+   * whole portfolio animates cohesively).
+   *
+   * Also tweens the KPI counters from 0 → data-kpi-value once each KPI
+   * enters the viewport. Tabular-nums keeps digit widths stable.
+   */
+  const init = () => {
+    const section = document.querySelector<HTMLElement>('[data-section="strategy-data"]');
+    if (!section) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reveals = section.querySelectorAll<HTMLElement>('.reveal');
+
+    if (reducedMotion) {
+      reveals.forEach((el) => el.classList.add('is-visible'));
+      // KPIs render at their final value (no animation needed).
+      return;
+    }
+
+    // Reveal observer — single observer for the whole section.
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const target = entry.target as HTMLElement;
+          target.classList.add('is-visible');
+          // Stagger children that carry an inline --reveal-delay.
+          target.querySelectorAll<HTMLElement>('.reveal').forEach((el, idx) => {
+            const delayVar = parseFloat(el.style.getPropertyValue('--reveal-delay')) || idx * 80;
+            window.setTimeout(() => el.classList.add('is-visible'), delayVar);
+          });
+          revealObserver.unobserve(target);
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+    revealObserver.observe(section);
+
+    // KPI counter animation — each KPI tweens when it enters the viewport.
+    const kpis = section.querySelectorAll<HTMLElement>('.strategy-kpi');
+    const animateKpi = (el: HTMLElement) => {
+      const value = parseFloat(el.dataset.kpiValue ?? '0');
+      const decimals = parseInt(el.dataset.kpiDecimals ?? '0', 10);
+      const numEl = el.querySelector<HTMLElement>('.strategy-kpi__number');
+      if (!numEl || isNaN(value)) return;
+
+      const start = performance.now();
+      const duration = 1200;
+      const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);
+
+      const tick = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = easeOutCubic(t);
+        const current = value * eased;
+        numEl.textContent =
+          decimals > 0 ? current.toFixed(decimals) : Math.round(current).toLocaleString('en-US');
+        if (t < 1) requestAnimationFrame(tick);
+      };
+
+      // Reset to 0 just before starting so the user sees the tween.
+      numEl.textContent = decimals > 0 ? '0'.padEnd(decimals + 2, '0') : '0';
+      requestAnimationFrame(tick);
+    };
+
+    const kpiObserver = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          animateKpi(entry.target as HTMLElement);
+          kpiObserver.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.4, rootMargin: '0px 0px -10% 0px' }
+    );
+    kpis.forEach((k) => kpiObserver.observe(k));
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>
+
+<style>
+  /* ============================================================================
+   * StrategySection — dashboard layout: header → KPIs → scatter
+   * ========================================================================= */
+  .strategy-section {
+    position: relative;
+    padding: var(--section-padding-y) var(--space-5);
+    background: linear-gradient(180deg, var(--ink-2) 0%, var(--ink) 100%);
+    scroll-margin-top: 80px;
+  }
+
+  @media (min-width: 768px) {
+    .strategy-section {
+      padding: var(--section-padding-y) var(--space-8);
+    }
+  }
+
+  .strategy-section__container {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-10);
+  }
+
+  /* Header ------------------------------------------------------------------- */
+  .strategy-section__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-5);
+    max-width: 64ch;
+  }
+
+  .strategy-section__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    line-height: var(--leading-normal);
+  }
+
+  .strategy-section__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0;
+    font-size: clamp(2rem, 4vw, 3rem);
+  }
+
+  .strategy-section__title-line {
+    display: block;
+  }
+
+  .strategy-section__lead {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+  }
+
+  /* KPIs --------------------------------------------------------------------- */
+  .strategy-section__kpis {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+  }
+
+  @media (min-width: 540px) {
+    .strategy-section__kpis {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 900px) {
+    .strategy-section__kpis {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .strategy-kpi {
+    background: var(--primary);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    padding: var(--space-5) var(--space-5) var(--space-4);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    transition:
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      transform var(--motion-duration-short) var(--motion-ease-out),
+      box-shadow var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .strategy-kpi:hover {
+    border-color: var(--rule-strong);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  .strategy-kpi__value {
+    display: flex;
+    align-items: baseline;
+    gap: 2px;
+    font-family: var(--font-display);
+    font-feature-settings: 'tnum' on;
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--color-highlight);
+    line-height: 1;
+  }
+
+  .strategy-kpi__number {
+    font-size: clamp(2rem, 4vw, 2.75rem);
+    letter-spacing: var(--tracking-snug);
+  }
+
+  .strategy-kpi__suffix {
+    font-size: clamp(1.25rem, 2.4vw, 1.75rem);
+    color: var(--color-highlight);
+  }
+
+  .strategy-kpi__label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    line-height: var(--leading-normal);
+  }
+
+  /* Scatter wrapper ---------------------------------------------------------- */
+  .strategy-section__chart {
+    background: var(--primary);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-5);
+  }
+
+  @media (min-width: 768px) {
+    .strategy-section__chart {
+      padding: var(--space-6);
+    }
+  }
+
+  /* ============================================================================
+   * Reveal animation — opacity 0→1, translateY(20px)→0
+   * Mirrors the PhysicsSection pattern so the whole portfolio animates as one.
+   * ========================================================================= */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--motion-duration-long) var(--motion-ease-out),
+      transform var(--motion-duration-long) var(--motion-ease-out);
+    will-change: opacity, transform;
+  }
+
+  .is-visible.reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+    .strategy-kpi {
+      transition: none;
+    }
+  }
+</style>

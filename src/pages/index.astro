@@ -1,0 +1,19 @@
+---
+/**
+ * Homepage — Español (default locale).
+ * En Fase 0 sólo el Hero. El resto de secciones (Física, Simulación, IA,
+ * Datos, Validación) se añaden en fases 2–6 según el plan.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Hero from '../components/Hero.astro';
+import PhysicsSection from '../components/sections/PhysicsSection.astro';
+---
+
+<BaseLayout
+  title="Pedro Roig Morera — Sistema Multi-Agente para F1"
+  description="Portfolio personal alrededor del TFG: física, simulación, neuroevolución y validación con datos reales de F1."
+  locale="es"
+>
+  <Hero locale="es" />
+  <PhysicsSection locale="es" />
+</BaseLayout>
