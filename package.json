@@ -1,9 +1,9 @@
 {
-  "name": "pedro-roig-tfg-portfolio",
+  "name": "pedro-roig-portfolio",
   "type": "module",
   "version": "0.1.0",
   "private": true,
-  "description": "Portfolio personalizado del TFG 'Sistema Multi-Agente para Gestión Estratégica en F1'.",
+  "description": "Personal portfolio for Pedro Roig Morera — motorsport + AI engineering.",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
@@ -44,6 +44,5 @@
   },
   "engines": {
     "node": ">=20.0.0"
-  },
-  "packageManager": "pnpm@8.15.9"
+  }
 }

@@ -32,7 +32,7 @@ const content = {
       pacejka: 'Pacejka \'94',
       downforce: 'Downforce',
       drag: 'Drag',
-      tyreGrip: 'Tyre grip',
+      acceleration: 'Aceleración',
     },
   },
   en: {
@@ -44,7 +44,7 @@ const content = {
       pacejka: 'Pacejka \'94',
       downforce: 'Downforce',
       drag: 'Drag',
-      tyreGrip: 'Tyre grip',
+      acceleration: 'Acceleration',
     },
   },
 }[locale];
@@ -53,10 +53,13 @@ const titleLines = content.title.split('\n');
 
 // Only the 2 most informative plots — the others (drag, tyre-grip) are
 // derivable from the interactive Pacejka curve + Downforce visualisation
-// above, so we keep the section lean.
+// above, so we keep the section lean. The second card was previously the
+// tall tyre-grip plot (1084×4468 PNG, hard to read inside the card aspect);
+// we replaced it with the acceleration plot, which has a more compact
+// aspect ratio and fits the 16:9 card cleanly. 2026-09-21.
 const cards = [
-  { src: '/img/physics/pacejka.webp',    label: content.cardLabels.pacejka,   alt: locale === 'es' ? 'Curva Pacejka' : 'Pacejka curve' },
-  { src: '/img/physics/tyre-grip.webp', label: content.cardLabels.tyreGrip, alt: locale === 'es' ? 'Grip del neumático' : 'Tyre grip' },
+  { src: '/img/physics/pacejka.webp',      label: content.cardLabels.pacejka,      alt: locale === 'es' ? 'Curva Pacejka'   : 'Pacejka curve' },
+  { src: '/img/physics/aceleracion.webp',  label: content.cardLabels.acceleration, alt: locale === 'es' ? 'Curva de aceleración' : 'Acceleration curve' },
 ];
 ---
 
