@@ -104,10 +104,11 @@ const WHEEL_POSITIONS: ReadonlyArray<readonly [number, number, number]> = [
 // re-verify without re-reading this file.
 const CHASSIS_CENTERLINE_X = 0.65; // x-coord of the chassis tub (mean of L/R wheels)
 const RIM_BAND_RADIUS = 0.295; // the yellow R25 inner-rim accent sits just inside the tyre outer edge (0.331)
-const BRAKE_DISC_RADIUS = 0.27; // dark disc inside the wheel — seals the "see-through" hole (tyre radius 0.331)
+const BRAKE_DISC_RADIUS = 0.325; // dark disc inside the wheel — seals the radial "see-through" hole (tyre radius 0.331, was 0.27 — too small, left a visible gap)
 const BRAKE_DISC_THICKNESS = 0.1; // spans most of the wheel width (tyre width 0.315)
-const SUSPENSION_ARM_LENGTH = 0.4; // bridge from wheel hub toward chassis
+const SUSPENSION_ARM_LENGTH = 0.78; // bridge from wheel hub all the way to the chassis centerline (was 0.4 — too short, left ~0.33 vb gaps)
 const SUSPENSION_ARM_RADIUS = 0.05; // thick enough to read as a real pushrod / brake duct
+const BRAKE_DUCT_COVER_OFFSET = 0.03; // cover sits a hair past the arm's chassis end (was 0.04, slightly inside the chassis when armL=0.4)
 
 function WheelDetail({ scale = 1 }: { scale?: number }) {
   // Procedural detail for each of the 4 wheels, positioned at the GLB-local
@@ -163,8 +164,13 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
             <meshStandardMaterial color={RIM_INK} metalness={0.6} roughness={0.4} />
           </mesh>
 
-          {/* Inner yellow hub center for that R25 wheel-nut pop */}
-          <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0, 0.09 * scale]}>
+          {/* Inner yellow hub center for that R25 wheel-nut pop.
+              Lives on the INBOARD side (negative X) of the wheel — putting
+              it on the outboard side made every wheel read as a yellow disc
+              from the outside, which is wrong for an F1 (the wheel outboard
+              face should be just black rubber, the brake disc / wheel-nut
+              detail is on the inboard side facing the chassis). */}
+          <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0, -0.09 * scale]}>
             <cylinderGeometry args={[hubR * 0.42, hubR * 0.42, 0.06 * scale, 14]} />
             <meshStandardMaterial
               color={R25_YELLOW}
@@ -206,7 +212,7 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
       {WHEEL_POSITIONS.map((pos, i) => {
         const [wx, wy, wz] = pos;
         const sign = wx < CHASSIS_CENTERLINE_X ? 1 : -1;
-        const coverX = wx + sign * armL + sign * 0.04 * scale;
+        const coverX = wx + sign * armL + sign * BRAKE_DUCT_COVER_OFFSET * scale;
         return (
           <mesh
             key={`cover-${i}`}
@@ -231,6 +237,14 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
 function F1Car({ reducedMotion }: F1CarProps) {
   const group = useRef<THREE.Group>(null);
   const { scene } = useGLTF(MODEL_URL);
+  // Base transform of the group (centering + scale) is computed once in
+  // useEffect from the GLB's AABB and stored here so the useFrame loop can
+  // animate the vertical wobble AROUND that base position without clobbering
+  // the centering each frame.
+  const baseTransformRef = useRef<{
+    pos: THREE.Vector3;
+    scale: number;
+  }>({ pos: new THREE.Vector3(), scale: 1 });
 
   useFrame((state, delta) => {
     if (!group.current) return;
@@ -238,7 +252,11 @@ function F1Car({ reducedMotion }: F1CarProps) {
       // Subtle rotation — slow, premium
       group.current.rotation.y += delta * 0.18;
     }
-    group.current.position.y = Math.sin(state.clock.elapsedTime * 0.6) * 0.04;
+    // Vertical float around the centered base Y, not raw 0. This keeps the
+    // car visually hovering where the useEffect placed it (slightly above
+    // the geometric centre so the wheels don't kiss the contact shadow).
+    const baseY = baseTransformRef.current.pos.y;
+    group.current.position.y = baseY + Math.sin(state.clock.elapsedTime * 0.6) * 0.04;
   });
 
   // Center + recolor the model.
@@ -251,13 +269,32 @@ function F1Car({ reducedMotion }: F1CarProps) {
     const box = new THREE.Box3().setFromObject(scene);
     const center = box.getCenter(new THREE.Vector3());
     const size = box.getSize(new THREE.Vector3());
-    scene.position.x = -center.x;
-    scene.position.y = -center.y + size.y / 4;
-    scene.position.z = -center.z;
     const maxAxis = Math.max(size.x, size.y, size.z);
-    const targetSize = 5.5;
-    if (maxAxis > 0) {
-      scene.scale.setScalar(targetSize / maxAxis);
+    // Reduced from 5.5 (2026-09-21): at 5.5 the longest GLB axis (the
+    // ~3.6-unit car length) ends up at 5.5 world units after scaling, which
+    // overflowed the camera's vertical visible area at certain rotations
+    // (the model's length periodically aligned with the camera up-axis and
+    // got cropped at the top/bottom of the container). 4.6 leaves clear
+    // breathing room above/below even at the worst-case orbital angle.
+    const targetSize = 4.6;
+    const scale = maxAxis > 0 ? targetSize / maxAxis : 1;
+
+    // CRITICAL: apply the centering + scaling to the PARENT GROUP, not to
+    // the scene. The scene and the procedural WheelDetail are both children
+    // of this group; putting the transform on the group makes both inherit
+    // it so the procedural wheels line up with the GLB's actual tyre mesh
+    // (previously the transform lived on `scene` and WheelDetail used raw
+    // GLB coordinates, so the procedural wheels were visibly offset from
+    // the bodywork by ~0.6 viewBox units).
+    baseTransformRef.current.pos.set(
+      -center.x,
+      -center.y + size.y / 4,
+      -center.z,
+    );
+    baseTransformRef.current.scale = scale;
+    if (group.current) {
+      group.current.position.copy(baseTransformRef.current.pos);
+      group.current.scale.setScalar(scale);
     }
 
     // R25-specific material assignments.
@@ -267,6 +304,7 @@ function F1Car({ reducedMotion }: F1CarProps) {
       roughness: number;
       emissive?: string;
       emissiveIntensity?: number;
+      side?: THREE.Side;
     };
 
     const overrides: Record<string, Assignment> = {
@@ -281,7 +319,9 @@ function F1Car({ reducedMotion }: F1CarProps) {
       },
       // In this GLB, `Material.047` is used for many large body panels
       // (rear wing assembly, side body, lower bodywork) — treat it as
-      // bodywork too, so the bulk of the car stays blue.
+      // bodywork too, so the bulk of the car stays blue. (Earlier header
+      // comment said "side stripe / accent livery" — that was wrong; the
+      // data shows it on big bodywork meshes. Kept blue for cohesion.)
       'Material.047': {
         color: R25_BLUE,
         metalness: 0.25,
@@ -305,13 +345,17 @@ function F1Car({ reducedMotion }: F1CarProps) {
         emissive: R25_YELLOW,
         emissiveIntensity: 0.6,
       },
-      // Cockpit screen — dark with cyan tint, slight emissive
+      // Cockpit screen — dark with cyan tint, slight emissive.
+      // The screen mesh in this GLB is a 2D plane (size.z = 0.000 — no
+      // thickness), so back-face culling would make it vanish when the
+      // camera orbits past it. DoubleSide keeps it visible from every angle.
       screen: {
         color: SCREEN_TINT,
         metalness: 0.5,
         roughness: 0.35,
         emissive: '#1c4a6b',
         emissiveIntensity: 0.5,
+        side: THREE.DoubleSide,
       },
       // Dials — Mild Seven Yellow with strong emissive
       dial_1: {
@@ -354,7 +398,11 @@ function F1Car({ reducedMotion }: F1CarProps) {
       tyre: { color: INK, metalness: 0.15, roughness: 0.85 },
     };
 
-    // Unmapped materials — treat as bodywork (blue).
+    // Unmapped materials — treat as bodywork (blue). Applied to the
+    // `null`-material sentinel below, so meshes that arrived with a null
+    // material slot (Object_76 in the inspect output, a small rear-wing
+    // endplate that would otherwise be invisible) get a fallback instead
+    // of being skipped.
     const fallback: Assignment = {
       color: R25_BLUE,
       metalness: 0.25,
@@ -364,54 +412,83 @@ function F1Car({ reducedMotion }: F1CarProps) {
     };
 
     // First pass: collect unique materials and their assignments.
-    const materialAssignments = new Map<THREE.Material, Assignment>();
+    // Sentinel key for meshes that came in with `mesh.material === null`
+    // (Object_76 in the inspect output — a small rear-wing endplate that
+    // would otherwise be invisible because Three.js skips null-material
+    // meshes entirely).
+    const NULL_KEY = '__NULL_MATERIAL__';
+    type Pending = { mat: THREE.Material | null; assignment: Assignment };
+    const materialAssignments = new Map<string, Pending>();
     scene.traverse((child) => {
       const mesh = child as THREE.Mesh;
       if (!mesh.isMesh) return;
-      const materials = Array.isArray(mesh.material)
+      const slots: (THREE.Material | null)[] = Array.isArray(mesh.material)
         ? mesh.material
-        : [mesh.material];
-      for (const mat of materials) {
-        if (!mat || materialAssignments.has(mat)) continue;
-        const name = mat.name;
-        const assignment = overrides[name] ?? fallback;
-        materialAssignments.set(mat, assignment);
+        : mesh.material
+          ? [mesh.material]
+          : [];
+      for (const mat of slots) {
+        if (mat) {
+          if (materialAssignments.has(mat.uuid)) continue;
+          materialAssignments.set(mat.uuid, {
+            mat,
+            assignment: overrides[mat.name] ?? fallback,
+          });
+        } else if (!materialAssignments.has(NULL_KEY)) {
+          materialAssignments.set(NULL_KEY, { mat: null, assignment: fallback });
+        }
       }
     });
 
     // Second pass: replace each unique material once.
-    for (const [oldMat, assignment] of materialAssignments.entries()) {
+    for (const { mat: oldMat, assignment } of materialAssignments.values()) {
       const newMat = new THREE.MeshStandardMaterial({
         color: new THREE.Color(assignment.color),
         metalness: assignment.metalness,
         roughness: assignment.roughness,
+        // Default to FrontSide; only `screen` opts into DoubleSide so the
+        // cockpit display stays visible when the camera orbits past it.
+        side: assignment.side ?? THREE.FrontSide,
       });
       if (assignment.emissive) {
         newMat.emissive = new THREE.Color(assignment.emissive);
         newMat.emissiveIntensity = assignment.emissiveIntensity ?? 0.05;
       }
-      newMat.name = oldMat.name;
-      // Replace in scene
-      scene.traverse((child) => {
-        const mesh = child as THREE.Mesh;
-        if (!mesh.isMesh) return;
-        if (Array.isArray(mesh.material)) {
-          const idx = mesh.material.indexOf(oldMat);
-          if (idx !== -1) mesh.material[idx] = newMat;
-        } else if (mesh.material === oldMat) {
-          mesh.material = newMat;
-        }
-      });
-      oldMat.dispose();
+      newMat.name = oldMat ? oldMat.name : NULL_KEY;
+      if (oldMat) {
+        // Replace in scene (every mesh that referenced this material)
+        scene.traverse((child) => {
+          const mesh = child as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          if (Array.isArray(mesh.material)) {
+            const idx = mesh.material.indexOf(oldMat);
+            if (idx !== -1) mesh.material[idx] = newMat;
+          } else if (mesh.material === oldMat) {
+            mesh.material = newMat;
+          }
+        });
+        oldMat.dispose();
+      } else {
+        // Null-material slot — assign the fallback to every mesh whose
+        // material was null. These meshes would otherwise be invisible.
+        scene.traverse((child) => {
+          const mesh = child as THREE.Mesh;
+          if (!mesh.isMesh) return;
+          if (mesh.material === null || (Array.isArray(mesh.material) && mesh.material.length === 0)) {
+            mesh.material = newMat;
+          }
+        });
+      }
     }
   }, [scene]);
 
   return (
     <group ref={group} position={[0, 0, 0]}>
       <primitive object={scene} />
-      {/* Wheel detail sits at the same world positions as the GLB's tyres
-          because the parent group inherits the same translation/scale.
-          Add it here so it rotates with the car. */}
+      {/* Wheel detail is a sibling of the GLB scene, but both inherit the
+          same centering+scale from this group, so the procedural rims /
+          brake discs / suspension arms line up exactly with the GLB's
+          tyres instead of floating off to one side. */}
       <WheelDetail />
     </group>
   );
@@ -669,7 +746,7 @@ export default function F1Model() {
   return (
     <div className="f1-model" aria-hidden="true">
       <Canvas
-        camera={{ position: [5, 2.5, 6], fov: 35 }}
+        camera={{ position: [6, 3, 8.5], fov: 32 }}
         gl={{ antialias: true, alpha: true }}
         dpr={[1, 2]}
         shadows

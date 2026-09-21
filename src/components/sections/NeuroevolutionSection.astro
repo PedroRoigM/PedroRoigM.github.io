@@ -363,6 +363,11 @@ const lapSpec: MetricSpec = {
     background: linear-gradient(180deg, var(--primary) 0%, var(--ink-2) 100%);
     border: var(--border-default);
     border-radius: var(--radius-lg);
+    /* 2026-09-21: numbers + arrow used to overflow on phones because
+       the parent was a non-wrapping flex row. Wrap so the arrow drops to
+       its own line when the row is too tight. */
+    flex-wrap: wrap;
+    row-gap: var(--space-3);
   }
 
   .neuro-headline__num {
@@ -372,6 +377,10 @@ const lapSpec: MetricSpec = {
     font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
     line-height: 1;
+    /* On narrow screens, the two numbers stack instead of competing for
+       horizontal space. */
+    flex: 1 1 auto;
+    min-width: 0;
   }
 
   .neuro-headline__num--start .neuro-headline__value {
@@ -386,12 +395,15 @@ const lapSpec: MetricSpec = {
 
   .neuro-headline__value {
     font-weight: 600;
-    font-size: clamp(3.5rem, 9vw, 6rem);
+    /* 2026-09-21: floor lowered from 3.5rem to 2rem so phones (<640px) read
+       the numbers in a single line; ceiling stays at 5.5rem. */
+    font-size: clamp(2rem, 9vw, 5.5rem);
     letter-spacing: var(--tracking-snug);
   }
 
   .neuro-headline__unit {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    /* Floor lowered from 1.5rem to 1.1rem to track the value scale. */
+    font-size: clamp(1.1rem, 4vw, 2.25rem);
     color: var(--text-dim);
     font-weight: 500;
   }
@@ -399,10 +411,24 @@ const lapSpec: MetricSpec = {
   .neuro-headline__arrow {
     flex: 1 1 auto;
     height: 32px;
-    min-width: 120px;
+    min-width: 96px;
     max-width: 320px;
     overflow: visible;
     animation: neuro-headline-arrow-dash 1.4s linear infinite;
+    order: 3;
+  }
+
+  /* Narrow phones — let the arrow drop to its own row instead of trying
+     to squeeze between two 56 px numbers. */
+  @media (max-width: 520px) {
+    .neuro-headline {
+      gap: var(--space-4);
+    }
+    .neuro-headline__arrow {
+      flex-basis: 100%;
+      max-width: none;
+      height: 24px;
+    }
   }
 
   @keyframes neuro-headline-arrow-dash {
@@ -506,7 +532,7 @@ const lapSpec: MetricSpec = {
 
   .neuro-dim-chart__kicker {
     font-family: var(--font-display);
-    font-size: 10px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: var(--tracking-widest);
     color: var(--text-dim);

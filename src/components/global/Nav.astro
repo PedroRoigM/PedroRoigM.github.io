@@ -1,175 +1,23 @@
 ---
 /**
- * Nav — Sticky navigation with monogram + section links + language switcher.
- * Section links visible on desktop, hidden on mobile (where they live in
- * a modal panel — to be added in future polish iteration).
+ * Nav — Sticky navigation handled by `NavMenu` (React island).
+ *
+ * The NavMenu owns:
+ *   - Desktop nav (brand + inline section links + language switcher)
+ *   - Mobile hamburger menu (collapses section links + language switcher
+ *     into a slide-down panel on viewports <900 px)
+ *
+ * The previous Astro-only nav pushed the ES/EN toggle into the same flex
+ * row as the section links, which overflowed the page on phones and made
+ * horizontal scroll appear across every section. The hamburger fixes that.
  */
-import LanguageSwitcher from './LanguageSwitcher';
+import NavMenu from './NavMenu';
 
 interface Props {
   locale?: 'es' | 'en';
 }
 
 const { locale = 'es' } = Astro.props;
-
-const sections = locale === 'es'
-  ? [
-      { label: 'Física', href: '#physics' },
-      { label: 'Simulación', href: '#simulation' },
-      { label: 'IA', href: '#neuroevolution' },
-      { label: 'Datos', href: '#strategy-data' },
-      { label: 'Validación', href: '#fastf1' },
-    ]
-  : [
-      { label: 'Physics', href: '#physics' },
-      { label: 'Simulation', href: '#simulation' },
-      { label: 'AI', href: '#neuroevolution' },
-      { label: 'Data', href: '#strategy-data' },
-      { label: 'Validation', href: '#fastf1' },
-    ];
 ---
 
-<nav class="nav" aria-label="Primary navigation">
-  <div class="nav__inner">
-    <a href={locale === 'es' ? '/' : '/en/'} class="nav__brand" aria-label="Pedro Roig Morera — Home">
-      <span class="nav__brand-mark">PR</span>
-      <span class="nav__brand-text">Pedro Roig Morera</span>
-    </a>
-
-    <ul class="nav__links">
-      {sections.map((s) => (
-        <li>
-          <a href={s.href} class="nav__link">{s.label}</a>
-        </li>
-      ))}
-    </ul>
-
-    <div class="nav__actions">
-      <LanguageSwitcher client:load />
-    </div>
-  </div>
-</nav>
-
-<style>
-  .nav {
-    position: sticky;
-    top: 0;
-    z-index: var(--z-nav);
-    background: rgba(11, 12, 16, 0.94);
-    backdrop-filter: blur(16px) saturate(140%);
-    -webkit-backdrop-filter: blur(16px) saturate(140%);
-    border-bottom: 1px solid var(--color-border-strong);
-  }
-
-  .nav__inner {
-    max-width: var(--max-width);
-    margin: 0 auto;
-    padding: var(--space-3) var(--space-5);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-5);
-  }
-
-  .nav__brand {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-3);
-    font-family: var(--font-display);
-    font-weight: 600;
-    color: var(--color-fg);
-    transition: opacity var(--motion-duration-short) var(--motion-ease-out);
-    flex-shrink: 0;
-  }
-
-  .nav__brand:hover {
-    opacity: 0.8;
-  }
-
-  .nav__brand-mark {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: var(--color-brand);
-    color: var(--ink);
-    border-radius: var(--radius-sm);
-    font-size: var(--text-sm);
-    font-weight: 700;
-    letter-spacing: var(--tracking-tight);
-  }
-
-  .nav__brand-text {
-    font-size: var(--text-sm);
-    letter-spacing: var(--tracking-snug);
-  }
-
-  @media (max-width: 640px) {
-    .nav__brand-text {
-      display: none;
-    }
-  }
-
-  .nav__links {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    gap: var(--space-5);
-    flex-direction: row;
-  }
-
-  @media (max-width: 900px) {
-    .nav__links {
-      gap: var(--space-3);
-    }
-    .nav__link {
-      font-size: 0.65rem;
-      letter-spacing: 0.06em;
-    }
-  }
-
-  @media (max-width: 560px) {
-    .nav__brand-text {
-      display: none;
-    }
-  }
-
-  .nav__link {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-fg-muted);
-    transition: color var(--motion-duration-short) var(--motion-ease-out);
-    position: relative;
-  }
-
-  .nav__link::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -4px;
-    width: 0;
-    height: 1px;
-    background: var(--color-brand);
-    transition: width var(--motion-duration-short) var(--motion-ease-out);
-  }
-
-  .nav__link:hover {
-    color: var(--color-fg);
-  }
-
-  .nav__link:hover::after {
-    width: 100%;
-  }
-
-  .nav__actions {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--space-4);
-    flex-shrink: 0;
-  }
-</style>
+<NavMenu client:load locale={locale} />

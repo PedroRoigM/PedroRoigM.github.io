@@ -304,6 +304,13 @@ const copy = {
     text-align: center;
     pointer-events: none;
     opacity: 0;
+    /* 2026-09-21: hidden on phones — the absolute-positioned 240 px tip
+       overflows the 2-col card grid by ~15 px on each side, which used
+       to add 15 px of horizontal scroll to the document (the
+       `visibility:hidden` first attempt didn't help — `visibility`
+       keeps the element in the scrollWidth calc; we need `display:none`).
+       Desktop keeps the hover tooltip. */
+    display: none;
     transition:
       opacity var(--motion-duration-short) var(--motion-ease-out),
       transform var(--motion-duration-short) var(--motion-ease-out);
@@ -311,10 +318,15 @@ const copy = {
     box-shadow: var(--shadow-lg);
   }
 
-  .stack-card:hover .stack-card__tip,
-  .stack-card:focus-within .stack-card__tip {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
+  @media (min-width: 900px) {
+    .stack-card__tip {
+      display: block;
+    }
+    .stack-card:hover .stack-card__tip,
+    .stack-card:focus-within .stack-card__tip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
   }
 
   .stack-card__tip::after {
