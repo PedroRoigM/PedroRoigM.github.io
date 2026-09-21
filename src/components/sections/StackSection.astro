@@ -127,7 +127,7 @@ const copy = {
 }[locale];
 ---
 
-<section class="stack-section" data-section="stack" aria-labelledby="stack-title">
+<section id="stack" class="stack-section" data-section="stack" aria-labelledby="stack-title">
   <div class="stack-section__inner">
     <header class="stack-section__header">
       <span class="stack-section__kicker">{copy.kicker}</span>
@@ -176,10 +176,11 @@ const copy = {
 <style>
   .stack-section {
     padding: var(--section-padding-y) var(--space-5);
+    scroll-margin-top: 96px;
     background: linear-gradient(
       180deg,
       transparent 0%,
-      rgba(2, 48, 71, 0.15) 100%
+      rgba(168, 216, 0, 0.08) 100%
     );
   }
 
@@ -253,7 +254,7 @@ const copy = {
     padding: 0;
     margin: 0;
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: var(--space-4);
   }
 

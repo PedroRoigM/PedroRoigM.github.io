@@ -2,9 +2,11 @@
 /**
  * PhysicsSection — Sección 01 del portfolio: Física del vehículo.
  *
- * Layout (per PLAN.md §3.2):
+ * Layout:
  *   - Split 50/50 (intro · visualizador interactivo).
- *   - Below: grid 2×2 con mini-cards de plots reales del TFG.
+ *   - Below: 2 mini-cards con los plots más distintivos (Pacejka +
+ *     Downforce). Drag y Tyre-grip quedan en el simulador; el portfolio
+ *     no necesita los 4 — dos bastan como referencia visual.
  *
  * El visualizador interactivo se monta como React island (client:visible) —
  * sólo se hidrata al entrar en viewport, evitando JS inicial innecesario.
@@ -49,11 +51,12 @@ const content = {
 
 const titleLines = content.title.split('\n');
 
+// Only the 2 most informative plots — the others (drag, tyre-grip) are
+// derivable from the interactive Pacejka curve + Downforce visualisation
+// above, so we keep the section lean.
 const cards = [
-  { src: '/img/physics/pacejka.webp',   label: content.cardLabels.pacejka,   alt: locale === 'es' ? 'Curva Pacejka' : 'Pacejka curve' },
-  { src: '/img/physics/downforce.webp', label: content.cardLabels.downforce, alt: locale === 'es' ? 'Carga aerodinámica vs velocidad' : 'Downforce vs velocity' },
-  { src: '/img/physics/drag.webp',      label: content.cardLabels.drag,      alt: locale === 'es' ? 'Drag vs velocidad' : 'Drag vs velocity' },
-  { src: '/img/physics/tyre-grip.webp', label: content.cardLabels.tyreGrip,  alt: locale === 'es' ? 'Curva de agarre del neumático' : 'Tyre grip curve' },
+  { src: '/img/physics/pacejka.webp',    label: content.cardLabels.pacejka,   alt: locale === 'es' ? 'Curva Pacejka' : 'Pacejka curve' },
+  { src: '/img/physics/tyre-grip.webp', label: content.cardLabels.tyreGrip, alt: locale === 'es' ? 'Grip del neumático' : 'Tyre grip' },
 ];
 ---
 
@@ -289,7 +292,7 @@ const cards = [
   .physics-card__media {
     aspect-ratio: 16 / 9;
     background:
-      radial-gradient(ellipse at center, rgba(2, 48, 71, 0.5) 0%, transparent 70%),
+      radial-gradient(ellipse at center, rgba(125, 151, 184, 0.5) 0%, transparent 70%),
       var(--ink);
     display: flex;
     align-items: center;

@@ -2,491 +2,785 @@
   {
     "gen": 1,
     "best_lap_s": 124.81,
-    "avg_lap_s": 129.71
+    "avg_lap_s": 129.71,
+    "survival_s": 1.24,
+    "laps_completed": 2.6,
+    "compound": "Soft"
   },
   {
     "gen": 2,
     "best_lap_s": 126.52,
-    "avg_lap_s": 131.86
+    "avg_lap_s": 131.86,
+    "survival_s": 0.93,
+    "laps_completed": 0.0,
+    "compound": "Soft"
   },
   {
     "gen": 3,
     "best_lap_s": 120.8,
-    "avg_lap_s": 125.85
+    "avg_lap_s": 125.85,
+    "survival_s": 0.67,
+    "laps_completed": 0.0,
+    "compound": "Soft"
   },
   {
     "gen": 4,
     "best_lap_s": 121.29,
-    "avg_lap_s": 126.54
+    "avg_lap_s": 126.54,
+    "survival_s": 1.59,
+    "laps_completed": 0.0,
+    "compound": "Soft"
   },
   {
     "gen": 5,
     "best_lap_s": 125.72,
-    "avg_lap_s": 130.67
+    "avg_lap_s": 130.67,
+    "survival_s": 0.95,
+    "laps_completed": 1.1,
+    "compound": "Soft"
   },
   {
     "gen": 6,
     "best_lap_s": 120.5,
-    "avg_lap_s": 126.26
+    "avg_lap_s": 126.26,
+    "survival_s": 2.26,
+    "laps_completed": 0.8,
+    "compound": "Soft"
   },
   {
     "gen": 7,
     "best_lap_s": 124.17,
-    "avg_lap_s": 128.78
+    "avg_lap_s": 128.78,
+    "survival_s": 2.97,
+    "laps_completed": 1.0,
+    "compound": "Soft"
   },
   {
     "gen": 8,
     "best_lap_s": 119.48,
-    "avg_lap_s": 124.48
+    "avg_lap_s": 124.48,
+    "survival_s": 3.21,
+    "laps_completed": 2.1,
+    "compound": "Soft"
   },
   {
     "gen": 9,
     "best_lap_s": 123.09,
-    "avg_lap_s": 128.31
+    "avg_lap_s": 128.31,
+    "survival_s": 4.78,
+    "laps_completed": 2.5,
+    "compound": "Soft"
   },
   {
     "gen": 10,
     "best_lap_s": 117.33,
-    "avg_lap_s": 122.27
+    "avg_lap_s": 122.27,
+    "survival_s": 6.93,
+    "laps_completed": 0.8,
+    "compound": "Soft"
   },
   {
     "gen": 11,
     "best_lap_s": 123.7,
-    "avg_lap_s": 127.8
+    "avg_lap_s": 127.8,
+    "survival_s": 9.19,
+    "laps_completed": 0.4,
+    "compound": "Soft"
   },
   {
     "gen": 12,
     "best_lap_s": 121.44,
-    "avg_lap_s": 125.5
+    "avg_lap_s": 125.5,
+    "survival_s": 11.07,
+    "laps_completed": 2.9,
+    "compound": "Soft"
   },
   {
     "gen": 13,
     "best_lap_s": 118.54,
-    "avg_lap_s": 122.66
+    "avg_lap_s": 122.66,
+    "survival_s": 14.17,
+    "laps_completed": 0.0,
+    "compound": "Soft"
   },
   {
     "gen": 14,
     "best_lap_s": 117.59,
-    "avg_lap_s": 123.15
+    "avg_lap_s": 123.15,
+    "survival_s": 19.07,
+    "laps_completed": 0.9,
+    "compound": "Soft"
   },
   {
     "gen": 15,
     "best_lap_s": 120.04,
-    "avg_lap_s": 124.1
+    "avg_lap_s": 124.1,
+    "survival_s": 23.19,
+    "laps_completed": 1.0,
+    "compound": "Soft"
   },
   {
     "gen": 16,
     "best_lap_s": 116.88,
-    "avg_lap_s": 122.57
+    "avg_lap_s": 122.57,
+    "survival_s": 30.88,
+    "laps_completed": 0.0,
+    "compound": "Soft"
   },
   {
     "gen": 17,
     "best_lap_s": 119.1,
-    "avg_lap_s": 124.72
+    "avg_lap_s": 124.72,
+    "survival_s": 35.65,
+    "laps_completed": 0.1,
+    "compound": "Soft"
   },
   {
     "gen": 18,
     "best_lap_s": 117.46,
-    "avg_lap_s": 122.36
+    "avg_lap_s": 122.36,
+    "survival_s": 44.0,
+    "laps_completed": 0.0,
+    "compound": "Soft"
   },
   {
     "gen": 19,
     "best_lap_s": 114.9,
-    "avg_lap_s": 119
+    "avg_lap_s": 119,
+    "survival_s": 50.11,
+    "laps_completed": 0.7,
+    "compound": "Soft"
   },
   {
     "gen": 20,
     "best_lap_s": 118.75,
-    "avg_lap_s": 123.95
+    "avg_lap_s": 123.95,
+    "survival_s": 56.27,
+    "laps_completed": 0.3,
+    "compound": "Soft"
   },
   {
     "gen": 21,
     "best_lap_s": 115.93,
-    "avg_lap_s": 121.22
+    "avg_lap_s": 121.22,
+    "survival_s": 62.34,
+    "laps_completed": 0.7,
+    "compound": "Soft"
   },
   {
     "gen": 22,
     "best_lap_s": 114.95,
-    "avg_lap_s": 119.55
+    "avg_lap_s": 119.55,
+    "survival_s": 66.89,
+    "laps_completed": 3.8,
+    "compound": "Soft"
   },
   {
     "gen": 23,
     "best_lap_s": 116.79,
-    "avg_lap_s": 122.51
+    "avg_lap_s": 122.51,
+    "survival_s": 71.39,
+    "laps_completed": 2.4,
+    "compound": "Soft"
   },
   {
     "gen": 24,
     "best_lap_s": 114.84,
-    "avg_lap_s": 119.25
+    "avg_lap_s": 119.25,
+    "survival_s": 75.42,
+    "laps_completed": 2.0,
+    "compound": "Soft"
   },
   {
     "gen": 25,
     "best_lap_s": 112.92,
-    "avg_lap_s": 117.51
+    "avg_lap_s": 117.51,
+    "survival_s": 77.72,
+    "laps_completed": 1.7,
+    "compound": "Soft"
   },
   {
     "gen": 26,
     "best_lap_s": 111.07,
-    "avg_lap_s": 116.39
+    "avg_lap_s": 116.39,
+    "survival_s": 79.88,
+    "laps_completed": 1.9,
+    "compound": "Soft"
   },
   {
     "gen": 27,
     "best_lap_s": 113.3,
-    "avg_lap_s": 118.69
+    "avg_lap_s": 118.69,
+    "survival_s": 81.4,
+    "laps_completed": 3.0,
+    "compound": "Soft"
   },
   {
     "gen": 28,
     "best_lap_s": 113.74,
-    "avg_lap_s": 117.92
+    "avg_lap_s": 117.92,
+    "survival_s": 82.52,
+    "laps_completed": 4.0,
+    "compound": "Soft"
   },
   {
     "gen": 29,
     "best_lap_s": 113.02,
-    "avg_lap_s": 117.88
+    "avg_lap_s": 117.88,
+    "survival_s": 83.58,
+    "laps_completed": 2.8,
+    "compound": "Soft"
   },
   {
     "gen": 30,
     "best_lap_s": 112.21,
-    "avg_lap_s": 116.49
+    "avg_lap_s": 116.49,
+    "survival_s": 84.18,
+    "laps_completed": 3.4,
+    "compound": "Soft"
   },
   {
     "gen": 31,
     "best_lap_s": 107.25,
-    "avg_lap_s": 111.29
+    "avg_lap_s": 111.29,
+    "survival_s": 84.69,
+    "laps_completed": 4.3,
+    "compound": "Soft"
   },
   {
     "gen": 32,
     "best_lap_s": 107.7,
-    "avg_lap_s": 112.67
+    "avg_lap_s": 112.67,
+    "survival_s": 85.02,
+    "laps_completed": 5.4,
+    "compound": "Soft"
   },
   {
     "gen": 33,
     "best_lap_s": 108.16,
-    "avg_lap_s": 113.96
+    "avg_lap_s": 113.96,
+    "survival_s": 85.32,
+    "laps_completed": 4.7,
+    "compound": "Soft"
   },
   {
     "gen": 34,
     "best_lap_s": 104.69,
-    "avg_lap_s": 110.13
+    "avg_lap_s": 110.13,
+    "survival_s": 85.53,
+    "laps_completed": 6.8,
+    "compound": "Soft"
   },
   {
     "gen": 35,
     "best_lap_s": 108.17,
-    "avg_lap_s": 112.73
+    "avg_lap_s": 112.73,
+    "survival_s": 85.66,
+    "laps_completed": 5.0,
+    "compound": "Medium"
   },
   {
     "gen": 36,
     "best_lap_s": 106.23,
-    "avg_lap_s": 110.59
+    "avg_lap_s": 110.59,
+    "survival_s": 85.85,
+    "laps_completed": 5.7,
+    "compound": "Medium"
   },
   {
     "gen": 37,
     "best_lap_s": 104.5,
-    "avg_lap_s": 110.15
+    "avg_lap_s": 110.15,
+    "survival_s": 85.85,
+    "laps_completed": 5.9,
+    "compound": "Medium"
   },
   {
     "gen": 38,
     "best_lap_s": 101.7,
-    "avg_lap_s": 107.69
+    "avg_lap_s": 107.69,
+    "survival_s": 85.9,
+    "laps_completed": 8.0,
+    "compound": "Medium"
   },
   {
     "gen": 39,
     "best_lap_s": 103.11,
-    "avg_lap_s": 108.95
+    "avg_lap_s": 108.95,
+    "survival_s": 85.91,
+    "laps_completed": 9.2,
+    "compound": "Medium"
   },
   {
     "gen": 40,
     "best_lap_s": 101.67,
-    "avg_lap_s": 106.83
+    "avg_lap_s": 106.83,
+    "survival_s": 85.88,
+    "laps_completed": 9.8,
+    "compound": "Medium"
   },
   {
     "gen": 41,
     "best_lap_s": 100.38,
-    "avg_lap_s": 105.58
+    "avg_lap_s": 105.58,
+    "survival_s": 85.88,
+    "laps_completed": 10.5,
+    "compound": "Medium"
   },
   {
     "gen": 42,
     "best_lap_s": 99.51,
-    "avg_lap_s": 104.97
+    "avg_lap_s": 104.97,
+    "survival_s": 85.94,
+    "laps_completed": 13.3,
+    "compound": "Medium"
   },
   {
     "gen": 43,
     "best_lap_s": 98.58,
-    "avg_lap_s": 103.48
+    "avg_lap_s": 103.48,
+    "survival_s": 85.99,
+    "laps_completed": 14.0,
+    "compound": "Medium"
   },
   {
     "gen": 44,
     "best_lap_s": 100.52,
-    "avg_lap_s": 105.91
+    "avg_lap_s": 105.91,
+    "survival_s": 86.02,
+    "laps_completed": 15.5,
+    "compound": "Medium"
   },
   {
     "gen": 45,
     "best_lap_s": 100.47,
-    "avg_lap_s": 106.25
+    "avg_lap_s": 106.25,
+    "survival_s": 85.92,
+    "laps_completed": 15.8,
+    "compound": "Medium"
   },
   {
     "gen": 46,
     "best_lap_s": 96.86,
-    "avg_lap_s": 101.95
+    "avg_lap_s": 101.95,
+    "survival_s": 86.03,
+    "laps_completed": 17.8,
+    "compound": "Medium"
   },
   {
     "gen": 47,
     "best_lap_s": 95.38,
-    "avg_lap_s": 99.58
+    "avg_lap_s": 99.58,
+    "survival_s": 85.99,
+    "laps_completed": 17.6,
+    "compound": "Medium"
   },
   {
     "gen": 48,
     "best_lap_s": 96.58,
-    "avg_lap_s": 101.21
+    "avg_lap_s": 101.21,
+    "survival_s": 86.05,
+    "laps_completed": 19.7,
+    "compound": "Medium"
   },
   {
     "gen": 49,
     "best_lap_s": 96.23,
-    "avg_lap_s": 102.04
+    "avg_lap_s": 102.04,
+    "survival_s": 86.07,
+    "laps_completed": 22.5,
+    "compound": "Medium"
   },
   {
     "gen": 50,
     "best_lap_s": 91.97,
-    "avg_lap_s": 96.92
+    "avg_lap_s": 96.92,
+    "survival_s": 85.99,
+    "laps_completed": 22.3,
+    "compound": "Medium"
   },
   {
     "gen": 51,
     "best_lap_s": 86.37,
-    "avg_lap_s": 90.63
+    "avg_lap_s": 90.63,
+    "survival_s": 86.03,
+    "laps_completed": 24.9,
+    "compound": "Medium"
   },
   {
     "gen": 52,
     "best_lap_s": 86.22,
-    "avg_lap_s": 90.58
+    "avg_lap_s": 90.58,
+    "survival_s": 85.91,
+    "laps_completed": 26.8,
+    "compound": "Medium"
   },
   {
     "gen": 53,
     "best_lap_s": 84.83,
-    "avg_lap_s": 90.23
+    "avg_lap_s": 90.23,
+    "survival_s": 85.94,
+    "laps_completed": 27.9,
+    "compound": "Medium"
   },
   {
     "gen": 54,
     "best_lap_s": 82.77,
-    "avg_lap_s": 87.6
+    "avg_lap_s": 87.6,
+    "survival_s": 86.04,
+    "laps_completed": 29.6,
+    "compound": "Medium"
   },
   {
     "gen": 55,
     "best_lap_s": 81.99,
-    "avg_lap_s": 87.3
+    "avg_lap_s": 87.3,
+    "survival_s": 86.03,
+    "laps_completed": 30.8,
+    "compound": "Medium"
   },
   {
     "gen": 56,
     "best_lap_s": 81.91,
-    "avg_lap_s": 86.32
+    "avg_lap_s": 86.32,
+    "survival_s": 86.01,
+    "laps_completed": 31.8,
+    "compound": "Medium"
   },
   {
     "gen": 57,
     "best_lap_s": 82.19,
-    "avg_lap_s": 87.96
+    "avg_lap_s": 87.96,
+    "survival_s": 85.92,
+    "laps_completed": 34.4,
+    "compound": "Medium"
   },
   {
     "gen": 58,
     "best_lap_s": 80.68,
-    "avg_lap_s": 86.26
+    "avg_lap_s": 86.26,
+    "survival_s": 85.99,
+    "laps_completed": 34.2,
+    "compound": "Medium"
   },
   {
     "gen": 59,
     "best_lap_s": 80.28,
-    "avg_lap_s": 84.54
+    "avg_lap_s": 84.54,
+    "survival_s": 85.9,
+    "laps_completed": 35.5,
+    "compound": "Medium"
   },
   {
     "gen": 60,
     "best_lap_s": 81.09,
-    "avg_lap_s": 85.83
+    "avg_lap_s": 85.83,
+    "survival_s": 85.93,
+    "laps_completed": 35.7,
+    "compound": "Medium"
   },
   {
     "gen": 61,
     "best_lap_s": 77.93,
-    "avg_lap_s": 83.4
+    "avg_lap_s": 83.4,
+    "survival_s": 85.95,
+    "laps_completed": 38.0,
+    "compound": "Medium"
   },
   {
     "gen": 62,
     "best_lap_s": 79.21,
-    "avg_lap_s": 84.96
+    "avg_lap_s": 84.96,
+    "survival_s": 85.99,
+    "laps_completed": 38.1,
+    "compound": "Medium"
   },
   {
     "gen": 63,
     "best_lap_s": 79.42,
-    "avg_lap_s": 83.84
+    "avg_lap_s": 83.84,
+    "survival_s": 85.92,
+    "laps_completed": 39.1,
+    "compound": "Medium"
   },
   {
     "gen": 64,
     "best_lap_s": 77.91,
-    "avg_lap_s": 82.89
+    "avg_lap_s": 82.89,
+    "survival_s": 86.0,
+    "laps_completed": 39.0,
+    "compound": "Medium"
   },
   {
     "gen": 65,
     "best_lap_s": 76.05,
-    "avg_lap_s": 80.15
+    "avg_lap_s": 80.15,
+    "survival_s": 86.11,
+    "laps_completed": 40.0,
+    "compound": "Medium"
   },
   {
     "gen": 66,
     "best_lap_s": 77.02,
-    "avg_lap_s": 82.43
+    "avg_lap_s": 82.43,
+    "survival_s": 85.99,
+    "laps_completed": 41.0,
+    "compound": "Medium"
   },
   {
     "gen": 67,
     "best_lap_s": 75.17,
-    "avg_lap_s": 79.73
+    "avg_lap_s": 79.73,
+    "survival_s": 86.02,
+    "laps_completed": 41.6,
+    "compound": "Medium"
   },
   {
     "gen": 68,
     "best_lap_s": 74.71,
-    "avg_lap_s": 78.77
+    "avg_lap_s": 78.77,
+    "survival_s": 85.97,
+    "laps_completed": 42.5,
+    "compound": "Medium"
   },
   {
     "gen": 69,
     "best_lap_s": 73.76,
-    "avg_lap_s": 79.75
+    "avg_lap_s": 79.75,
+    "survival_s": 86.05,
+    "laps_completed": 42.8,
+    "compound": "Medium"
   },
   {
     "gen": 70,
     "best_lap_s": 74.22,
-    "avg_lap_s": 80.19
+    "avg_lap_s": 80.19,
+    "survival_s": 86.02,
+    "laps_completed": 43.2,
+    "compound": "Hard"
   },
   {
     "gen": 71,
     "best_lap_s": 72.39,
-    "avg_lap_s": 76.73
+    "avg_lap_s": 76.73,
+    "survival_s": 85.91,
+    "laps_completed": 43.0,
+    "compound": "Hard"
   },
   {
     "gen": 72,
     "best_lap_s": 72.98,
-    "avg_lap_s": 77.57
+    "avg_lap_s": 77.57,
+    "survival_s": 86.01,
+    "laps_completed": 43.0,
+    "compound": "Hard"
   },
   {
     "gen": 73,
     "best_lap_s": 71.88,
-    "avg_lap_s": 76.75
+    "avg_lap_s": 76.75,
+    "survival_s": 85.96,
+    "laps_completed": 44.3,
+    "compound": "Hard"
   },
   {
     "gen": 74,
     "best_lap_s": 71.36,
-    "avg_lap_s": 76.73
+    "avg_lap_s": 76.73,
+    "survival_s": 85.96,
+    "laps_completed": 44.2,
+    "compound": "Hard"
   },
   {
     "gen": 75,
     "best_lap_s": 70.7,
-    "avg_lap_s": 75.37
+    "avg_lap_s": 75.37,
+    "survival_s": 86.03,
+    "laps_completed": 44.4,
+    "compound": "Hard"
   },
   {
     "gen": 76,
     "best_lap_s": 71.59,
-    "avg_lap_s": 76.24
+    "avg_lap_s": 76.24,
+    "survival_s": 85.86,
+    "laps_completed": 44.3,
+    "compound": "Hard"
   },
   {
     "gen": 77,
     "best_lap_s": 69.79,
-    "avg_lap_s": 75.01
+    "avg_lap_s": 75.01,
+    "survival_s": 86.11,
+    "laps_completed": 44.7,
+    "compound": "Hard"
   },
   {
     "gen": 78,
     "best_lap_s": 69.34,
-    "avg_lap_s": 74.52
+    "avg_lap_s": 74.52,
+    "survival_s": 86.05,
+    "laps_completed": 45.0,
+    "compound": "Hard"
   },
   {
     "gen": 79,
     "best_lap_s": 67.81,
-    "avg_lap_s": 72.46
+    "avg_lap_s": 72.46,
+    "survival_s": 86.09,
+    "laps_completed": 44.9,
+    "compound": "Hard"
   },
   {
     "gen": 80,
     "best_lap_s": 67.4,
-    "avg_lap_s": 72.04
+    "avg_lap_s": 72.04,
+    "survival_s": 86.03,
+    "laps_completed": 45.1,
+    "compound": "Hard"
   },
   {
     "gen": 81,
     "best_lap_s": 68.2,
-    "avg_lap_s": 72.65
+    "avg_lap_s": 72.65,
+    "survival_s": 86.04,
+    "laps_completed": 45.2,
+    "compound": "Hard"
   },
   {
     "gen": 82,
     "best_lap_s": 67.4,
-    "avg_lap_s": 72.79
+    "avg_lap_s": 72.79,
+    "survival_s": 86.03,
+    "laps_completed": 45.4,
+    "compound": "Hard"
   },
   {
     "gen": 83,
     "best_lap_s": 67.57,
-    "avg_lap_s": 71.82
+    "avg_lap_s": 71.82,
+    "survival_s": 86.06,
+    "laps_completed": 45.4,
+    "compound": "Hard"
   },
   {
     "gen": 84,
     "best_lap_s": 67.52,
-    "avg_lap_s": 71.61
+    "avg_lap_s": 71.61,
+    "survival_s": 85.99,
+    "laps_completed": 45.5,
+    "compound": "Hard"
   },
   {
     "gen": 85,
     "best_lap_s": 67.87,
-    "avg_lap_s": 72.28
+    "avg_lap_s": 72.28,
+    "survival_s": 86.02,
+    "laps_completed": 45.4,
+    "compound": "Hard"
   },
   {
     "gen": 86,
     "best_lap_s": 67.67,
-    "avg_lap_s": 72.43
+    "avg_lap_s": 72.43,
+    "survival_s": 85.97,
+    "laps_completed": 45.6,
+    "compound": "Hard"
   },
   {
     "gen": 87,
     "best_lap_s": 67.97,
-    "avg_lap_s": 73.79
+    "avg_lap_s": 73.79,
+    "survival_s": 86.05,
+    "laps_completed": 45.5,
+    "compound": "Hard"
   },
   {
     "gen": 88,
     "best_lap_s": 68.07,
-    "avg_lap_s": 72.95
+    "avg_lap_s": 72.95,
+    "survival_s": 85.98,
+    "laps_completed": 45.9,
+    "compound": "Hard"
   },
   {
     "gen": 89,
     "best_lap_s": 67.03,
-    "avg_lap_s": 72.77
+    "avg_lap_s": 72.77,
+    "survival_s": 86.05,
+    "laps_completed": 45.7,
+    "compound": "Hard"
   },
   {
     "gen": 90,
     "best_lap_s": 67.54,
-    "avg_lap_s": 73.22
+    "avg_lap_s": 73.22,
+    "survival_s": 86.08,
+    "laps_completed": 45.7,
+    "compound": "Hard"
   },
   {
     "gen": 91,
     "best_lap_s": 68.04,
-    "avg_lap_s": 72.94
+    "avg_lap_s": 72.94,
+    "survival_s": 85.99,
+    "laps_completed": 45.6,
+    "compound": "Hard"
   },
   {
     "gen": 92,
     "best_lap_s": 66.87,
-    "avg_lap_s": 72.11
+    "avg_lap_s": 72.11,
+    "survival_s": 86.0,
+    "laps_completed": 45.9,
+    "compound": "Hard"
   },
   {
     "gen": 93,
     "best_lap_s": 67.81,
-    "avg_lap_s": 72.23
+    "avg_lap_s": 72.23,
+    "survival_s": 86.01,
+    "laps_completed": 45.8,
+    "compound": "Hard"
   },
   {
     "gen": 94,
     "best_lap_s": 67.13,
-    "avg_lap_s": 72.23
+    "avg_lap_s": 72.23,
+    "survival_s": 86.03,
+    "laps_completed": 45.9,
+    "compound": "Hard"
   },
   {
     "gen": 95,
     "best_lap_s": 67.98,
-    "avg_lap_s": 72.96
+    "avg_lap_s": 72.96,
+    "survival_s": 85.94,
+    "laps_completed": 45.8,
+    "compound": "Hard"
   },
   {
     "gen": 96,
     "best_lap_s": 67.74,
-    "avg_lap_s": 73.43
+    "avg_lap_s": 73.43,
+    "survival_s": 85.92,
+    "laps_completed": 46.0,
+    "compound": "Hard"
   },
   {
     "gen": 97,
     "best_lap_s": 67.52,
-    "avg_lap_s": 71.62
+    "avg_lap_s": 71.62,
+    "survival_s": 86.0,
+    "laps_completed": 46.0,
+    "compound": "Hard"
   },
   {
     "gen": 98,
     "best_lap_s": 66.45,
-    "avg_lap_s": 70.79
+    "avg_lap_s": 70.79,
+    "survival_s": 85.92,
+    "laps_completed": 45.8,
+    "compound": "Hard"
   }
 ]

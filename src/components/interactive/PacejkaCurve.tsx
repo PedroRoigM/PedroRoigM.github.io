@@ -270,7 +270,7 @@ export default function PacejkaCurve({ slipAngle, peakGrip, locale, className }:
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"
-        style={{ filter: 'drop-shadow(0 0 4px rgba(33, 158, 188, 0.45))' }}
+        style={{ filter: 'drop-shadow(0 0 4px rgba(168, 216, 0, 0.45))' }}
         data-peak={String(peakGrip)}
       />
 
@@ -299,8 +299,8 @@ export default function PacejkaCurve({ slipAngle, peakGrip, locale, className }:
       />
       <text
         ref={markerTextRef}
-        x={sx(slipAngle) + 3}
-        y={PAD.t + 6}
+        x={sx(slipAngle) + 6}
+        y={sy(pacejka(slipAngle, 10, 1.9, peakGrip, -0.5)) + 1.4}
         fontSize="3.4"
         fontFamily="var(--font-display)"
         fill="var(--accent)"
@@ -308,6 +308,10 @@ export default function PacejkaCurve({ slipAngle, peakGrip, locale, className }:
           fontVariantNumeric: 'tabular-nums',
           fontFeatureSettings: '"tnum" on',
           letterSpacing: '0.04em',
+          paintOrder: 'stroke',
+          stroke: 'var(--ink)',
+          strokeWidth: 1.2,
+          strokeLinejoin: 'round',
         }}
       >
         μ {pacejka(slipAngle, 10, 1.9, peakGrip, -0.5).toFixed(2)}

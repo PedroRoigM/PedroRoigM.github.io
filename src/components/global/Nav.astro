@@ -55,10 +55,10 @@ const sections = locale === 'es'
     position: sticky;
     top: 0;
     z-index: var(--z-nav);
-    background: rgba(10, 14, 20, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: var(--border-thin);
+    background: rgba(11, 12, 16, 0.94);
+    backdrop-filter: blur(16px) saturate(140%);
+    -webkit-backdrop-filter: blur(16px) saturate(140%);
+    border-bottom: 1px solid var(--color-border-strong);
   }
 
   .nav__inner {
@@ -118,10 +118,21 @@ const sections = locale === 'es'
     display: flex;
     align-items: center;
     gap: var(--space-5);
+    flex-direction: row;
   }
 
   @media (max-width: 900px) {
     .nav__links {
+      gap: var(--space-3);
+    }
+    .nav__link {
+      font-size: 0.65rem;
+      letter-spacing: 0.06em;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .nav__brand-text {
       display: none;
     }
   }

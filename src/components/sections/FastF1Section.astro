@@ -6,7 +6,7 @@
  *   1. Section header (kicker / h2 / lead).
  *   2. Three-column comparison card (Bahrain / Barcelona / Monza). Each column
  *      shows a mini bar chart of model-vs-real pit stops + a quote + a ✓ badge.
- *   3. Footer note referencing section 4.9 of the TFG.
+ *   3. Footer note summarising the empirical contrast methodology.
  *
  * Bilingual via the `locale` prop. The interactive comparison is a React island
  * (client:visible) so it hydrates only when scrolled into view.
@@ -25,7 +25,8 @@ const { locale } = Astro.props;
 type ValidationCircuit = {
   id: 'barcelona' | 'bahrain' | 'monza';
   name: string;
-  country: string;
+  country_es: string;
+  country_en: string;
   length_km: number;
   turns: number;
   downforce_level: string;
@@ -178,7 +179,7 @@ const titleLines = content.title.split('\n');
     background:
       radial-gradient(
         ellipse 60% 50% at 50% 0%,
-        rgba(33, 158, 188, 0.06) 0%,
+        rgba(168, 216, 0, 0.08) 0%,
         transparent 70%
       ),
       linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);

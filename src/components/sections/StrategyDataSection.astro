@@ -4,14 +4,20 @@
  *
  * Dashboard-style layout with:
  *   1. Section header (kicker / h2 / lead) — pure Astro, no JS.
- *   2. KPI row — four animated counters that tick from 0 to target when the
- *      section enters the viewport.
- *   3. Interactive scatter plot — React island (client:visible) backed by
- *      600 records sampled from the 9,108-row CSV.
+ *   2. KPI row — four anchor counters (100%, 74.3%, 9109, 3) that tick from
+ *      0 to target when the section enters the viewport. These anchor the
+ *      headline narrative.
+ *   3. Strategy comparison — React island (client:visible) that aggregates
+ *      the 600-row sample by `agent_type` (strategy_model vs static) and
+ *      surfaces the model-vs-baseline gaps on the three metrics that
+ *      actually drive the model's claim: completion rate, average reward,
+ *      average fastest lap. Below the KPI grid: a horizontal grouped bar
+ *      chart showing the distribution of final positions (Top 3 / P4-7
+ *      / P8+) for each agent.
  *
  * Bilingual via the `locale` prop.
  */
-import TelemetryScatter from '../interactive/TelemetryScatter';
+import StrategyComparison from '../interactive/StrategyComparison';
 import sampleRaw from '../../data/agents_data_sample.json';
 
 interface Props {
@@ -37,7 +43,7 @@ interface SampleRow {
 }
 
 // Cast once at build time — the JSON shape is guaranteed by the sampling
-// script. We surface the type to TelemetryScatter so React is happy.
+// script. We surface the type to StrategyComparison so React is happy.
 const sampleData = sampleRaw as SampleRow[];
 
 const content = {
@@ -70,8 +76,6 @@ const content = {
 const titleLines = content.title.split('\n');
 
 // 4 KPIs: { value, suffix, decimals, label }
-// We compute the actual numbers from the sample + the design narrative so they
-// stay consistent with the rest of the portfolio.
 const kpis = [
   { value: 100, decimals: 0, suffix: '%' },                 // model completion
   { value: 74.3, decimals: 1, suffix: '%' },                // traditional baseline
@@ -135,22 +139,17 @@ const kpis = [
       ))}
     </div>
 
-    <!-- Scatter plot card -->
+    <!-- Strategy comparison card -->
     <div class="strategy-section__chart reveal" style="--reveal-delay: 660ms">
-      <TelemetryScatter client:visible locale={locale} data={sampleData} />
+      <StrategyComparison client:visible locale={locale} data={sampleData} />
     </div>
   </div>
 </section>
 
 <script>
   /**
-   * Reveal-on-scroll: when the section enters the viewport, every child with
-   * the .reveal class gets .is-visible. Stagger is done via inline
-   * --reveal-delay custom property (matches PhysicsSection pattern so the
-   * whole portfolio animates cohesively).
-   *
-   * Also tweens the KPI counters from 0 → data-kpi-value once each KPI
-   * enters the viewport. Tabular-nums keeps digit widths stable.
+   * Reveal-on-scroll + KPI counter animation.
+   * Pattern matches PhysicsSection so the portfolio animates cohesively.
    */
   const init = () => {
     const section = document.querySelector<HTMLElement>('[data-section="strategy-data"]');
@@ -161,18 +160,15 @@ const kpis = [
 
     if (reducedMotion) {
       reveals.forEach((el) => el.classList.add('is-visible'));
-      // KPIs render at their final value (no animation needed).
       return;
     }
 
-    // Reveal observer — single observer for the whole section.
     const revealObserver = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
           if (!entry.isIntersecting) continue;
           const target = entry.target as HTMLElement;
           target.classList.add('is-visible');
-          // Stagger children that carry an inline --reveal-delay.
           target.querySelectorAll<HTMLElement>('.reveal').forEach((el, idx) => {
             const delayVar = parseFloat(el.style.getPropertyValue('--reveal-delay')) || idx * 80;
             window.setTimeout(() => el.classList.add('is-visible'), delayVar);
@@ -184,7 +180,6 @@ const kpis = [
     );
     revealObserver.observe(section);
 
-    // KPI counter animation — each KPI tweens when it enters the viewport.
     const kpis = section.querySelectorAll<HTMLElement>('.strategy-kpi');
     const animateKpi = (el: HTMLElement) => {
       const value = parseFloat(el.dataset.kpiValue ?? '0');
@@ -205,7 +200,6 @@ const kpis = [
         if (t < 1) requestAnimationFrame(tick);
       };
 
-      // Reset to 0 just before starting so the user sees the tween.
       numEl.textContent = decimals > 0 ? '0'.padEnd(decimals + 2, '0') : '0';
       requestAnimationFrame(tick);
     };
@@ -232,7 +226,7 @@ const kpis = [
 
 <style>
   /* ============================================================================
-   * StrategySection — dashboard layout: header → KPIs → scatter
+   * StrategySection — dashboard layout: header → KPIs → comparison card
    * ========================================================================= */
   .strategy-section {
     position: relative;
@@ -363,7 +357,7 @@ const kpis = [
     line-height: var(--leading-normal);
   }
 
-  /* Scatter wrapper ---------------------------------------------------------- */
+  /* Comparison chart wrapper ------------------------------------------------- */
   .strategy-section__chart {
     background: var(--primary);
     border: 1px solid var(--rule);
@@ -378,8 +372,7 @@ const kpis = [
   }
 
   /* ============================================================================
-   * Reveal animation — opacity 0→1, translateY(20px)→0
-   * Mirrors the PhysicsSection pattern so the whole portfolio animates as one.
+   * Reveal animation
    * ========================================================================= */
   .reveal {
     opacity: 0;

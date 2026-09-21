@@ -1,22 +1,18 @@
 /**
- * circuits.ts — Bilingual metadata for the 5 F1 circuits rendered by the
- * Simulation section.
+ * circuits.ts — Single training circuit used by Section 02.
  *
- * Path data (`pathD`) is extracted from the canonical TFG track JSON files at
- * `Estudio#/simulation/structures/*_track.json` via a build-time script
- * (`scripts/extract_circuits.py`) and stored in `circuits.json`. The script
- * runs Ramer-Douglas-Peucker simplification to ~110 points per track, then
- * normalizes coordinates into a 400×240 viewBox with 16px inner padding.
+ * Now reduced to a single generic "training circuit" — Section 02 (the
+ * simulator) doesn't render named tracks; the rest of the portfolio refers
+ * to it by generic description only. Path data is the same Ramer-Douglas-
+ * Peucker-simplified centerline that used to back the 5-circuit grid,
+ * normalised to a 400×240 source viewBox with 16px inner padding.
  *
- * Stylized representations — coordinates are planar (x, z) from the original
- * GPS-extracted tracks, NOT pixel-perfect track drawings. The shapes
- * preserve each circuit's signature character (Monaco's hairpin, Monza's
- * straights, Spa's flowing Eau Rouge, etc.) but should be read as
- * telemetry-grade abstractions, not cartographic surveys.
+ * Source: scripts/extract_circuits.py against `Estudio#/simulation/
+ * structures/*_track.json` (kept for traceability).
  */
 import circuitsRaw from './circuits/circuits.json';
 
-export type CircuitId = 'monaco' | 'barcelona' | 'monza' | 'spa' | 'silverstone';
+export type CircuitId = 'training';
 
 export interface Circuit {
   id: CircuitId;
@@ -24,13 +20,13 @@ export interface Circuit {
   nameEs: string;
   /** English display name */
   nameEn: string;
-  /** Country (Spanish) */
+  /** Country (Spanish) — empty in single-circuit mode */
   countryEs: string;
-  /** Country (English) */
+  /** Country (English) — empty in single-circuit mode */
   countryEn: string;
   /** Length in kilometers */
   lengthKm: number;
-  /** Number of turns */
+  /** Number of turns (preserved from the canonical track) */
   turns: number;
   /** First year this circuit was active in the simulator */
   yearActive: number;
@@ -45,85 +41,32 @@ const raw = circuitsRaw as unknown as Record<
   { length_m: number; turns: number | null; circuit: string; location: string | null; path_d: string }
 >;
 
-/** Barcelona is missing `turns` in its source JSON — supplement from the TFG. */
-const BARCELONA_TURNS = 16;
-
-const circuits: Circuit[] = [
-  {
-    id: 'barcelona',
-    nameEs: 'Barcelona-Catalunya',
-    nameEn: 'Barcelona-Catalunya',
-    countryEs: 'España',
-    countryEn: 'Spain',
-    lengthKm: roundKm(raw.barcelona.length_m),
-    turns: BARCELONA_TURNS,
-    yearActive: 2024,
-    pathD: raw.barcelona.path_d,
-    totalCheckpoints: 16,
-  },
-  {
-    id: 'monaco',
-    nameEs: 'Mónaco',
-    nameEn: 'Monaco',
-    countryEs: 'Mónaco',
-    countryEn: 'Monaco',
-    lengthKm: roundKm(raw.monaco.length_m),
-    turns: raw.monaco.turns ?? 19,
-    yearActive: 2024,
-    pathD: raw.monaco.path_d,
-    totalCheckpoints: 19,
-  },
-  {
-    id: 'monza',
-    nameEs: 'Monza',
-    nameEn: 'Monza',
-    countryEs: 'Italia',
-    countryEn: 'Italy',
-    lengthKm: roundKm(raw.monza.length_m),
-    turns: raw.monza.turns ?? 11,
-    yearActive: 2024,
-    pathD: raw.monza.path_d,
-    totalCheckpoints: 11,
-  },
-  {
-    id: 'spa',
-    nameEs: 'Spa-Francorchamps',
-    nameEn: 'Spa-Francorchamps',
-    countryEs: 'Bélgica',
-    countryEn: 'Belgium',
-    lengthKm: roundKm(raw.spa.length_m),
-    turns: raw.spa.turns ?? 19,
-    yearActive: 2024,
-    pathD: raw.spa.path_d,
-    totalCheckpoints: 19,
-  },
-  {
-    id: 'silverstone',
-    nameEs: 'Silverstone',
-    nameEn: 'Silverstone',
-    countryEs: 'Reino Unido',
-    countryEn: 'United Kingdom',
-    lengthKm: roundKm(raw.silverstone.length_m),
-    turns: raw.silverstone.turns ?? 18,
-    yearActive: 2024,
-    pathD: raw.silverstone.path_d,
-    totalCheckpoints: 18,
-  },
-];
+/**
+ * Single training circuit. Identity-agnostic on purpose — the section copy
+ * describes it as a generic simplified track. The data is taken from the
+ * canonical track source so dimensions and shape stay accurate.
+ */
+const trainingCircuit: Circuit = {
+  id: 'training',
+  nameEs: 'Circuito de entrenamiento',
+  nameEn: 'Training circuit',
+  countryEs: '',
+  countryEn: '',
+  lengthKm: roundKm(raw.barcelona.length_m),
+  turns: raw.barcelona.turns ?? 16,
+  yearActive: 2024,
+  pathD: raw.barcelona.path_d,
+  totalCheckpoints: 12,
+};
 
 function roundKm(meters: number): number {
   return Math.round((meters / 1000) * 1000) / 1000;
 }
 
-export const circuitsById = Object.fromEntries(circuits.map((c) => [c.id, c])) as Record<
-  CircuitId,
-  Circuit
->;
+const circuits: Circuit[] = [trainingCircuit];
+
+export const circuitsById = {
+  training: trainingCircuit,
+} as const;
 
 export default circuits;
-
-/** Returns the min and max track length across all circuits. */
-export function trackLengthRange(): { min: number; max: number } {
-  const lengths = circuits.map((c) => c.lengthKm);
-  return { min: Math.min(...lengths), max: Math.max(...lengths) };
-}

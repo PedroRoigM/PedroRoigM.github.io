@@ -48,7 +48,7 @@ interface LayerDef {
 }
 
 const VB_W = 800;
-const VB_H = 400;
+const VB_H = 460;
 const PAD_X = 70;
 
 // X positions of each column in the diagram. Pulled inward so the right
@@ -56,19 +56,21 @@ const PAD_X = 70;
 const COL_X = {
   input: PAD_X,
   fc1: PAD_X + 150,
-  fc2: PAD_X + 260,
-  fc3: PAD_X + 370,
-  merge: PAD_X + 370,
+  fc2: PAD_X + 270,
+  // fc3 + merge share a single column — the bar IS the merged state h.
+  // The skip projection curves into this column from below.
+  fc3: PAD_X + 380,
+  merge: PAD_X + 380,
   heads: PAD_X + 510,
-  output: PAD_X + 600,
+  output: PAD_X + 620,
 };
 
 const LAYERS: LayerDef[] = [
   { id: 'input', label: '47 inputs', count: 47, kind: 'dots', dots: 12, subtitle: 'rays + speed + pos' },
   { id: 'fc1', label: 'fc1', subtitle: '128 · tanh', count: 128, kind: 'bar' },
   { id: 'fc2', label: 'fc2', subtitle: '128 · tanh', count: 128, kind: 'bar' },
-  { id: 'fc3', label: 'fc3', subtitle: '64 · tanh', count: 64, kind: 'bar' },
-  { id: 'merge', label: 'h', subtitle: '+ skip merge', count: 64, kind: 'bar' },
+  { id: 'fc3', label: 'h', subtitle: 'fc3 + skip · 64', count: 64, kind: 'bar' },
+  // merge is rendered through fc3 — no separate entry to avoid double label
   { id: 'heads', label: 'heads', subtitle: '64 → 16 → 1', count: 16, kind: 'dots', dots: 5 },
   { id: 'output', label: 'outputs', subtitle: '3 actions', count: 3, kind: 'dots', dots: 3 },
 ];
@@ -85,7 +87,7 @@ const PARAM_ESTIMATE = '~25K';
 // Geometry helpers
 // ---------------------------------------------------------------------------
 const PLOT_TOP = 40;
-const PLOT_BOTTOM = VB_H - 70;
+const PLOT_BOTTOM = 320;
 
 /** Generate `count` vertical positions evenly distributed around centerY. */
 function dotPositions(count: number, centerY: number): number[] {
@@ -111,8 +113,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
       ['input', 'fc1'],
       ['fc1', 'fc2'],
       ['fc2', 'fc3'],
-      ['fc3', 'merge'],
-      ['merge', 'heads'],
+      ['fc3', 'heads'],
       ['heads', 'output'],
     ];
     return pairs.map(([from, to]) => {
@@ -155,16 +156,19 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
   }, []);
 
   const skipBezier = useMemo(() => {
-    // Curved bezier from input column to the merge column, dipping below the
-    // backbone so it visually "skips" the intermediate layers.
+    // Curved bezier from input column to the merge column, dipping well below
+    // the backbone (and below the layer labels) so it visually "skips" the
+    // intermediate layers. With y0=y1=180 (midpoint of plot area) and
+    // cy1=cy2=470, the curve's lowest point is ~y=398 — safely below the
+    // layer subtitles (y=358) and above the skip-projection label (y=425).
     const x0 = COL_X.input + 6;
     const y0 = (PLOT_TOP + PLOT_BOTTOM) / 2;
     const x1 = COL_X.merge;
     const y1 = (PLOT_TOP + PLOT_BOTTOM) / 2;
-    const cx1 = x0 + 40;
-    const cy1 = PLOT_BOTTOM + 30;
-    const cx2 = x1 - 40;
-    const cy2 = PLOT_BOTTOM + 30;
+    const cx1 = x0 + 60;
+    const cy1 = 470;
+    const cx2 = x1 - 60;
+    const cy2 = 470;
     return `M ${x0} ${y0} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x1} ${y1}`;
   }, []);
 
@@ -408,7 +412,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
         />
         <text
           x={(COL_X.input + COL_X.merge) / 2}
-          y={PLOT_BOTTOM + 30}
+          y={425}
           textAnchor="middle"
           fontSize="9"
           fontFamily="var(--font-display)"

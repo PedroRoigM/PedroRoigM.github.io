@@ -1,12 +1,13 @@
 {
   "source": "Estudio#/evaluation_results + FastF1 library reference data (2024 season)",
-  "model": "TFG section 4.9 — empirical contrast vs real F1 race telemetry",
+  "model": "Empirical contrast vs real F1 race telemetry",
   "generated": "2026-07-10",
   "circuits": [
     {
       "id": "barcelona",
       "name": "Barcelona-Catalunya",
-      "country": "España",
+      "country_es": "España",
+      "country_en": "Spain",
       "length_km": 4.657,
       "turns": 16,
       "downforce_level": "alto",
@@ -42,7 +43,8 @@
     {
       "id": "bahrain",
       "name": "Bahrain",
-      "country": "Bahréin",
+      "country_es": "Bahréin",
+      "country_en": "Bahrain",
       "length_km": 5.412,
       "turns": 15,
       "downforce_level": "medio-alto",
@@ -59,7 +61,7 @@
         "actual_stops": 2,
         "typical_window_laps": [15, 23],
         "common_compounds": ["Soft", "Hard"],
-        "reference_team": "Renault 2024",
+        "reference_team": "Alpine 2024",
         "notes": "Las ventanas de pitstop caen dentro del rango predicho. Desgaste extremo por abrasión y calor (32°C).",
         "lap_times": {
           "soft":  { "best_s": 88.40, "avg_s": 96.10, "final_wear_pct": 78.0, "laps_completed": 18 },
@@ -71,14 +73,15 @@
         "stops_match": true,
         "window_overlap_pct": 85,
         "confidence": 0.88,
-        "quote_es": "Las ventanas de pit coinciden con la estrategia ejecutada por Renault en el Bahrain 2024.",
-        "quote_en": "Pit windows coincide with the strategy executed by Renault at Bahrain 2024."
+        "quote_es": "Las ventanas de pit coinciden con la estrategia ejecutada por Alpine en el Bahrain 2024.",
+        "quote_en": "Pit windows coincide with the strategy executed by Alpine at Bahrain 2024."
       }
     },
     {
       "id": "monza",
       "name": "Monza",
-      "country": "Italia",
+      "country_es": "Italia",
+      "country_en": "Italy",
       "length_km": 5.793,
       "turns": 11,
       "downforce_level": "bajo",
@@ -113,7 +116,7 @@
     }
   ],
   "footer": {
-    "es": "Apartado 4.9 del TFG. Las predicciones del modelo se comparan con las paradas reales registradas en cada circuito.",
-    "en": "Section 4.9 of the TFG. The model predictions are compared with the pit stops actually recorded at each circuit."
+    "es": "Las predicciones del modelo se contrastan empíricamente con las paradas reales registradas en cada Gran Premio. La metodología es la misma que aplican los ingenieros de pista en cada carrera.",
+    "en": "Model predictions are empirically contrasted with actual pit stops recorded at each Grand Prix. The methodology mirrors what race engineers apply on every race weekend."
   }
 }

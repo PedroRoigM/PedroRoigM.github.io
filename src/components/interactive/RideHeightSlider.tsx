@@ -4,7 +4,7 @@
  * Pacejka curve + numerical readouts for lateral grip, aerodynamic downforce,
  * drag, and max cornering speed.
  *
- * Physics (mirrors the TFG simulator `physics/tyres.py` + `aerodinamics.py`):
+ * Physics (mirrors the simulator `physics/tyres.py` + `aerodinamics.py`):
  *   - Pacejka '94 magic formula for lateral force vs slip angle.
  *   - Aero model: Cl piecewise on ride height (low → high downforce).
  *   - Downforce rescales the curve's peak D — i.e. more vertical load →
@@ -279,7 +279,7 @@ export default function RideHeightSlider({ locale }: RideHeightSliderProps) {
           background:
             radial-gradient(
               ellipse at top right,
-              rgba(33, 158, 188, 0.06) 0%,
+              rgba(168, 216, 0, 0.06) 0%,
               transparent 60%
             ),
             linear-gradient(180deg, var(--primary) 0%, var(--ink-2) 100%);
@@ -395,7 +395,7 @@ export default function RideHeightSlider({ locale }: RideHeightSliderProps) {
           border: 2px solid var(--ink);
           box-shadow:
             0 0 0 2px var(--accent),
-            0 0 12px rgba(255, 183, 3, 0.35);
+            0 0 12px rgba(255, 91, 58, 0.35);
           margin-top: -6px;
           transition:
             transform var(--motion-duration-short) var(--motion-ease-out),
@@ -409,7 +409,7 @@ export default function RideHeightSlider({ locale }: RideHeightSliderProps) {
           border: 2px solid var(--ink);
           box-shadow:
             0 0 0 2px var(--accent),
-            0 0 12px rgba(255, 183, 3, 0.35);
+            0 0 12px rgba(255, 91, 58, 0.35);
           transition:
             transform var(--motion-duration-short) var(--motion-ease-out),
             box-shadow var(--motion-duration-short) var(--motion-ease-out);
@@ -420,13 +420,13 @@ export default function RideHeightSlider({ locale }: RideHeightSliderProps) {
         .physics-slider__input:focus-visible::-webkit-slider-thumb {
           box-shadow:
             0 0 0 4px var(--accent),
-            0 0 18px rgba(255, 183, 3, 0.5);
+            0 0 18px rgba(255, 91, 58, 0.5);
           transform: scale(1.15);
         }
         .physics-slider__input:focus-visible::-moz-range-thumb {
           box-shadow:
             0 0 0 4px var(--accent),
-            0 0 18px rgba(255, 183, 3, 0.5);
+            0 0 18px rgba(255, 91, 58, 0.5);
           transform: scale(1.15);
         }
         .physics-slider__input:active::-webkit-slider-thumb {
@@ -473,7 +473,7 @@ export default function RideHeightSlider({ locale }: RideHeightSliderProps) {
           gap: 2px;
         }
         .physics-readout--accent {
-          background: linear-gradient(180deg, rgba(255, 183, 3, 0.07) 0%, transparent 100%);
+          background: linear-gradient(180deg, rgba(255, 91, 58, 0.07) 0%, transparent 100%);
         }
         .physics-readout__label {
           font-family: var(--font-display);

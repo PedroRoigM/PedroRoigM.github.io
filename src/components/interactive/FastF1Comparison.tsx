@@ -17,7 +17,8 @@ import { gsap } from 'gsap';
 export interface FastF1CircuitData {
   id: 'barcelona' | 'bahrain' | 'monza';
   name: string;
-  country: string;
+  country_es: string;
+  country_en: string;
   length_km: number;
   turns: number;
   downforce_level: string;
@@ -108,6 +109,12 @@ function fmtWindow(window: [number, number], locale: 'es' | 'en'): string {
  * shown at the end. Bars live in a fixed viewBox so they look identical
  * across columns. We pick a max scale of 4 since that's the upper bound of
  * pit stops across the F1 calendar (Monaco 2024 hit 3 stops, race max ~4).
+ *
+ * Layout — labels live in their OWN row ABOVE each bar (not on the same
+ * baseline), so the bar fill is free to span the full chart width and the
+ * label text can never collide with the bar. Previously the label shared
+ * the bar's row at x=0..84, which forced the bar to start at x=84 — and
+ * "PARADAS PREDICHAS (MODELO)" overflowed past x=84 into the bar fill.
  */
 function MiniBars({
   model,
@@ -123,10 +130,19 @@ function MiniBars({
   max?: number;
 }) {
   const VB_W = 280;
-  const VB_H = 90;
-  const ROW_H = 28;
-  const LABEL_W = 84;
-  const BAR_W_MAX = VB_W - LABEL_W - 32; // leave room for the value chip
+  const VB_H = 100;
+  const BAR_H = 18;
+  // Reserve 32px on the right for the value chip + breathing room
+  const BAR_W_MAX = VB_W - 32;
+  // Y positions — label sits above the bar, number sits on the bar's right
+  // edge so it stays in the same row visually.
+  const ROW1_LABEL_Y = 11;
+  const ROW1_BAR_Y = 17;
+  const ROW1_NUM_Y = 31;
+  const ROW2_LABEL_Y = 56;
+  const ROW2_BAR_Y = 62;
+  const ROW2_NUM_Y = 76;
+  const MATCH_Y = 95;
 
   const modelW = (model / max) * BAR_W_MAX;
   const realW = (real / max) * BAR_W_MAX;
@@ -139,72 +155,76 @@ function MiniBars({
       aria-label={`${labelModel}: ${model}; ${labelReal}: ${real}`}
       style={{ width: '100%', height: 'auto', display: 'block' }}
     >
-      {/* Row 1: model */}
-      <text
-        x={0}
-        y={ROW_H * 0.65}
-        fill="var(--color-fg-muted)"
-        fontFamily="var(--font-display)"
-        fontSize="10"
-        letterSpacing="0.1em"
-      >
-        {labelModel.toUpperCase()}
-      </text>
-      <rect
-        x={LABEL_W}
-        y={ROW_H * 0.25}
-        width={Math.max(2, modelW)}
-        height={ROW_H * 0.55}
-        rx={3}
-        fill="var(--color-highlight)"
-        className="bar bar--model"
-      />
-      <text
-        x={LABEL_W + Math.max(2, modelW) + 6}
-        y={ROW_H * 0.65}
-        fill="var(--color-fg)"
-        fontFamily="var(--font-display)"
-        fontSize="14"
-        fontWeight="600"
-      >
-        {model}
-      </text>
+      {/* Row 1: model — label above, bar fills full width, number on bar's right */}
+      <g>
+        <text
+          x={0}
+          y={ROW1_LABEL_Y}
+          fill="var(--color-fg-muted)"
+          fontFamily="var(--font-display)"
+          fontSize="10"
+          letterSpacing="0.1em"
+        >
+          {labelModel.toUpperCase()}
+        </text>
+        <rect
+          x={0}
+          y={ROW1_BAR_Y}
+          width={Math.max(2, modelW)}
+          height={BAR_H}
+          rx={3}
+          fill="var(--color-highlight)"
+          className="bar bar--model"
+        />
+        <text
+          x={Math.max(2, modelW) + 6}
+          y={ROW1_NUM_Y}
+          fill="var(--color-fg)"
+          fontFamily="var(--font-display)"
+          fontSize="13"
+          fontWeight="600"
+        >
+          {model}
+        </text>
+      </g>
 
-      {/* Row 2: real */}
-      <text
-        x={0}
-        y={ROW_H * 1.55}
-        fill="var(--color-fg-muted)"
-        fontFamily="var(--font-display)"
-        fontSize="10"
-        letterSpacing="0.1em"
-      >
-        {labelReal.toUpperCase()}
-      </text>
-      <rect
-        x={LABEL_W}
-        y={ROW_H * 1.15}
-        width={Math.max(2, realW)}
-        height={ROW_H * 0.55}
-        rx={3}
-        fill="var(--color-brand)"
-        className="bar bar--real"
-      />
-      <text
-        x={LABEL_W + Math.max(2, realW) + 6}
-        y={ROW_H * 1.55}
-        fill="var(--color-fg)"
-        fontFamily="var(--font-display)"
-        fontSize="14"
-        fontWeight="600"
-      >
-        {real}
-      </text>
+      {/* Row 2: real — same pattern */}
+      <g>
+        <text
+          x={0}
+          y={ROW2_LABEL_Y}
+          fill="var(--color-fg-muted)"
+          fontFamily="var(--font-display)"
+          fontSize="10"
+          letterSpacing="0.1em"
+        >
+          {labelReal.toUpperCase()}
+        </text>
+        <rect
+          x={0}
+          y={ROW2_BAR_Y}
+          width={Math.max(2, realW)}
+          height={BAR_H}
+          rx={3}
+          fill="var(--color-brand)"
+          className="bar bar--real"
+        />
+        <text
+          x={Math.max(2, realW) + 6}
+          y={ROW2_NUM_Y}
+          fill="var(--color-fg)"
+          fontFamily="var(--font-display)"
+          fontSize="13"
+          fontWeight="600"
+        >
+          {real}
+        </text>
+      </g>
 
-      {/* Match marker */}
+      {/* Match marker — bottom-right, anchored to viewBox edge */}
       <text
         x={VB_W}
-        y={ROW_H * 2.3}
+        y={MATCH_Y}
         textAnchor="end"
         fill={match ? 'var(--color-highlight)' : 'var(--color-fg-muted)'}
         fontFamily="var(--font-display)"
@@ -310,7 +330,7 @@ export default function FastF1Comparison({ locale, data }: FastF1ComparisonProps
               <h3 id={`fastf1-${c.id}-name`} className="fastf1-col__name">
                 {c.name}
               </h3>
-              <p className="fastf1-col__country">{c.country}</p>
+              <p className="fastf1-col__country">{locale === 'es' ? c.country_es : c.country_en}</p>
               <dl className="fastf1-col__stats">
                 <div>
                   <dt>{copy.header.length}</dt>
@@ -422,7 +442,7 @@ export default function FastF1Comparison({ locale, data }: FastF1ComparisonProps
           inset: 0;
           background: radial-gradient(
             ellipse 80% 40% at 50% 0%,
-            rgba(33, 158, 188, 0.07) 0%,
+            rgba(125, 151, 184, 0.07) 0%,
             transparent 70%
           );
           pointer-events: none;
@@ -524,14 +544,14 @@ export default function FastF1Comparison({ locale, data }: FastF1ComparisonProps
           font-size: var(--text-xs);
           letter-spacing: var(--tracking-wide);
           padding: 4px 8px;
-          background: rgba(255, 183, 3, 0.12);
-          border: 1px solid rgba(255, 183, 3, 0.3);
+          background: rgba(255, 91, 58, 0.12);
+          border: 1px solid rgba(255, 91, 58, 0.3);
           border-radius: var(--radius-sm);
           color: var(--color-highlight);
         }
         .fastf1-col__chip--alt {
-          background: rgba(33, 158, 188, 0.12);
-          border-color: rgba(33, 158, 188, 0.3);
+          background: rgba(125, 151, 184, 0.12);
+          border-color: rgba(125, 151, 184, 0.3);
           color: var(--color-brand);
         }
         .fastf1-col__quote {
@@ -586,14 +606,14 @@ export default function FastF1Comparison({ locale, data }: FastF1ComparisonProps
           border: 1px solid currentColor;
         }
         .fastf1-col__badge.is-valid {
-          background: rgba(255, 183, 3, 0.10);
+          background: rgba(255, 91, 58, 0.10);
           color: var(--color-highlight);
-          border-color: rgba(255, 183, 3, 0.4);
+          border-color: rgba(255, 91, 58, 0.4);
         }
         .fastf1-col__badge.is-warn {
-          background: rgba(142, 202, 230, 0.10);
+          background: rgba(125, 151, 184, 0.10);
           color: var(--color-fg-muted);
-          border-color: rgba(142, 202, 230, 0.3);
+          border-color: rgba(125, 151, 184, 0.3);
         }
         .fastf1-col__confidence {
           margin-left: 4px;
