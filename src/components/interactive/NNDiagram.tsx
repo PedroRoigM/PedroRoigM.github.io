@@ -379,16 +379,14 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
       {/* ---- Connection lines (drawn first, behind nodes) ---------------- */}
       <g aria-hidden="true" style={{ pointerEvents: 'none' }}>
         {connections.map(({ from, to, d }) => {
-          // Per-pair base opacity tuned for the visual mesh density:
-          // input->fc1 has 96 lines (densest), the inner bars have 64,
-          // fc3->heads has 40, and heads->output has 15. The output
-          // fan stays prominent at 0.45.
+          // Per-pair base opacity — bumped across the board so the
+          // backbone reads as clearly as the heads->output fan.
           const baseOpacity =
             to === 'output'
-              ? 0.45
+              ? 0.5
               : from === 'input' || to === 'fc1'
-                ? 0.22
-                : 0.28;
+                ? 0.4
+                : 0.5;
           return (
             <path
               key={`${from}-${to}`}
