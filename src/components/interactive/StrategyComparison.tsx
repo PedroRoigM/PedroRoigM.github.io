@@ -178,7 +178,11 @@ export default function StrategyComparison({ locale, data }: Props) {
     };
   }, [hasAnimated]);
 
-  // Bars animation: after KPI cards finish, sweep bars in
+  // Bars animation: after KPI cards finish, sweep bars up from the baseline.
+  // Vertical bars grow from bottom to top (scaleY 0→1 anchored at the
+  // bottom edge), which is the natural UX for a vertical-bar chart —
+  // the previous `scaleX` with `left center` origin made them sweep in
+  // horizontally, which reads wrong for this geometry.
   useEffect(() => {
     if (!hasAnimated || !barsRef.current) return;
     const bars = Array.from(
@@ -189,9 +193,9 @@ export default function StrategyComparison({ locale, data }: Props) {
     if (reduced) return;
     gsap.fromTo(
       bars,
-      { scaleX: 0, transformOrigin: 'left center' },
+      { scaleY: 0, transformOrigin: 'center bottom' },
       {
-        scaleX: 1,
+        scaleY: 1,
         duration: 0.85,
         stagger: 0.08,
         ease: 'power3.out',
