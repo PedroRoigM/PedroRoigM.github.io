@@ -35,29 +35,41 @@ const content = {
   ],
 
   nowKicker: '// 02 — NOW',
-  nowTitle: 'What I’m working on',
-  nowSubtitle: 'TFG · Multi-Agent System for F1',
-  nowPeriod: 'Jul 2025 — Present',
+  nowTitle: 'What’s next',
+  nowSubtitle: 'Master’s in Competition Vehicle Engineering',
+  nowOrg: 'Universidad Nebrija',
+  nowPeriod: 'Starting soon · 2026 — 2027',
   nowBody:
-    'F1 simulator combining realistic physics with AI. A Reinforcement Learning agent drives the car and generates detailed telemetry; a second model analyses that data to make pit stop and tyre decisions. Replicates the full analysis pipeline used by real F1 teams.',
-  nowTech: ['Python', 'Reinforcement Learning', 'Pandas', 'NumPy', 'Matplotlib'],
-  nowCta: 'View portfolio →',
-  nowHref: '/en/f1',
+    'Specialised programme in motorsport engineering: vehicle dynamics, powertrain systems, aerodynamics and telemetry. The natural continuation of the F1 TFG — this time with hands on the data, on track.',
+  nowTags: ['Motorsport', 'Vehicle dynamics', 'Powertrain', 'Aerodynamics', 'Telemetry'],
 
   timelineKicker: '// 03 — JOURNEY',
   timelineTitle: 'Experience and education',
   timeline: [
     {
-      period: 'Jul 2025 — Present',
-      title: 'F1 Race Strategy Optimization · TFG',
-      org: 'Personal project',
+      period: 'Sep 2026 — Present',
+      title: 'Full Stack Developer',
+      org: 'Ermine',
       points: [
-        'F1 simulator with realistic physics + AI',
-        'Reinforcement Learning for driving and strategy',
-        'Detailed telemetry: pit stop and tyre decisions',
+        'Lead end-to-end projects with Java (backend), TypeScript and React',
+        'Adopt and scale Claude Code and AI agents across the team',
+        'Automate development and deployment workflows',
+        'Mentor interns on engineering best practices',
       ],
-      tech: ['Python', 'RL', 'Pandas', 'NumPy', 'Matplotlib'],
+      tech: ['Java', 'TypeScript', 'React', 'Claude Code', 'Agents'],
       featured: true,
+    },
+    {
+      period: 'Mar 2026 — Aug 2026',
+      title: 'Internship · Full Stack Developer',
+      org: 'Ermine',
+      points: [
+        'Contribute full-stack features in Java, TypeScript and React',
+        'First steps with Claude Code, agents and automated workflows',
+        'Support project delivery under mentorship',
+        'Agile team collaboration',
+      ],
+      tech: ['Java', 'TypeScript', 'React', 'Claude Code'],
     },
     {
       period: '06/2025 — 09/2025',
@@ -199,20 +211,19 @@ const content = {
           </h2>
         </div>
 
-        <a href={content.nowHref} class="home__now-card reveal" style="--reveal-delay: 120ms">
+        <div class="home__now-card reveal" style="--reveal-delay: 120ms">
           <div class="home__now-card-head">
             <div>
               <p class="home__now-period">{content.nowPeriod}</p>
               <h3 class="home__now-title">{content.nowSubtitle}</h3>
+              <p class="home__now-org">{content.nowOrg}</p>
             </div>
-            <span class="home__now-arrow" aria-hidden="true">→</span>
           </div>
           <p class="home__now-body">{content.nowBody}</p>
-          <ul class="home__now-tech">
-            {content.nowTech.map((t) => <li>{t}</li>)}
+          <ul class="home__now-tags">
+            {content.nowTags.map((t) => <li>{t}</li>)}
           </ul>
-          <span class="home__now-cta">{content.nowCta}</span>
-        </a>
+        </div>
       </div>
     </section>
 
@@ -588,26 +599,12 @@ const content = {
     border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
-    text-decoration: none;
     color: inherit;
-    transition:
-      border-color var(--motion-duration-moderate) var(--motion-ease-out),
-      transform var(--motion-duration-moderate) var(--motion-ease-out),
-      box-shadow var(--motion-duration-moderate) var(--motion-ease-out);
   }
   @media (min-width: 768px) {
     .home__now-card { padding: var(--space-8); }
   }
-  .home__now-card:hover {
-    border-color: var(--color-brand);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-  }
   .home__now-card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
     margin-bottom: var(--space-4);
   }
   .home__now-period {
@@ -625,17 +622,13 @@ const content = {
     line-height: 1.1;
     letter-spacing: var(--tracking-snug);
     color: var(--color-fg);
-    margin: 0;
+    margin: 0 0 var(--space-2);
   }
-  .home__now-arrow {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
+  .home__now-org {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
     color: var(--color-brand);
-    transition: transform var(--motion-duration-moderate) var(--motion-ease-out);
-    flex-shrink: 0;
-  }
-  .home__now-card:hover .home__now-arrow {
-    transform: translateX(6px);
+    margin: 0;
   }
   .home__now-body {
     font-family: var(--font-body);
@@ -645,15 +638,15 @@ const content = {
     margin: 0 0 var(--space-5);
     max-width: 64ch;
   }
-  .home__now-tech {
+  .home__now-tags {
     list-style: none;
     padding: 0;
-    margin: 0 0 var(--space-5);
+    margin: 0;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
-  .home__now-tech li {
+  .home__now-tags li {
     font-family: var(--font-display);
     font-size: var(--text-xs);
     padding: var(--space-1) var(--space-3);
@@ -662,14 +655,6 @@ const content = {
     border-radius: var(--radius-sm);
     color: var(--color-fg);
     letter-spacing: var(--tracking-wide);
-  }
-  .home__now-cta {
-    font-family: var(--font-display);
-    font-size: var(--text-sm);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-brand);
-    font-weight: 600;
   }
 
   .home__timeline-head { margin-bottom: var(--space-8); }

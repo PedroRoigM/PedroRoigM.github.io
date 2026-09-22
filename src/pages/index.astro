@@ -45,29 +45,41 @@ const content = {
   ],
 
   nowKicker: '// 02 — AHORA',
-  nowTitle: 'En qué estoy',
-  nowSubtitle: 'TFG · Sistema multi-agente para F1',
-  nowPeriod: 'Jul 2025 — Actualidad',
+  nowTitle: 'Lo siguiente',
+  nowSubtitle: 'Master en Ingeniería de Vehículos de Competición',
+  nowOrg: 'Universidad Nebrija',
+  nowPeriod: 'Próximamente · 2026 — 2027',
   nowBody:
-    'Simulador de F1 que combina físicas realistas con IA. Una IA con Reinforcement Learning pilota el coche y genera telemetría detallada; un segundo modelo analiza esos datos para tomar decisiones de pit stop y neumáticos. Replica el pipeline completo de análisis que usan los equipos reales.',
-  nowTech: ['Python', 'Reinforcement Learning', 'Pandas', 'NumPy', 'Matplotlib'],
-  nowCta: 'Ver portfolio →',
-  nowHref: '/f1',
+    'Programa especializado en ingeniería de motorsport: dinámica vehicular, sistemas de propulsión, aerodinámica y telemetría. La continuación natural del TFG de F1 — esta vez con las manos en los datos en pista.',
+  nowTags: ['Motorsport', 'Dinámica vehicular', 'Propulsión', 'Aerodinámica', 'Telemetría'],
 
   timelineKicker: '// 03 — TRAYECTORIA',
   timelineTitle: 'Experiencia y formación',
   timeline: [
     {
-      period: 'Jul 2025 — Actualidad',
-      title: 'F1 Race Strategy Optimization · TFG',
-      org: 'Proyecto personal',
+      period: 'Sep 2026 — Actualidad',
+      title: 'Full Stack Developer',
+      org: 'Ermine',
       points: [
-        'Simulador F1 con físicas realistas + IA',
-        'Reinforcement Learning para pilotaje y estrategia',
-        'Telemetría detallada: decisiones pit stop y neumáticos',
+        'Liderar proyectos end-to-end con Java (backend), TypeScript y React',
+        'Adoptar y escalar el uso de Claude Code y agentes en el equipo',
+        'Automatización de flujos de desarrollo y despliegue',
+        'Mentorear al equipo de prácticas en buenas prácticas de ingeniería',
       ],
-      tech: ['Python', 'RL', 'Pandas', 'NumPy', 'Matplotlib'],
+      tech: ['Java', 'TypeScript', 'React', 'Claude Code', 'Agentes'],
       featured: true,
+    },
+    {
+      period: 'Mar 2026 — Ago 2026',
+      title: 'Prácticas · Full Stack Developer',
+      org: 'Ermine',
+      points: [
+        'Contribuir a features full stack con Java, TypeScript y React',
+        'Primeros pasos con Claude Code, agentes y flujos automatizados',
+        'Apoyar la entrega de proyectos bajo mentoría',
+        'Trabajo en equipo con metodologías ágiles',
+      ],
+      tech: ['Java', 'TypeScript', 'React', 'Claude Code'],
     },
     {
       period: '06/2025 — 09/2025',
@@ -215,20 +227,19 @@ const content = {
           </h2>
         </div>
 
-        <a href={content.nowHref} class="home__now-card reveal" style="--reveal-delay: 120ms">
+        <div class="home__now-card reveal" style="--reveal-delay: 120ms">
           <div class="home__now-card-head">
             <div>
               <p class="home__now-period">{content.nowPeriod}</p>
               <h3 class="home__now-title">{content.nowSubtitle}</h3>
+              <p class="home__now-org">{content.nowOrg}</p>
             </div>
-            <span class="home__now-arrow" aria-hidden="true">→</span>
           </div>
           <p class="home__now-body">{content.nowBody}</p>
-          <ul class="home__now-tech">
-            {content.nowTech.map((t) => <li>{t}</li>)}
+          <ul class="home__now-tags">
+            {content.nowTags.map((t) => <li>{t}</li>)}
           </ul>
-          <span class="home__now-cta">{content.nowCta}</span>
-        </a>
+        </div>
       </div>
     </section>
 
@@ -681,12 +692,7 @@ const content = {
     border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     padding: var(--space-6);
-    text-decoration: none;
     color: inherit;
-    transition:
-      border-color var(--motion-duration-moderate) var(--motion-ease-out),
-      transform var(--motion-duration-moderate) var(--motion-ease-out),
-      box-shadow var(--motion-duration-moderate) var(--motion-ease-out);
   }
 
   @media (min-width: 768px) {
@@ -695,17 +701,7 @@ const content = {
     }
   }
 
-  .home__now-card:hover {
-    border-color: var(--color-brand);
-    transform: translateY(-3px);
-    box-shadow: var(--shadow-md);
-  }
-
   .home__now-card-head {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: var(--space-4);
     margin-bottom: var(--space-4);
   }
 
@@ -725,19 +721,14 @@ const content = {
     line-height: 1.1;
     letter-spacing: var(--tracking-snug);
     color: var(--color-fg);
-    margin: 0;
+    margin: 0 0 var(--space-2);
   }
 
-  .home__now-arrow {
-    font-family: var(--font-display);
-    font-size: var(--text-xl);
+  .home__now-org {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
     color: var(--color-brand);
-    transition: transform var(--motion-duration-moderate) var(--motion-ease-out);
-    flex-shrink: 0;
-  }
-
-  .home__now-card:hover .home__now-arrow {
-    transform: translateX(6px);
+    margin: 0;
   }
 
   .home__now-body {
@@ -749,16 +740,16 @@ const content = {
     max-width: 64ch;
   }
 
-  .home__now-tech {
+  .home__now-tags {
     list-style: none;
     padding: 0;
-    margin: 0 0 var(--space-5);
+    margin: 0;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
   }
 
-  .home__now-tech li {
+  .home__now-tags li {
     font-family: var(--font-display);
     font-size: var(--text-xs);
     padding: var(--space-1) var(--space-3);
@@ -767,15 +758,6 @@ const content = {
     border-radius: var(--radius-sm);
     color: var(--color-fg);
     letter-spacing: var(--tracking-wide);
-  }
-
-  .home__now-cta {
-    font-family: var(--font-display);
-    font-size: var(--text-sm);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-brand);
-    font-weight: 600;
   }
 
   /* ============================================================
