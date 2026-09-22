@@ -64,10 +64,17 @@ useGLTF.setDecoderPath(FALLBACK_URL);
 // Renault R25 (2005) palette — Alonso championship-winning livery.
 // Predominantly blue bodywork with yellow accents on rims, side stripes,
 // and livery band.
+//
+// Colour reference (Mild Seven tobacco brand livery, 2005 spec):
+//   - Body blue (Mild Seven Blue): a saturated mid-tone, slightly darker
+//     than the previous #1B6FB8 value, closer to the photographic
+//     reality of the era (#16539C-ish).
+//   - Accent yellow (Mild Seven Yellow): a high-chroma yellow,
+//     #FFE500-ish, with a slight green undertone in the highlights.
 // ─────────────────────────────────────────────────────────────────────────────
-const R25_BLUE = '#1B6FB8'; // Mild Seven Blue — dominant bodywork color
-const R25_YELLOW = '#FFEF00'; // Mild Seven Yellow — accents, rims, side stripe
-const INK = '#0a0e14'; // Page ink — tyres, halo, structural black
+const R25_BLUE = '#16539C'; // Mild Seven Blue — dominant bodywork color
+const R25_YELLOW = '#FFE500'; // Mild Seven Yellow — accents, rims, side stripe
+const INK = '#08090c'; // Page ink — tyres, halo, structural black
 const RIM_INK = '#1a1d24'; // Slightly lighter than tyre for inner rim contrast
 const SCREEN_TINT = '#0d2230'; // Cockpit screen — dark with cyan undertone
 
@@ -131,29 +138,32 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
       {WHEEL_POSITIONS.map((pos, i) => (
         <group key={i} position={pos}>
           {/* Yellow inner-rim accent — iconic R25 wheel detail.
-              Torus is oriented so its axis lies along X (the axle direction),
-              matching the GLB's tyre mesh orientation. */}
+              Painted bodywork-style: glossy clearcoat, mild yellow with
+              some metalness for that "painted metal rim" response. */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <torusGeometry args={[rimR, 0.028 * scale, 14, 36]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={R25_YELLOW}
-              metalness={0.4}
+              metalness={0.5}
               roughness={0.35}
+              clearcoat={1.0}
+              clearcoatRoughness={0.08}
               emissive={R25_YELLOW}
-              emissiveIntensity={0.55}
+              emissiveIntensity={0.35}
             />
           </mesh>
 
-          {/* Brake disc - flat dark disc perpendicular to the wheel axle.
-              At oblique angles, the brake disc is what blocks the view
-              through the wheel ring, sealing the "see-through" hole that
-              appeared between the tyre outer edge and the suspension. */}
+          {/* Brake disc - dark gunmetal disc with subtle anisotropy hint.
+              High metalness + medium roughness reads as machined carbon
+              brake disc (not chrome, not plastic). */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[discR, discR, discW, 32]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={RIM_INK}
-              metalness={0.7}
-              roughness={0.45}
+              metalness={0.85}
+              roughness={0.42}
+              clearcoat={0.3}
+              clearcoatRoughness={0.4}
             />
           </mesh>
 
@@ -161,7 +171,13 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
               brake disc, gives the wheel a solid, mounted feel. */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[hubR, hubR, 0.16 * scale, 20]} />
-            <meshStandardMaterial color={RIM_INK} metalness={0.6} roughness={0.4} />
+            <meshPhysicalMaterial
+              color={RIM_INK}
+              metalness={0.8}
+              roughness={0.35}
+              clearcoat={0.5}
+              clearcoatRoughness={0.25}
+            />
           </mesh>
 
           {/* Inner yellow hub center for that R25 wheel-nut pop.
@@ -172,12 +188,14 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
               detail is on the inboard side facing the chassis). */}
           <mesh rotation={[0, 0, Math.PI / 2]} position={[0, 0, -0.09 * scale]}>
             <cylinderGeometry args={[hubR * 0.42, hubR * 0.42, 0.06 * scale, 14]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={R25_YELLOW}
-              metalness={0.4}
+              metalness={0.5}
               roughness={0.4}
+              clearcoat={1.0}
+              clearcoatRoughness={0.1}
               emissive={R25_YELLOW}
-              emissiveIntensity={0.5}
+              emissiveIntensity={0.3}
             />
           </mesh>
         </group>
@@ -197,12 +215,14 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
             rotation={[0, sign > 0 ? 0 : Math.PI, Math.PI / 2]}
           >
             <cylinderGeometry args={[armR, armR, armL, 14]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={R25_YELLOW}
               metalness={0.55}
-              roughness={0.35}
+              roughness={0.3}
+              clearcoat={1.0}
+              clearcoatRoughness={0.12}
               emissive={R25_YELLOW}
-              emissiveIntensity={0.4}
+              emissiveIntensity={0.25}
             />
           </mesh>
         );
@@ -220,12 +240,14 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
             rotation={[0, 0, Math.PI / 2]}
           >
             <cylinderGeometry args={[armR * 1.4, armR * 1.4, 0.06 * scale, 16]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={R25_YELLOW}
               metalness={0.55}
-              roughness={0.4}
+              roughness={0.35}
+              clearcoat={1.0}
+              clearcoatRoughness={0.12}
               emissive={R25_YELLOW}
-              emissiveIntensity={0.35}
+              emissiveIntensity={0.25}
             />
           </mesh>
         );
@@ -298,117 +320,144 @@ function F1Car({ reducedMotion }: F1CarProps) {
     }
 
     // R25-specific material assignments.
+    // Materials now use MeshPhysicalMaterial (clearcoat for painted bodywork)
+    // so the car stops looking like coloured plastic and starts behaving
+    // like real painted carbon-bodywork under PBR + IBL lighting.
     type Assignment = {
       color: string;
       metalness: number;
       roughness: number;
+      /** Clearcoat intensity 0..1. Adds a glossy varnish layer over the
+       *  base color — what makes paint look like paint instead of plastic. */
+      clearcoat: number;
+      /** Roughness of the clearcoat layer specifically. Low = mirror,
+       *  high = matte varnish. ~0.08 reads as fresh paint. */
+      clearcoatRoughness: number;
       emissive?: string;
       emissiveIntensity?: number;
       side?: THREE.Side;
     };
 
     const overrides: Record<string, Assignment> = {
-      // Main bodywork — Mild Seven Blue (dominant R25 color).
-      // Emissive keeps the saturated blue punchy on the dark hero background.
+      // Main bodywork — Mild Seven Blue, glossy clearcoat
+      // (the varnish layer is what makes it look like real paint instead
+      // of coloured plastic). IBL reflections now provide the highlights
+      // that the previous emissive overlay was faking.
       'Material.001': {
         color: R25_BLUE,
-        metalness: 0.25,
-        roughness: 0.45,
-        emissive: R25_BLUE,
-        emissiveIntensity: 0.35,
+        metalness: 0.45,
+        roughness: 0.4,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.08,
       },
-      // In this GLB, `Material.047` is used for many large body panels
-      // (rear wing assembly, side body, lower bodywork) — treat it as
-      // bodywork too, so the bulk of the car stays blue. (Earlier header
-      // comment said "side stripe / accent livery" — that was wrong; the
-      // data shows it on big bodywork meshes. Kept blue for cohesion.)
+      // Large body panels (rear wing assembly, side body, lower bodywork) —
+      // same recipe so the bulk of the car reads as one painted surface.
       'Material.047': {
         color: R25_BLUE,
-        metalness: 0.25,
-        roughness: 0.45,
-        emissive: R25_BLUE,
-        emissiveIntensity: 0.35,
+        metalness: 0.45,
+        roughness: 0.4,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.08,
       },
-      // Front wing elements — Mild Seven Blue (wing tip accents)
+      // Front wing elements — Mild Seven Blue
       front_wing_1: {
         color: R25_BLUE,
-        metalness: 0.25,
-        roughness: 0.45,
-        emissive: R25_BLUE,
-        emissiveIntensity: 0.35,
+        metalness: 0.45,
+        roughness: 0.4,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.08,
       },
-      // Middle livery accent stripe — Mild Seven Yellow (the iconic R25 band)
+      // Livery accent stripe — Mild Seven Yellow, slightly different
+      // clearcoat roughness so it picks up a subtler highlight than the
+      // body paint (the band is supposed to read as graphics, not metal).
       middle: {
         color: R25_YELLOW,
-        metalness: 0.3,
-        roughness: 0.4,
-        emissive: R25_YELLOW,
-        emissiveIntensity: 0.6,
+        metalness: 0.35,
+        roughness: 0.45,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.18,
       },
-      // Cockpit screen — dark with cyan tint, slight emissive.
-      // The screen mesh in this GLB is a 2D plane (size.z = 0.000 — no
-      // thickness), so back-face culling would make it vanish when the
-      // camera orbits past it. DoubleSide keeps it visible from every angle.
+      // Cockpit screen — glass-like: very low roughness, thin clearcoat,
+      // dark base. The mesh is a 2D plane so DoubleSide keeps it visible
+      // from every orbital angle.
       screen: {
         color: SCREEN_TINT,
-        metalness: 0.5,
-        roughness: 0.35,
+        metalness: 0.1,
+        roughness: 0.15,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.02,
         emissive: '#1c4a6b',
-        emissiveIntensity: 0.5,
+        emissiveIntensity: 0.3,
         side: THREE.DoubleSide,
       },
-      // Dials — Mild Seven Yellow with strong emissive
+      // Steering-wheel dials — emissive stays (they ARE supposed to glow)
       dial_1: {
         color: R25_YELLOW,
         metalness: 0.3,
         roughness: 0.4,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15,
         emissive: R25_YELLOW,
-        emissiveIntensity: 0.85,
+        emissiveIntensity: 0.7,
       },
       dial_3: {
         color: R25_YELLOW,
         metalness: 0.3,
         roughness: 0.4,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15,
         emissive: R25_YELLOW,
-        emissiveIntensity: 0.85,
+        emissiveIntensity: 0.7,
       },
       dial_4: {
         color: R25_YELLOW,
         metalness: 0.3,
         roughness: 0.4,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15,
         emissive: R25_YELLOW,
-        emissiveIntensity: 0.85,
+        emissiveIntensity: 0.7,
       },
       spin_dial: {
         color: R25_YELLOW,
         metalness: 0.3,
         roughness: 0.4,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15,
         emissive: R25_YELLOW,
-        emissiveIntensity: 0.8,
+        emissiveIntensity: 0.7,
       },
       spin_dial_2: {
         color: R25_YELLOW,
         metalness: 0.3,
         roughness: 0.4,
+        clearcoat: 0.6,
+        clearcoatRoughness: 0.15,
         emissive: R25_YELLOW,
-        emissiveIntensity: 0.8,
+        emissiveIntensity: 0.7,
       },
-      // Tyres — Pirelli ink black with a slight roughness for the rubber look.
-      // Yellow lettering is provided separately by the wheel-detail torus rim.
-      tyre: { color: INK, metalness: 0.15, roughness: 0.85 },
+      // Tyres — matte Pirelli rubber, NO clearcoat. High roughness means
+      // very little specular highlight (tyres don't shine under lights).
+      // Slight darkening of the base color reads as soot-darkened racing
+      // slick rubber rather than showroom black.
+      tyre: {
+        color: '#08090c',
+        metalness: 0.02,
+        roughness: 0.92,
+        clearcoat: 0,
+        clearcoatRoughness: 0,
+      },
     };
 
-    // Unmapped materials — treat as bodywork (blue). Applied to the
-    // `null`-material sentinel below, so meshes that arrived with a null
-    // material slot (Object_76 in the inspect output, a small rear-wing
-    // endplate that would otherwise be invisible) get a fallback instead
-    // of being skipped.
+    // Unmapped materials — treat as bodywork (blue). Same recipe as the
+    // main bodywork so null-material fallback meshes match the rest of the
+    // car visually instead of looking like a different plastic.
     const fallback: Assignment = {
       color: R25_BLUE,
-      metalness: 0.25,
-      roughness: 0.45,
-      emissive: R25_BLUE,
-      emissiveIntensity: 0.35,
+      metalness: 0.45,
+      roughness: 0.4,
+      clearcoat: 1.0,
+      clearcoatRoughness: 0.08,
     };
 
     // First pass: collect unique materials and their assignments.
@@ -441,18 +490,23 @@ function F1Car({ reducedMotion }: F1CarProps) {
     });
 
     // Second pass: replace each unique material once.
+    // MeshPhysicalMaterial (vs Standard) gives us a clearcoat layer so the
+    // paint looks like real painted carbon bodywork instead of coloured
+    // plastic. The clearcoat settings come from the assignment defaults.
     for (const { mat: oldMat, assignment } of materialAssignments.values()) {
-      const newMat = new THREE.MeshStandardMaterial({
+      const newMat = new THREE.MeshPhysicalMaterial({
         color: new THREE.Color(assignment.color),
         metalness: assignment.metalness,
         roughness: assignment.roughness,
+        clearcoat: assignment.clearcoat,
+        clearcoatRoughness: assignment.clearcoatRoughness,
         // Default to FrontSide; only `screen` opts into DoubleSide so the
         // cockpit display stays visible when the camera orbits past it.
         side: assignment.side ?? THREE.FrontSide,
       });
       if (assignment.emissive) {
         newMat.emissive = new THREE.Color(assignment.emissive);
-        newMat.emissiveIntensity = assignment.emissiveIntensity ?? 0.05;
+        newMat.emissiveIntensity = assignment.emissiveIntensity ?? 0;
       }
       newMat.name = oldMat ? oldMat.name : NULL_KEY;
       if (oldMat) {
@@ -506,90 +560,96 @@ function PlaceholderF1({ reducedMotion }: { reducedMotion: boolean }) {
 
   return (
     <group ref={group} position={[0, -0.4, 0]} scale={0.5}>
-      {/* Main chassis — Mild Seven Blue */}
+      {/* Main chassis — Mild Seven Blue, glossy clearcoat */}
       <mesh position={[0, 0.45, 0]}>
         <boxGeometry args={[5.6, 0.45, 1.0]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_BLUE}
-          metalness={0.6}
-          roughness={0.3}
-          emissive={R25_BLUE}
-          emissiveIntensity={0.18}
+          metalness={0.45}
+          roughness={0.4}
+          clearcoat={1.0}
+          clearcoatRoughness={0.08}
         />
       </mesh>
       {/* Yellow livery band — the iconic R25 yellow stripe down the side */}
       <mesh position={[0, 0.45, 0.51]}>
         <boxGeometry args={[5.0, 0.12, 0.005]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_YELLOW}
-          metalness={0.4}
-          roughness={0.4}
+          metalness={0.35}
+          roughness={0.45}
+          clearcoat={1.0}
+          clearcoatRoughness={0.18}
           emissive={R25_YELLOW}
-          emissiveIntensity={0.55}
+          emissiveIntensity={0.4}
         />
       </mesh>
       <mesh position={[0, 0.45, -0.51]}>
         <boxGeometry args={[5.0, 0.12, 0.005]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_YELLOW}
-          metalness={0.4}
-          roughness={0.4}
+          metalness={0.35}
+          roughness={0.45}
+          clearcoat={1.0}
+          clearcoatRoughness={0.18}
           emissive={R25_YELLOW}
-          emissiveIntensity={0.55}
+          emissiveIntensity={0.4}
         />
       </mesh>
       {/* Cockpit block — blue */}
       <mesh position={[-0.2, 0.95, 0]}>
         <boxGeometry args={[1.4, 0.5, 0.9]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_BLUE}
-          metalness={0.7}
-          roughness={0.25}
-          emissive={R25_BLUE}
-          emissiveIntensity={0.18}
+          metalness={0.45}
+          roughness={0.4}
+          clearcoat={1.0}
+          clearcoatRoughness={0.08}
         />
       </mesh>
       {/* Nose — blue with yellow tip */}
       <mesh position={[2.6, 0.4, 0]} rotation={[0, 0, -0.08]}>
         <boxGeometry args={[1.6, 0.18, 0.7]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_BLUE}
-          metalness={0.6}
-          roughness={0.3}
-          emissive={R25_BLUE}
-          emissiveIntensity={0.18}
+          metalness={0.45}
+          roughness={0.4}
+          clearcoat={1.0}
+          clearcoatRoughness={0.08}
         />
       </mesh>
       {/* Front wing — blue */}
       <mesh position={[3.0, 0.18, 0]}>
         <boxGeometry args={[0.4, 0.06, 1.8]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_BLUE}
-          metalness={0.55}
-          roughness={0.35}
-          emissive={R25_BLUE}
-          emissiveIntensity={0.2}
+          metalness={0.45}
+          roughness={0.4}
+          clearcoat={1.0}
+          clearcoatRoughness={0.08}
         />
       </mesh>
       {/* Rear wing — blue with yellow accent */}
       <mesh position={[-2.9, 0.85, 0]}>
         <boxGeometry args={[0.18, 0.4, 1.2]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_BLUE}
-          metalness={0.55}
-          roughness={0.35}
-          emissive={R25_BLUE}
-          emissiveIntensity={0.2}
+          metalness={0.45}
+          roughness={0.4}
+          clearcoat={1.0}
+          clearcoatRoughness={0.08}
         />
       </mesh>
       <mesh position={[-2.85, 0.95, 0]}>
         <boxGeometry args={[0.22, 0.04, 1.25]} />
-        <meshStandardMaterial
+        <meshPhysicalMaterial
           color={R25_YELLOW}
-          metalness={0.45}
-          roughness={0.4}
+          metalness={0.35}
+          roughness={0.45}
+          clearcoat={1.0}
+          clearcoatRoughness={0.18}
           emissive={R25_YELLOW}
-          emissiveIntensity={0.55}
+          emissiveIntensity={0.4}
         />
       </mesh>
       {/* Wheels — black tyres with yellow inner rims */}
@@ -602,26 +662,28 @@ function PlaceholderF1({ reducedMotion }: { reducedMotion: boolean }) {
         ] as const
       ).map((pos, i) => (
         <group key={i} position={pos}>
-          {/* Tyre */}
+          {/* Tyre — matte rubber */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.36, 0.36, 0.28, 24]} />
-            <meshStandardMaterial color={INK} metalness={0.15} roughness={0.85} />
+            <meshPhysicalMaterial color={INK} metalness={0.02} roughness={0.92} />
           </mesh>
-          {/* Yellow inner rim — the R25 wheel lip */}
+          {/* Yellow inner rim — the R25 wheel lip, glossy clearcoat */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <torusGeometry args={[0.18, 0.025, 12, 32]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={R25_YELLOW}
-              metalness={0.4}
+              metalness={0.5}
               roughness={0.35}
+              clearcoat={1.0}
+              clearcoatRoughness={0.1}
               emissive={R25_YELLOW}
-              emissiveIntensity={0.5}
+              emissiveIntensity={0.35}
             />
           </mesh>
-          {/* Hub */}
+          {/* Hub — gunmetal */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[0.07, 0.07, 0.3, 18]} />
-            <meshStandardMaterial color={RIM_INK} metalness={0.55} roughness={0.4} />
+            <meshPhysicalMaterial color={RIM_INK} metalness={0.8} roughness={0.35} clearcoat={0.5} clearcoatRoughness={0.25} />
           </mesh>
         </group>
       ))}
@@ -647,12 +709,14 @@ function PlaceholderF1({ reducedMotion }: { reducedMotion: boolean }) {
             rotation={[0, rotationY, Math.PI / 2]}
           >
             <cylinderGeometry args={[0.025, 0.025, length, 8]} />
-            <meshStandardMaterial
+            <meshPhysicalMaterial
               color={R25_YELLOW}
               metalness={0.55}
-              roughness={0.35}
+              roughness={0.3}
+              clearcoat={1.0}
+              clearcoatRoughness={0.12}
               emissive={R25_YELLOW}
-              emissiveIntensity={0.25}
+              emissiveIntensity={0.2}
             />
           </mesh>
         );
@@ -664,38 +728,45 @@ function PlaceholderF1({ reducedMotion }: { reducedMotion: boolean }) {
 function Lights() {
   return (
     <>
-      {/* PBR environment — very subtle IBL just for surface micro-detail.
-          High intensity here washes the saturated R25 colors pale. */}
-      <Environment preset="warehouse" environmentIntensity={0.15} />
+      {/* PBR environment — much stronger IBL now so the clearcoat layer
+          has real reflections to bounce. The warehouse preset has neutral
+          lighting (good for product showcase) with no warm/cool tint that
+          would skew the saturated R25 colors. */}
+      <Environment preset="warehouse" environmentIntensity={0.55} />
 
-      {/* Base ambient — keeps shadows from going pure black */}
-      <ambientLight intensity={0.55} />
+      {/* Lower ambient — let IBL + directional define the shape instead of
+          flat fill. Shadows get more depth this way. */}
+      <ambientLight intensity={0.35} />
 
-      {/* Key light — front-top-right at moderate intensity, hero of the rig */}
+      {/* Key light — front-top-right at lower intensity. With IBL doing
+          more of the surface lighting, the directional just defines the
+          main highlight direction. */}
       <directionalLight
         position={[6, 8, 6]}
-        intensity={1.8}
+        intensity={1.1}
         castShadow
         shadow-mapSize-width={1024}
         shadow-mapSize-height={1024}
       />
 
-      {/* Subtle blue rim — picks out blue accents without bleaching them */}
+      {/* Soft white rim from above-back, separates the model from the
+          dark hero background without tinting it (the previous coloured
+          rim lights were stacked on top of the IBL tint and skewed hue). */}
       <directionalLight
-        position={[-6, 4, -6]}
-        intensity={0.5}
-        color={R25_BLUE}
+        position={[-6, 5, -6]}
+        intensity={0.4}
       />
 
-      {/* Subtle yellow rim — outlines the yellow livery band */}
+      {/* Subtle yellow rim — picks out the yellow livery band without
+          dominating. */}
       <directionalLight
         position={[6, 4, -6]}
-        intensity={0.45}
+        intensity={0.3}
         color={R25_YELLOW}
       />
 
       {/* Subtle ground bounce — keeps the underside from going pitch black */}
-      <pointLight position={[0, -2, 2]} intensity={0.25} color={R25_BLUE} />
+      <pointLight position={[0, -2, 2]} intensity={0.2} color={R25_BLUE} />
 
       {/* Contact shadows — ground the model so it doesn't float in the void */}
       <ContactShadows
