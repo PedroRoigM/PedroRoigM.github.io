@@ -42,7 +42,7 @@
  * - WebGL feature detection with graceful fallback
  * - Respects prefers-reduced-motion (no rotation animation)
  */
-import { useEffect, useRef, useState, Suspense } from 'react';
+import { useEffect, useMemo, useRef, useState, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
 import {
   useGLTF,
@@ -59,6 +59,155 @@ const FALLBACK_URL = 'https://www.gstatic.com/draco/versioned/decoders/1.5.6/';
 // We self-host nothing here; drei's useGLTF falls back to gstatic CDN
 // which is fine for a public portfolio.
 useGLTF.setDecoderPath(FALLBACK_URL);
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Procedural textures
+// ─────────────────────────────────────────────────────────────────────────────
+//
+// Real F1 suspension arms, brake-duct covers and brake discs are made of
+// autoclaved carbon-fibre composite with a 2x2 twill weave. Painting them
+// flat R25_YELLOW (as the previous iteration did) read as "painted plastic
+// tubes" rather than the actual composite. We generate the weave as a
+// tileable canvas texture here so the procedural WheelDetail parts can
+// use it as their albedo + bump source.
+//
+// This is a 2x2 twill, not a plain weave — that diagonal offset is what
+// reads as "real F1 composite" at a glance.
+
+function createCarbonFiberTexture(): THREE.CanvasTexture {
+  const size = 256;
+  const canvas = document.createElement('canvas');
+  canvas.width = size;
+  canvas.height = size;
+  const ctx = canvas.getContext('2d')!;
+
+  // Dark composite base — slightly warm (carbon reads warmer than
+  // absolute black under IBL because of the resin sheen).
+  ctx.fillStyle = '#0d0d0e';
+  ctx.fillRect(0, 0, size, size);
+
+  // 2x2 twill weave: each cell is one strand intersection. The shift
+  // every 2 rows creates the diagonal pattern that distinguishes twill
+  // from plain weave.
+  const cellSize = 16;
+  for (let y = 0; y < size; y += cellSize) {
+    for (let x = 0; x < size; x += cellSize) {
+      const col = Math.floor(x / cellSize);
+      const row = Math.floor(y / cellSize);
+      const shift = Math.floor(row / 2) * 2;
+      // `isWarp` means this cell is dominated by the vertical strand
+      // (passing over 2 weft threads before going under).
+      const isWarp = (col + shift) % 4 < 2;
+
+      // Highlight along the dominant strand direction.
+      const grad = isWarp
+        ? ctx.createLinearGradient(x, y, x, y + cellSize)
+        : ctx.createLinearGradient(x, y, x + cellSize, y);
+      grad.addColorStop(0, 'rgba(20, 20, 22, 1)');
+      grad.addColorStop(0.42, 'rgba(70, 70, 75, 1)');
+      grad.addColorStop(0.5, 'rgba(120, 120, 128, 1)'); // strand peak
+      grad.addColorStop(0.58, 'rgba(70, 70, 75, 1)');
+      grad.addColorStop(1, 'rgba(8, 8, 9, 1)');
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(x, y, cellSize, cellSize);
+
+      // Dark gap between strands — keeps the weave readable at close range.
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.7)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(x + 0.5, y + 0.5, cellSize - 1, cellSize - 1);
+    }
+  }
+
+  // Subtle noise so the composite doesn't look "tiled" when wrapped
+  // around a long cylinder.
+  for (let i = 0; i < 600; i++) {
+    const x = Math.random() * size;
+    const y = Math.random() * size;
+    const a = Math.random() * 0.05;
+    ctx.fillStyle = Math.random() < 0.5
+      ? `rgba(255, 255, 255, ${a})`
+      : `rgba(0, 0, 0, ${a})`;
+    ctx.fillRect(x, y, 1, 1);
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(2, 2);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
+
+// Procedural tyre sidewall texture. Maps around the cylindrical tyre
+// mesh: PIRELLI wordmark + yellow sidewall accent + a few decorative
+// rows. The texture is a tall horizontal strip; its width is the
+// circumference of the tyre at the sidewall and its height is the
+// sidewall vertical extent.
+function createTyreSidewallTexture(): THREE.CanvasTexture {
+  const w = 1024;
+  const h = 128;
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d')!;
+
+  // Slight vertical gradient so the sidewall reads as a curved surface.
+  const baseGrad = ctx.createLinearGradient(0, 0, 0, h);
+  baseGrad.addColorStop(0, '#080808');
+  baseGrad.addColorStop(0.5, '#131313');
+  baseGrad.addColorStop(1, '#080808');
+  ctx.fillStyle = baseGrad;
+  ctx.fillRect(0, 0, w, h);
+
+  // PIRELLI wordmark repeated around.
+  ctx.fillStyle = '#d0d0d0';
+  ctx.font = 'bold 28px "Helvetica Neue", Helvetica, Arial, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const period = 220;
+  for (let x = period / 2; x < w; x += period) {
+    ctx.fillText('PIRELLI', x, h * 0.32);
+  }
+
+  // Smaller "P ZERO" compound name underneath.
+  ctx.fillStyle = '#8a8a8a';
+  ctx.font = '500 18px "Helvetica Neue", Helvetica, Arial, sans-serif';
+  for (let x = period / 2; x < w; x += period) {
+    ctx.fillText('P ZERO', x, h * 0.55);
+  }
+
+  // Yellow sidewall accent (R25-era F1 tyres had a thin yellow ring).
+  ctx.fillStyle = '#FFE500';
+  ctx.fillRect(0, h * 0.74, w, 4);
+
+  // "R25" branding + a small R25 mark in the lower band — a quiet
+  // nod to the car livery without needing a full sponsor decal mesh.
+  ctx.fillStyle = '#7a7a7a';
+  ctx.font = 'bold 12px "Helvetica Neue", Helvetica, Arial, sans-serif';
+  for (let x = period / 2; x < w; x += period) {
+    ctx.fillText('25', x, h * 0.86);
+  }
+
+  // Speckled noise so the rubber doesn't read as flat digital black.
+  for (let i = 0; i < 1500; i++) {
+    const x = Math.random() * w;
+    const y = Math.random() * h;
+    const a = Math.random() * 0.05;
+    ctx.fillStyle = Math.random() < 0.5
+      ? `rgba(255, 255, 255, ${a})`
+      : `rgba(0, 0, 0, ${a})`;
+    ctx.fillRect(x, y, 1, 1);
+  }
+
+  const tex = new THREE.CanvasTexture(canvas);
+  tex.wrapS = THREE.RepeatWrapping;
+  tex.wrapT = THREE.ClampToEdgeWrapping;
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 4;
+  return tex;
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Renault R25 (2005) palette — Alonso championship-winning livery.
@@ -117,14 +266,14 @@ const SUSPENSION_ARM_LENGTH = 0.78; // bridge from wheel hub all the way to the 
 const SUSPENSION_ARM_RADIUS = 0.05; // thick enough to read as a real pushrod / brake duct
 const BRAKE_DUCT_COVER_OFFSET = 0.03; // cover sits a hair past the arm's chassis end (was 0.04, slightly inside the chassis when armL=0.4)
 
-function WheelDetail({ scale = 1 }: { scale?: number }) {
+function WheelDetail({ carbonTex, scale = 1 }: { carbonTex: THREE.CanvasTexture; scale?: number }) {
   // Procedural detail for each of the 4 wheels, positioned at the GLB-local
   // centres discovered by scripts/inspect-wheels.mjs. Each wheel gets:
   //   - Yellow inner-rim accent torus (R25 iconic detail)
   //   - Dark gunmetal brake disc (flat disc perpendicular to the axle — this
   //     closes the "see-through" hole at oblique angles)
   //   - Dark hub cylinder + yellow wheel-nut center
-  //   - Thick yellow suspension arm / brake duct from the hub toward the
+  //   - Carbon-fibre suspension arm / brake duct from the hub toward the
   //     chassis centreline (the real gap-sealer at oblique angles)
   const rimR = RIM_BAND_RADIUS * scale;
   const hubR = 0.1 * scale;
@@ -155,15 +304,17 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
 
           {/* Brake disc - dark gunmetal disc with subtle anisotropy hint.
               High metalness + medium roughness reads as machined carbon
-              brake disc (not chrome, not plastic). */}
+              brake disc (not chrome, not plastic). The carbon fibre map
+              adds visible weave so it doesn't read as flat plastic. */}
           <mesh rotation={[0, 0, Math.PI / 2]}>
             <cylinderGeometry args={[discR, discR, discW, 32]} />
             <meshPhysicalMaterial
-              color={RIM_INK}
+              color={'#3a3a3e'}
               metalness={0.85}
-              roughness={0.42}
-              clearcoat={0.3}
-              clearcoatRoughness={0.4}
+              roughness={0.4}
+              clearcoat={0.5}
+              clearcoatRoughness={0.25}
+              map={carbonTex}
             />
           </mesh>
 
@@ -201,9 +352,12 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
         </group>
       ))}
 
-      {/* Suspension arms / brake ducts - thick yellow cylinders from each
-          wheel hub inward toward the chassis centreline. These are the real
-          gap-sealers at oblique angles. */}
+      {/* Suspension arms / brake ducts - carbon fibre rods from each wheel
+          hub inward toward the chassis centreline. Real F1 suspension is
+          autoclaved carbon-fibre composite (dark woven), NOT painted yellow
+          — the previous iteration's yellow arms read as "painted plastic
+          tubes" rather than the actual composite. The carbon weave map +
+          glossy clearcoat together give the recognisable carbon look. */}
       {WHEEL_POSITIONS.map((pos, i) => {
         const [wx, wy, wz] = pos;
         const sign = wx < CHASSIS_CENTERLINE_X ? 1 : -1;
@@ -216,19 +370,18 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
           >
             <cylinderGeometry args={[armR, armR, armL, 14]} />
             <meshPhysicalMaterial
-              color={R25_YELLOW}
-              metalness={0.55}
-              roughness={0.3}
+              color={'#2a2a2e'}
+              metalness={0.4}
+              roughness={0.35}
               clearcoat={1.0}
-              clearcoatRoughness={0.12}
-              emissive={R25_YELLOW}
-              emissiveIntensity={0.25}
+              clearcoatRoughness={0.1}
+              map={carbonTex}
             />
           </mesh>
         );
       })}
 
-      {/* Brake-duct covers at the chassis end of each arm */}
+      {/* Brake-duct covers at the chassis end of each arm — also carbon. */}
       {WHEEL_POSITIONS.map((pos, i) => {
         const [wx, wy, wz] = pos;
         const sign = wx < CHASSIS_CENTERLINE_X ? 1 : -1;
@@ -241,13 +394,12 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
           >
             <cylinderGeometry args={[armR * 1.4, armR * 1.4, 0.06 * scale, 16]} />
             <meshPhysicalMaterial
-              color={R25_YELLOW}
-              metalness={0.55}
+              color={'#2a2a2e'}
+              metalness={0.4}
               roughness={0.35}
               clearcoat={1.0}
-              clearcoatRoughness={0.12}
-              emissive={R25_YELLOW}
-              emissiveIntensity={0.25}
+              clearcoatRoughness={0.1}
+              map={carbonTex}
             />
           </mesh>
         );
@@ -259,6 +411,13 @@ function WheelDetail({ scale = 1 }: { scale?: number }) {
 function F1Car({ reducedMotion }: F1CarProps) {
   const group = useRef<THREE.Group>(null);
   const { scene } = useGLTF(MODEL_URL);
+
+  // Procedural textures — created lazily once per component mount.
+  // These can't live at module scope because `document` doesn't exist
+  // during SSR, and this component only mounts on the client anyway
+  // (loaded via client:visible from Hero).
+  const carbonFiberTex = useMemo(() => createCarbonFiberTexture(), []);
+  const tyreSidewallTex = useMemo(() => createTyreSidewallTexture(), []);
   // Base transform of the group (centering + scale) is computed once in
   // useEffect from the GLB's AABB and stored here so the useFrame loop can
   // animate the vertical wobble AROUND that base position without clobbering
@@ -333,6 +492,8 @@ function F1Car({ reducedMotion }: F1CarProps) {
       /** Roughness of the clearcoat layer specifically. Low = mirror,
        *  high = matte varnish. ~0.08 reads as fresh paint. */
       clearcoatRoughness: number;
+      /** Optional albedo texture (procedural carbon fibre or tyre sidewall) */
+      map?: THREE.Texture;
       emissive?: string;
       emissiveIntensity?: number;
       side?: THREE.Side;
@@ -439,13 +600,15 @@ function F1Car({ reducedMotion }: F1CarProps) {
       // Tyres — matte Pirelli rubber, NO clearcoat. High roughness means
       // very little specular highlight (tyres don't shine under lights).
       // Slight darkening of the base color reads as soot-darkened racing
-      // slick rubber rather than showroom black.
+      // slick rubber rather than showroom black. The sidewall map adds
+      // PIRELLI wordmarks + yellow sidewall accent.
       tyre: {
         color: '#08090c',
         metalness: 0.02,
         roughness: 0.92,
         clearcoat: 0,
         clearcoatRoughness: 0,
+        map: tyreSidewallTex,
       },
     };
 
@@ -500,6 +663,7 @@ function F1Car({ reducedMotion }: F1CarProps) {
         roughness: assignment.roughness,
         clearcoat: assignment.clearcoat,
         clearcoatRoughness: assignment.clearcoatRoughness,
+        map: assignment.map,
         // Default to FrontSide; only `screen` opts into DoubleSide so the
         // cockpit display stays visible when the camera orbits past it.
         side: assignment.side ?? THREE.FrontSide,
@@ -543,7 +707,7 @@ function F1Car({ reducedMotion }: F1CarProps) {
           same centering+scale from this group, so the procedural rims /
           brake discs / suspension arms line up exactly with the GLB's
           tyres instead of floating off to one side. */}
-      <WheelDetail />
+      <WheelDetail carbonTex={carbonFiberTex} />
     </group>
   );
 }
