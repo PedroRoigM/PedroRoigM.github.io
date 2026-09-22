@@ -48,10 +48,16 @@ interface LayerDef {
 }
 
 const VB_W = 800;
-// VB_H bumped from 460 → 520 so the skip projection has its own dedicated
-// band below the layer labels (y=344–358) without intersecting them.
+// VB_H keeps the same 520 budget; we just push the plot down to open a
+// dedicated skip-projection band ABOVE the network (y=0–80) instead of
+// below the layer labels.
 const VB_H = 520;
 const PAD_X = 70;
+// Plot vertical extent — shorter than the original 280 so the skip arc
+// has its own clean band above the columns.
+const COL_H = 240;
+const PLOT_TOP = 80;
+const PLOT_BOTTOM = PLOT_TOP + COL_H; // 320
 
 // X positions of each column in the diagram. Pulled inward so the right
 // edge has enough room for the two-line "action / activation" labels.
@@ -88,12 +94,9 @@ const PARAM_ESTIMATE = '~25K';
 // ---------------------------------------------------------------------------
 // Geometry helpers
 // ---------------------------------------------------------------------------
-const PLOT_TOP = 40;
-const PLOT_BOTTOM = 320;
 
 /** Generate `count` vertical positions evenly distributed around centerY. */
-function dotPositions(count: number, centerY: number): number[] {
-  const span = 280;
+function dotPositions(count: number, centerY: number, span: number = 280): number[] {
   const positions: number[] = [];
   for (let i = 0; i < count; i++) {
     const t = count === 1 ? 0.5 : i / (count - 1);
@@ -129,7 +132,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
       // column's center to each output node (3 lines).
       if (to === 'output') {
         const headCenterY = (PLOT_TOP + PLOT_BOTTOM) / 2;
-        const outYs = dotPositions(OUTPUT_DETAILS.length, (PLOT_TOP + PLOT_BOTTOM) / 2);
+        const outYs = dotPositions(OUTPUT_DETAILS.length, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
         outYs.forEach((_, i) => {
           lines.push({
             x1: COL_X.heads + (fromDef.kind === 'bar' ? 16 : 8),
@@ -141,8 +144,8 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
         return { from, to, lines };
       }
 
-      const fromYs = dotPositions(fromCount, (PLOT_TOP + PLOT_BOTTOM) / 2);
-      const toYs = dotPositions(toCount, (PLOT_TOP + PLOT_BOTTOM) / 2);
+      const fromYs = dotPositions(fromCount, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
+      const toYs = dotPositions(toCount, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
       const step = Math.max(1, Math.floor(fromCount / toCount));
       for (let i = 0; i < toCount; i++) {
         const fromIdx = Math.min(fromYs.length - 1, i * step);
@@ -158,20 +161,19 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
   }, []);
 
   const skipBezier = useMemo(() => {
-    // Curved bezier from input column to the merge column, routed entirely
-    // BELOW the layer label band (subtitles end at y≈358). Both endpoints
-    // sit at y=365 (just under the subtitle row), and the control points
-    // pull the curve deeper to y=500 — the curve's lowest point reaches
-    // ≈y=466. The skip-projection label sits at y=485 (below the curve),
-    // so the arc and the labels live in separate horizontal bands.
+    // Curved bezier routed ABOVE the network (in its own band y=0–80)
+    // with a gentle radius. Endpoints anchor at the top of the input /
+    // merge columns (y=80 = PLOT_TOP). Control points pull the curve UP
+    // to y=58 — only ~22px of arc depth, intentionally shallow so it
+    // reads as a small skip-header rather than a big semicircle.
     const x0 = COL_X.input + 6;
-    const y0 = 365;
+    const y0 = PLOT_TOP;
     const x1 = COL_X.merge;
-    const y1 = 365;
+    const y1 = PLOT_TOP;
     const cx1 = x0 + 60;
-    const cy1 = 500;
+    const cy1 = PLOT_TOP - 22;
     const cx2 = x1 - 60;
-    const cy2 = 500;
+    const cy2 = PLOT_TOP - 22;
     return `M ${x0} ${y0} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x1} ${y1}`;
   }, []);
 
@@ -189,7 +191,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
   // ---- Render helpers ---------------------------------------------------
   const renderBar = (layer: LayerDef, x: number) => {
     const barW = 32;
-    const barH = 280;
+    const barH = COL_H;
     const y = (PLOT_TOP + PLOT_BOTTOM) / 2 - barH / 2;
     const isHighlighted = hovered === layer.id;
     return (
@@ -236,7 +238,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
 
   const renderDots = (layer: LayerDef, x: number) => {
     const count = layer.dots ?? layer.count;
-    const ys = dotPositions(count, (PLOT_TOP + PLOT_BOTTOM) / 2);
+    const ys = dotPositions(count, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
     const isHighlighted = hovered === layer.id;
     return (
       <g
@@ -317,7 +319,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
   // Two-line format: action name on top, activation symbol below. Each
   // output node maps to one action (throttle / brake / steering).
   const renderOutputLabels = () => {
-    const ys = dotPositions(OUTPUT_DETAILS.length, (PLOT_TOP + PLOT_BOTTOM) / 2);
+    const ys = dotPositions(OUTPUT_DETAILS.length, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
     return OUTPUT_DETAILS.map((o, i) => (
       <g key={`out-${o.name}`}>
         <line
@@ -415,7 +417,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
         />
         <text
           x={(COL_X.input + COL_X.merge) / 2}
-          y={485}
+          y={50}
           textAnchor="middle"
           fontSize="9"
           fontFamily="var(--font-display)"
