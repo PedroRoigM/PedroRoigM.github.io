@@ -1,76 +1,956 @@
 ---
 /**
- * Homepage — placeholder (English locale).
+ * Homepage — "About me" (English locale).
  *
- * The main portfolio now lives at /en/f1 (TFG: Multi-Agent System for F1).
- * This page will be replaced with an "about me" page + highlights soon.
+ * Mirror of the Spanish version. See src/pages/index.astro for the full
+ * pattern (hero, about, now, timeline, skills, CTA + reveal-on-scroll).
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import Footer from '../../components/global/Footer.astro';
 
 const locale = 'en' as const;
+
+const content = {
+  kicker: '// PEDRO ROIG',
+  name: ['Pedro', 'Roig'],
+  role: 'Data Engineer',
+  roleSub: '4th-year Software Eng. student · Data track',
+  lede:
+    'What drives me is the intersection of data and the motorsport world. How real-time telemetry and analysis can win a tenth in a race. My goal: work with the millions of data points a car generates and turn them into decisions that make a difference on track — in competition or in vehicle development.',
+  meta: [
+    { label: 'Palma de Mallorca', href: null },
+    { label: 'pedro.roig.morera@gmail.com', href: 'mailto:pedro.roig.morera@gmail.com' },
+    { label: 'linkedin.com/in/pedro-roig-morera', href: 'https://linkedin.com/in/pedro-roig-morera' },
+  ],
+
+  aboutKicker: '// 01 — ABOUT',
+  aboutTitle: 'Who I am',
+  aboutBody:
+    '4th-year Software Engineering student specializing in Data Engineering. Large-scale data processing, analysis and management — with the (literal) drive to bring that knowledge to motorsport.',
+  langsTitle: 'Languages',
+  langs: [
+    { name: 'Spanish', level: 'Native' },
+    { name: 'Catalan', level: 'Native' },
+    { name: 'English', level: 'C1 Advanced' },
+  ],
+
+  nowKicker: '// 02 — NOW',
+  nowTitle: 'What I’m working on',
+  nowSubtitle: 'TFG · Multi-Agent System for F1',
+  nowPeriod: 'Jul 2025 — Present',
+  nowBody:
+    'F1 simulator combining realistic physics with AI. A Reinforcement Learning agent drives the car and generates detailed telemetry; a second model analyses that data to make pit stop and tyre decisions. Replicates the full analysis pipeline used by real F1 teams.',
+  nowTech: ['Python', 'Reinforcement Learning', 'Pandas', 'NumPy', 'Matplotlib'],
+  nowCta: 'View portfolio →',
+  nowHref: '/en/f1',
+
+  timelineKicker: '// 03 — JOURNEY',
+  timelineTitle: 'Experience and education',
+  timeline: [
+    {
+      period: 'Jul 2025 — Present',
+      title: 'F1 Race Strategy Optimization · TFG',
+      org: 'Personal project',
+      points: [
+        'F1 simulator with realistic physics + AI',
+        'Reinforcement Learning for driving and strategy',
+        'Detailed telemetry: pit stop and tyre decisions',
+      ],
+      tech: ['Python', 'RL', 'Pandas', 'NumPy', 'Matplotlib'],
+      featured: true,
+    },
+    {
+      period: '06/2025 — 09/2025',
+      title: 'Internship · Web Development',
+      org: 'Tracehold',
+      points: [
+        'Web apps with Next.js, Node.js and MongoDB',
+        'Design and optimisation of NoSQL schemas',
+        'Teamwork with agile methodologies',
+      ],
+      tech: ['Next.js', 'Node.js', 'MongoDB'],
+    },
+    {
+      period: '2022 — 2026',
+      title: 'Software Engineering · Data track',
+      org: 'Universidad de Tecnología y Arte digital',
+      points: [
+        'Large-scale data processing and management',
+        'Specialisation in analysis and visualisation',
+      ],
+      tech: [],
+    },
+  ],
+
+  skillsKicker: '// 04 — SKILLS',
+  skillsTitle: 'Toolbox',
+  hardSkills: [
+    'Python',
+    'SQL & Database Management',
+    'Data Processing',
+    'Data Analysis',
+    'Pandas · Machine Learning',
+    'Data Visualization',
+    'Time-Series Analysis',
+    'Matplotlib',
+    'AWS',
+    'Software Development',
+    'Git',
+  ],
+  softSkillsTitle: 'Soft skills',
+  softSkills: [
+    'Communication',
+    'Teamwork',
+    'Adaptability',
+    'Problem-solving under pressure',
+    'Attention to detail',
+  ],
+
+  ctaKicker: '// LET’S TALK?',
+  ctaTitle: 'Want to collaborate?',
+  ctaBody:
+    'I’m open to internships, collaborations on data or motorsport projects, and conversations about engineering.',
+  ctaBtn: 'Contact',
+  ctaHref: '/en/contact',
+};
 ---
 
 <BaseLayout
-  title="Pedro Roig Morera"
-  description="Personal portfolio — coming soon."
+  title="Pedro Roig Morera — Data Engineer"
+  description="Software Engineering student (Data track). Data, simulation and motorsport."
   locale={locale}
 >
-  <section class="home-placeholder">
-    <div class="home-placeholder__inner">
-      <p class="home-placeholder__eyebrow">PR</p>
-      <h1 class="home-placeholder__title">Pedro Roig Morera</h1>
-      <p class="home-placeholder__lede">
-        This page is under construction. In the meantime, you can view my
-        <a href="/en/f1">TFG: Multi-Agent System for F1</a>.
-      </p>
-    </div>
-  </section>
+  <main class="home">
+    {/* Hero */}
+    <section class="home__hero">
+      <div class="home__hero-inner">
+        <span class="home__hero-kicker hero-reveal" style="--hero-delay: 0ms">
+          {content.kicker}
+        </span>
+        <h1 class="home__hero-name">
+          {content.name.map((line, idx) => (
+            <span class="home__hero-name-line hero-reveal" style={`--hero-delay: ${120 + idx * 90}ms`}>
+              {line}
+            </span>
+          ))}
+        </h1>
+        <p class="home__hero-role hero-reveal" style="--hero-delay: 320ms">
+          <span class="home__hero-role-main">{content.role}</span>
+          <span class="home__hero-role-sub">{content.roleSub}</span>
+        </p>
+        <p class="home__hero-lede hero-reveal" style="--hero-delay: 440ms">
+          {content.lede}
+        </p>
+        <ul class="home__hero-meta hero-reveal" style="--hero-delay: 560ms">
+          {content.meta.map((m) => (
+            <li>
+              {m.href ? (
+                <a href={m.href} class="home__chip" target={m.href.startsWith('http') ? '_blank' : undefined} rel={m.href.startsWith('http') ? 'noopener' : undefined}>
+                  {m.label}
+                </a>
+              ) : (
+                <span class="home__chip home__chip--static">{m.label}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      </div>
+    </section>
+
+    {/* About */}
+    <section class="home__section" aria-labelledby="home-about-title">
+      <div class="home__container">
+        <div class="home__about">
+          <div class="home__about-text">
+            <span class="home__kicker reveal" style="--reveal-delay: 0ms">
+              {content.aboutKicker}
+            </span>
+            <h2 id="home-about-title" class="home__title reveal" style="--reveal-delay: 60ms">
+              {content.aboutTitle}
+            </h2>
+            <p class="home__body reveal" style="--reveal-delay: 120ms">
+              {content.aboutBody}
+            </p>
+          </div>
+          <aside class="home__langs reveal" style="--reveal-delay: 180ms">
+            <h3 class="home__langs-title">{content.langsTitle}</h3>
+            <ul class="home__langs-list">
+              {content.langs.map((l, i) => (
+                <li class="home__lang-item" style={`--reveal-delay: ${i * 60}ms`}>
+                  <span class="home__lang-name">{l.name}</span>
+                  <span class="home__lang-level">{l.level}</span>
+                </li>
+              ))}
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    {/* Now / Featured project */}
+    <section class="home__section" aria-labelledby="home-now-title">
+      <div class="home__container">
+        <div class="home__now-head">
+          <span class="home__kicker reveal" style="--reveal-delay: 0ms">
+            {content.nowKicker}
+          </span>
+          <h2 id="home-now-title" class="home__title reveal" style="--reveal-delay: 60ms">
+            {content.nowTitle}
+          </h2>
+        </div>
+
+        <a href={content.nowHref} class="home__now-card reveal" style="--reveal-delay: 120ms">
+          <div class="home__now-card-head">
+            <div>
+              <p class="home__now-period">{content.nowPeriod}</p>
+              <h3 class="home__now-title">{content.nowSubtitle}</h3>
+            </div>
+            <span class="home__now-arrow" aria-hidden="true">→</span>
+          </div>
+          <p class="home__now-body">{content.nowBody}</p>
+          <ul class="home__now-tech">
+            {content.nowTech.map((t) => <li>{t}</li>)}
+          </ul>
+          <span class="home__now-cta">{content.nowCta}</span>
+        </a>
+      </div>
+    </section>
+
+    {/* Timeline */}
+    <section class="home__section" aria-labelledby="home-timeline-title">
+      <div class="home__container">
+        <div class="home__timeline-head">
+          <span class="home__kicker reveal" style="--reveal-delay: 0ms">
+            {content.timelineKicker}
+          </span>
+          <h2 id="home-timeline-title" class="home__title reveal" style="--reveal-delay: 60ms">
+            {content.timelineTitle}
+          </h2>
+        </div>
+
+        <ol class="home__timeline">
+          {content.timeline.map((item, idx) => (
+            <li
+              class={`home__timeline-item reveal ${item.featured ? 'is-featured' : ''}`}
+              style={`--reveal-delay: ${120 + idx * 90}ms`}
+            >
+              <span class="home__timeline-period">{item.period}</span>
+              <h3 class="home__timeline-title">{item.title}</h3>
+              <p class="home__timeline-org">{item.org}</p>
+              <ul class="home__timeline-points">
+                {item.points.map((p) => <li>{p}</li>)}
+              </ul>
+              {item.tech.length > 0 && (
+                <ul class="home__timeline-tech">
+                  {item.tech.map((t) => <li>{t}</li>)}
+                </ul>
+              )}
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    {/* Skills */}
+    <section class="home__section" aria-labelledby="home-skills-title">
+      <div class="home__container">
+        <div class="home__skills-head">
+          <span class="home__kicker reveal" style="--reveal-delay: 0ms">
+            {content.skillsKicker}
+          </span>
+          <h2 id="home-skills-title" class="home__title reveal" style="--reveal-delay: 60ms">
+            {content.skillsTitle}
+          </h2>
+        </div>
+
+        <div class="home__skills-grid">
+          <ul class="home__chips reveal" style="--reveal-delay: 120ms">
+            {content.hardSkills.map((s, i) => (
+              <li class="home__chip home__chip--skill" style={`--reveal-delay: ${i * 40}ms`}>
+                {s}
+              </li>
+            ))}
+          </ul>
+          <aside class="home__soft reveal" style="--reveal-delay: 180ms">
+            <h3 class="home__soft-title">{content.softSkillsTitle}</h3>
+            <ul class="home__soft-list">
+              {content.softSkills.map((s) => <li>{s}</li>)}
+            </ul>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    {/* CTA */}
+    <section class="home__section home__cta-section">
+      <div class="home__container">
+        <div class="home__cta reveal" style="--reveal-delay: 0ms">
+          <span class="home__kicker">{content.ctaKicker}</span>
+          <h2 class="home__cta-title">{content.ctaTitle}</h2>
+          <p class="home__cta-body">{content.ctaBody}</p>
+          <a href={content.ctaHref} class="home__cta-btn">
+            {content.ctaBtn}
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
 
   <Footer locale={locale} />
 </BaseLayout>
 
+<script>
+  // Same reveal + hero entrance pattern as src/pages/index.astro. Kept inline
+  // so each locale page is self-contained; the duplication is intentional.
+  const initHero = () => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) {
+      document.querySelectorAll('.hero-reveal').forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'none';
+      });
+      return;
+    }
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.hero-reveal').forEach((el) => {
+        const delay = parseFloat((el as HTMLElement).style.getPropertyValue('--hero-delay')) || 0;
+        window.setTimeout(() => el.classList.add('is-hero-visible'), delay);
+      });
+    });
+  };
+
+  const initReveals = () => {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reveals = document.querySelectorAll<HTMLElement>('.home .reveal');
+    if (reducedMotion) {
+      reveals.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const target = entry.target as HTMLElement;
+          const delayVar = parseFloat(target.style.getPropertyValue('--reveal-delay')) || 0;
+          window.setTimeout(() => target.classList.add('is-visible'), delayVar);
+          observer.unobserve(target);
+        }
+      },
+      { threshold: 0.15, rootMargin: '0px 0px -6% 0px' }
+    );
+    reveals.forEach((el) => observer.observe(el));
+  };
+
+  const init = () => {
+    initHero();
+    initReveals();
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>
+
 <style>
-  .home-placeholder {
-    min-height: calc(100vh - 200px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--space-12) var(--space-5);
+  /* Identical visual styles as the ES version — duplicated for page
+     self-containment (same trade-off as the script above). */
+
+  .home { display: flex; flex-direction: column; }
+
+  .home__container {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+    width: 100%;
   }
-  .home-placeholder__inner {
-    max-width: 560px;
-    text-align: center;
+  @media (min-width: 768px) {
+    .home__container { padding: 0 var(--space-8); }
   }
-  .home-placeholder__eyebrow {
+
+  .home__section { padding: var(--section-padding-y) 0; }
+  @media (min-width: 768px) {
+    .home__section { padding: var(--section-padding-y-lg) 0; }
+  }
+
+  .home__kicker {
     display: inline-block;
     font-family: var(--font-display);
     font-size: var(--text-xs);
     text-transform: uppercase;
     letter-spacing: var(--tracking-widest);
     color: var(--color-brand);
-    margin-bottom: var(--space-4);
+    margin-bottom: var(--space-3);
   }
-  .home-placeholder__title {
+
+  .home__title {
     font-family: var(--font-display);
-    font-size: var(--text-2xl);
     font-weight: 600;
-    letter-spacing: var(--tracking-snug);
+    line-height: 1.05;
+    letter-spacing: var(--tracking-tight);
     color: var(--color-fg);
-    margin: 0 0 var(--space-4);
+    margin: 0 0 var(--space-5);
+    font-size: clamp(2rem, 4vw, 3rem);
   }
-  .home-placeholder__lede {
+
+  .home__body {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    max-width: 56ch;
+    margin: 0;
+  }
+
+  .home__hero {
+    position: relative;
+    padding: calc(var(--space-16) + var(--space-4)) 0 var(--section-padding-y);
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 0%, rgba(168, 216, 0, 0.12) 0%, transparent 60%),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
+    overflow: hidden;
+  }
+  .home__hero::after {
+    content: '';
+    position: absolute;
+    inset: auto 0 -1px 0;
+    height: 1px;
+    background: var(--rule);
+  }
+  .home__hero-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+  }
+  @media (min-width: 768px) {
+    .home__hero-inner { padding: 0 var(--space-8); }
+  }
+
+  .home__hero-kicker {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin-bottom: var(--space-5);
+  }
+
+  .home__hero-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(3rem, 9vw, 6.5rem);
+    line-height: 0.95;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-6);
+  }
+  .home__hero-name-line { display: block; }
+
+  .home__hero-role {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-1);
+    margin: 0 0 var(--space-6);
+  }
+  .home__hero-role-main {
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+    font-weight: 600;
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-snug);
+  }
+  .home__hero-role-sub {
     font-family: var(--font-body);
     font-size: var(--text-md);
     color: var(--color-fg-muted);
-    line-height: 1.6;
   }
-  .home-placeholder__lede a {
-    color: var(--color-brand);
-    text-decoration: underline;
-    text-underline-offset: 3px;
+
+  .home__hero-lede {
+    font-family: var(--font-body);
+    font-size: var(--text-lg);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    max-width: 60ch;
+    margin: 0 0 var(--space-8);
   }
-  .home-placeholder__lede a:hover {
+
+  .home__hero-meta {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .home__chip {
+    display: inline-flex;
+    align-items: center;
+    padding: var(--space-2) var(--space-3);
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-fg-muted);
+    text-decoration: none;
+    transition:
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      color var(--motion-duration-short) var(--motion-ease-out),
+      transform var(--motion-duration-short) var(--motion-ease-out);
+  }
+  .home__chip:hover {
+    border-color: var(--color-brand);
     color: var(--color-fg);
+    transform: translateY(-1px);
+  }
+  .home__chip--static { cursor: default; }
+
+  .home__about {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-10);
+  }
+  @media (min-width: 768px) {
+    .home__about {
+      grid-template-columns: 1.5fr 1fr;
+      gap: var(--space-12);
+      align-items: start;
+    }
+  }
+
+  .home__langs {
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+  }
+  .home__langs-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin: 0 0 var(--space-4);
+    font-weight: 600;
+  }
+  .home__langs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+  .home__lang-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--rule);
+    opacity: 0;
+    transform: translateY(8px);
+    transition:
+      opacity var(--motion-duration-moderate) var(--motion-ease-out),
+      transform var(--motion-duration-moderate) var(--motion-ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .home__lang-item.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .home__lang-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+  .home__lang-name {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+  }
+  .home__lang-level {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .home__now-head { margin-bottom: var(--space-6); }
+
+  .home__now-card {
+    display: block;
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    text-decoration: none;
+    color: inherit;
+    transition:
+      border-color var(--motion-duration-moderate) var(--motion-ease-out),
+      transform var(--motion-duration-moderate) var(--motion-ease-out),
+      box-shadow var(--motion-duration-moderate) var(--motion-ease-out);
+  }
+  @media (min-width: 768px) {
+    .home__now-card { padding: var(--space-8); }
+  }
+  .home__now-card:hover {
+    border-color: var(--color-brand);
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-md);
+  }
+  .home__now-card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: var(--space-4);
+    margin-bottom: var(--space-4);
+  }
+  .home__now-period {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    margin: 0 0 var(--space-2);
+  }
+  .home__now-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+    margin: 0;
+  }
+  .home__now-arrow {
+    font-family: var(--font-display);
+    font-size: var(--text-xl);
+    color: var(--color-brand);
+    transition: transform var(--motion-duration-moderate) var(--motion-ease-out);
+    flex-shrink: 0;
+  }
+  .home__now-card:hover .home__now-arrow {
+    transform: translateX(6px);
+  }
+  .home__now-body {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    margin: 0 0 var(--space-5);
+    max-width: 64ch;
+  }
+  .home__now-tech {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-5);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .home__now-tech li {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-3);
+    background: var(--ink-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-wide);
+  }
+  .home__now-cta {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    font-weight: 600;
+  }
+
+  .home__timeline-head { margin-bottom: var(--space-8); }
+
+  .home__timeline {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+  .home__timeline::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 7px;
+    width: 1px;
+    background: var(--rule);
+  }
+  @media (min-width: 768px) {
+    .home__timeline::before { left: 9px; }
+  }
+  .home__timeline-item {
+    position: relative;
+    padding-left: var(--space-8);
+  }
+  .home__timeline-item::before {
+    content: '';
+    position: absolute;
+    top: 8px;
+    left: 0;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--ink);
+    border: 2px solid var(--rule-strong);
+    transition:
+      border-color var(--motion-duration-moderate) var(--motion-ease-out),
+      background var(--motion-duration-moderate) var(--motion-ease-out);
+  }
+  .home__timeline-item.is-featured::before {
+    border-color: var(--color-brand);
+    background: rgba(168, 216, 0, 0.15);
+  }
+  .home__timeline-period {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    margin-bottom: var(--space-2);
+  }
+  .home__timeline-title {
+    font-family: var(--font-display);
+    font-size: var(--text-lg);
+    font-weight: 600;
+    color: var(--color-fg);
+    margin: 0 0 var(--space-1);
+    letter-spacing: var(--tracking-snug);
+  }
+  .home__timeline-org {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-brand);
+    margin: 0 0 var(--space-3);
+  }
+  .home__timeline-points {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-3);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .home__timeline-points li {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-normal);
+    color: var(--color-fg-muted);
+    padding-left: var(--space-4);
+    position: relative;
+  }
+  .home__timeline-points li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--color-brand);
+  }
+  .home__timeline-tech {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .home__timeline-tech li {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    padding: var(--space-1) var(--space-3);
+    background: var(--ink-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-sm);
+    color: var(--color-fg);
+    letter-spacing: var(--tracking-wide);
+  }
+
+  .home__skills-head { margin-bottom: var(--space-8); }
+  .home__skills-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-8);
+  }
+  @media (min-width: 768px) {
+    .home__skills-grid {
+      grid-template-columns: 2fr 1fr;
+      gap: var(--space-10);
+      align-items: start;
+    }
+  }
+
+  .home__chips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+  .home__chip--skill {
+    opacity: 0;
+    transform: translateY(8px) scale(0.96);
+    transition:
+      opacity var(--motion-duration-moderate) var(--motion-ease-out),
+      transform var(--motion-duration-moderate) var(--motion-ease-out),
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      color var(--motion-duration-short) var(--motion-ease-out);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+  .home__chip--skill.is-visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  .home__chip--skill:hover {
+    border-color: var(--color-brand);
+    color: var(--color-fg);
+  }
+
+  .home__soft {
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-md);
+    padding: var(--space-5);
+  }
+  .home__soft-title {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin: 0 0 var(--space-4);
+    font-weight: 600;
+  }
+  .home__soft-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+  }
+  .home__soft-list li {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    color: var(--color-fg);
+    padding-left: var(--space-3);
+    position: relative;
+  }
+  .home__soft-list li::before {
+    content: '·';
+    position: absolute;
+    left: 0;
+    color: var(--color-brand);
+    font-weight: 700;
+  }
+
+  .home__cta-section { padding-bottom: var(--section-padding-y-lg); }
+  .home__cta {
+    background: var(--ink);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-8);
+    text-align: center;
+  }
+  @media (min-width: 768px) {
+    .home__cta { padding: var(--space-12) var(--space-10); }
+  }
+  .home__cta-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-4);
+  }
+  .home__cta-body {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    max-width: 52ch;
+    margin: 0 auto var(--space-6);
+  }
+  .home__cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    background: var(--color-brand);
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition:
+      transform var(--motion-duration-short) var(--motion-ease-out),
+      box-shadow var(--motion-duration-short) var(--motion-ease-out);
+  }
+  .home__cta-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 4px rgba(168, 216, 0, 0.18);
+  }
+  .home__cta-btn span {
+    transition: transform var(--motion-duration-short) var(--motion-ease-out);
+  }
+  .home__cta-btn:hover span {
+    transform: translateX(4px);
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--motion-duration-long) var(--motion-ease-out),
+      transform var(--motion-duration-long) var(--motion-ease-out);
+    will-change: opacity, transform;
+  }
+  .is-visible.reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .hero-reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition:
+      opacity var(--motion-duration-hero) var(--motion-ease-out),
+      transform var(--motion-duration-hero) var(--motion-ease-out);
+    will-change: opacity, transform;
+  }
+  .hero-reveal.is-hero-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal,
+    .hero-reveal,
+    .home__lang-item,
+    .home__chip--skill {
+      opacity: 1 !important;
+      transform: none !important;
+      transition: none !important;
+    }
   }
 </style>
