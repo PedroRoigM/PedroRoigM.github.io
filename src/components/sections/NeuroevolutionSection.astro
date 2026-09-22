@@ -27,11 +27,13 @@ const { locale } = Astro.props;
 const content = {
   es: {
     kicker: '// 03 — CONDUCCIÓN AUTÓNOMA',
+    title: 'Neuroevolución',
     subtitle:
       '98 generaciones · −46.8% por vuelta · tres dimensiones de aprendizaje simultáneas',
     threeDim: {
       kicker: '// 03.1 — TRES DIMENSIONES DEL APRENDIZAJE',
-      title: 'Lo que el agente tuvo que aprender (no solo ir más rápido)',
+      title: 'Lo que el agente tuvo que aprender',
+      titleHighlight: 'no solo ir más rápido',
       intro:
         'Minimizar el tiempo por vuelta es el objetivo final, pero el agente tuvo que descubrir tres cosas en paralelo. Sobrevivir antes que acelerar. Conservar neumáticos antes que firmar vuelta rápida. Y solo entonces, hilar fino en cada curva.',
       blocks: {
@@ -74,11 +76,13 @@ const content = {
   },
   en: {
     kicker: '// 03 — AUTONOMOUS DRIVING',
+    title: 'Neuroevolution',
     subtitle:
       '98 generations · −46.8% per lap · three simultaneous dimensions of learning',
     threeDim: {
       kicker: '// 03.1 — THREE DIMENSIONS OF LEARNING',
-      title: 'What the agent had to learn (not just go faster)',
+      title: 'What the agent had to learn',
+      titleHighlight: 'not just go faster',
       intro:
         'Minimising lap time is the final objective, but the agent had to discover three things in parallel. Survive before accelerating. Conserve tyres before signing a fast lap. And only then, fine-tune every corner.',
       blocks: {
@@ -169,13 +173,14 @@ const lapSpec: MetricSpec = {
 };
 ---
 
-<section id="neuroevolution" class="neuro-section" data-section="neuroevolution" aria-labelledby="neuro-heading">
+<section id="neuroevolution" class="neuro-section" data-section="neuroevolution" aria-labelledby="neuro-title">
   <div class="neuro-section__inner">
     <!-- ============================================================== -->
     <!-- Part 1 — Headline                                                -->
     <!-- ============================================================== -->
     <header class="neuro-section__header">
-      <span id="neuro-heading" class="neuro-section__kicker">{content.kicker}</span>
+      <span class="neuro-section__kicker">{content.kicker}</span>
+      <h2 id="neuro-title" class="neuro-section__title">{content.title}</h2>
     </header>
 
     <div class="neuro-headline" aria-hidden="true">
@@ -220,7 +225,10 @@ const lapSpec: MetricSpec = {
     <div class="neuro-three-dim">
       <div class="neuro-three-dim__head">
         <span class="neuro-three-dim__kicker">{content.threeDim.kicker}</span>
-        <h3 class="neuro-three-dim__title">{content.threeDim.title}</h3>
+        <h3 class="neuro-three-dim__title">
+          {content.threeDim.title}{' '}
+          <span class="neuro-three-dim__title-highlight">{content.threeDim.titleHighlight}</span>
+        </h3>
         <p class="neuro-three-dim__intro">{content.threeDim.intro}</p>
       </div>
 
@@ -330,6 +338,16 @@ const lapSpec: MetricSpec = {
     text-transform: uppercase;
     letter-spacing: var(--tracking-widest);
     color: var(--color-brand);
+  }
+
+  .neuro-section__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: var(--tracking-snug);
+    line-height: var(--leading-tight);
+    color: var(--color-fg);
+    margin: 0;
+    font-size: clamp(2rem, 5vw, 3.5rem);
   }
 
   /* ---- Headline (124 → 66) --------------------------------------------- */
@@ -464,6 +482,13 @@ const lapSpec: MetricSpec = {
     letter-spacing: var(--tracking-snug);
     line-height: var(--leading-snug);
     margin: 0;
+  }
+
+  .neuro-three-dim__title-highlight {
+    color: var(--color-brand);
+    font-size: 1.15em;
+    font-weight: 700;
+    letter-spacing: var(--tracking-wide);
   }
 
   .neuro-three-dim__intro {

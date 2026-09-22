@@ -48,7 +48,9 @@ interface LayerDef {
 }
 
 const VB_W = 800;
-const VB_H = 460;
+// VB_H bumped from 460 → 520 so the skip projection has its own dedicated
+// band below the layer labels (y=344–358) without intersecting them.
+const VB_H = 520;
 const PAD_X = 70;
 
 // X positions of each column in the diagram. Pulled inward so the right
@@ -156,19 +158,20 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
   }, []);
 
   const skipBezier = useMemo(() => {
-    // Curved bezier from input column to the merge column, dipping well below
-    // the backbone (and below the layer labels) so it visually "skips" the
-    // intermediate layers. With y0=y1=180 (midpoint of plot area) and
-    // cy1=cy2=470, the curve's lowest point is ~y=398 — safely below the
-    // layer subtitles (y=358) and above the skip-projection label (y=425).
+    // Curved bezier from input column to the merge column, routed entirely
+    // BELOW the layer label band (subtitles end at y≈358). Both endpoints
+    // sit at y=365 (just under the subtitle row), and the control points
+    // pull the curve deeper to y=500 — the curve's lowest point reaches
+    // ≈y=466. The skip-projection label sits at y=485 (below the curve),
+    // so the arc and the labels live in separate horizontal bands.
     const x0 = COL_X.input + 6;
-    const y0 = (PLOT_TOP + PLOT_BOTTOM) / 2;
+    const y0 = 365;
     const x1 = COL_X.merge;
-    const y1 = (PLOT_TOP + PLOT_BOTTOM) / 2;
+    const y1 = 365;
     const cx1 = x0 + 60;
-    const cy1 = 470;
+    const cy1 = 500;
     const cx2 = x1 - 60;
-    const cy2 = 470;
+    const cy2 = 500;
     return `M ${x0} ${y0} C ${cx1} ${cy1}, ${cx2} ${cy2}, ${x1} ${y1}`;
   }, []);
 
@@ -412,7 +415,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
         />
         <text
           x={(COL_X.input + COL_X.merge) / 2}
-          y={425}
+          y={485}
           textAnchor="middle"
           fontSize="9"
           fontFamily="var(--font-display)"
