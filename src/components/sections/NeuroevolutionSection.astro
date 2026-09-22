@@ -415,16 +415,21 @@ const lapSpec: MetricSpec = {
     max-width: 320px;
     overflow: visible;
     animation: neuro-headline-arrow-dash 1.4s linear infinite;
-    order: 3;
+    /* Natural DOM order (124 → arrow → 66) keeps the arrow between the
+       two numbers on desktop. `order` is reserved for the mobile break
+       below, where it must drop to its own row. */
   }
 
   /* Narrow phones — let the arrow drop to its own row instead of trying
-     to squeeze between two 56 px numbers. */
+     to squeeze between two big numbers. */
   @media (max-width: 520px) {
     .neuro-headline {
       gap: var(--space-4);
     }
+    /* Push the arrow to the end of the flex line so it wraps to its
+       own row after the two numbers. */
     .neuro-headline__arrow {
+      order: 3;
       flex-basis: 100%;
       max-width: none;
       height: 24px;
