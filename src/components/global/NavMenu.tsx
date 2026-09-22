@@ -10,7 +10,7 @@
  * Link targets (top-level pages, not in-page anchors):
  *   - Home (`/` or `/en/`) — placeholder personal page
  *   - TFG (`/f1` or `/en/f1`) — F1 multi-agent system portfolio
- *   - Contacto (`#contact`) — anchor in the footer (rendered on every page)
+ *   - Contacto (`/contact` or `/en/contact`) — contact page
  *
  * Layout strategy:
  *   - Desktop (≥900 px):  brand | top-level links (inline) | language switcher
@@ -38,12 +38,12 @@ export default function NavMenu({ locale }: Props) {
     ? [
         { label: 'Home', href: '/' },
         { label: 'TFG', href: '/f1' },
-        { label: 'Contacto', href: '#contact' },
+        { label: 'Contacto', href: '/contact' },
       ]
     : [
         { label: 'Home', href: '/en/' },
         { label: 'TFG', href: '/en/f1' },
-        { label: 'Contact', href: '#contact' },
+        { label: 'Contact', href: '/en/contact' },
       ];
 
   const [open, setOpen] = useState(false);

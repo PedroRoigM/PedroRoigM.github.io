@@ -1,0 +1,76 @@
+---
+/**
+ * /en/contact — Contact page (English placeholder).
+ *
+ * Will be expanded with form, social links, etc. For now it just leaves the
+ * basic channels so the nav stays functional.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Footer from '../../components/global/Footer.astro';
+
+const locale = 'en' as const;
+---
+
+<BaseLayout
+  title="Contact — Pedro Roig Morera"
+  description="How to get in touch."
+  locale={locale}
+>
+  <section class="contact-placeholder">
+    <div class="contact-placeholder__inner">
+      <p class="contact-placeholder__eyebrow">Contact</p>
+      <h1 class="contact-placeholder__title">Let's talk</h1>
+      <p class="contact-placeholder__lede">
+        Page under construction. In the meantime, you can email me at
+        <a href="mailto:pedro.roig.morera@gmail.com">pedro.roig.morera@gmail.com</a>.
+      </p>
+    </div>
+  </section>
+
+  <Footer locale={locale} />
+</BaseLayout>
+
+<style>
+  .contact-placeholder {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12) var(--space-5);
+  }
+  .contact-placeholder__inner {
+    max-width: 560px;
+    text-align: center;
+  }
+  .contact-placeholder__eyebrow {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin-bottom: var(--space-4);
+  }
+  .contact-placeholder__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-4);
+  }
+  .contact-placeholder__lede {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    color: var(--color-fg-muted);
+    line-height: 1.6;
+  }
+  .contact-placeholder__lede a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .contact-placeholder__lede a:hover {
+    color: var(--color-fg);
+  }
+</style>
