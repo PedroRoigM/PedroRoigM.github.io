@@ -111,8 +111,19 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
 
   // Stable connection line layout — one entry per (from, to) pair of layers.
-  // We render ~8 representative connections per pair (full graph would be
-  // 128*128 = 16384 lines for fc1→fc2 alone).
+  // Each entry holds a single SVG path string with the FULL cartesian
+  // product of source × target connections rendered as M/L commands,
+  // so the diagram is as faithful as possible to the original model:
+  //
+  //   input (47)  -> fc1 (128)   :  6,016 lines
+  //   fc1  (128)  -> fc2 (128)   : 16,384 lines
+  //   fc2  (128)  -> fc3  (64)   :  8,192 lines
+  //   fc3  (64)   -> heads (16)  :  1,024 lines
+  //   heads (16)  -> output (3)  :     48 lines  (use `dots` for visual count)
+  //
+  // We concatenate the line segments into a single <path> per layer-pair so
+  // the DOM stays small (5 path elements total) and the browser can paint
+  // each mesh as a single stroke operation.
   const connections = useMemo(() => {
     type Pair = [string, string];
     const pairs: Pair[] = [
@@ -125,44 +136,30 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
     return pairs.map(([from, to]) => {
       const fromDef = LAYERS.find((l) => l.id === from)!;
       const toDef = LAYERS.find((l) => l.id === to)!;
-      const fromCount = fromDef.kind === 'dots' ? fromDef.dots! : 8;
-      const toCount = toDef.kind === 'dots' ? toDef.dots! : 8;
-      const lines: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
+      const x1 = COL_X[from as keyof typeof COL_X] + (fromDef.kind === 'bar' ? 16 : 6);
+      const x2 = COL_X[to as keyof typeof COL_X] - (toDef.kind === 'bar' ? 16 : 8);
 
-      // Special case: heads→output mesh — each head (gray dot) sends a line
-      // to each output (orange dot), so N_heads × N_outputs lines total.
-      // This visualises that every head feeds into every output, which is
-      // what the actor network actually does (heads = independent linear
-      // regressors over the same merged state h).
-      if (to === 'output') {
-        const headYs = dotPositions(fromDef.dots!, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
-        const outYs = dotPositions(OUTPUT_DETAILS.length, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
-        for (const headY of headYs) {
-          for (const outY of outYs) {
-            lines.push({
-              x1: COL_X.heads + 8,
-              y1: headY,
-              x2: COL_X.output - 8,
-              y2: outY,
-            });
-          }
-        }
-        return { from, to, lines };
-      }
-
+      // For most pairs we use the layer's FULL conceptual neuron count
+      // (count field), so every source fans out to every target. For
+      // heads->output we use the visual dot count (5 heads * 3 outputs)
+      // because the heads/output columns are represented by discrete dots.
+      const fromCount = from === 'heads' ? fromDef.dots! : fromDef.count;
+      const toCount = to === 'output' ? toDef.dots! : toDef.count;
       const fromYs = dotPositions(fromCount, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
       const toYs = dotPositions(toCount, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
-      const step = Math.max(1, Math.floor(fromCount / toCount));
-      for (let i = 0; i < toCount; i++) {
-        const fromIdx = Math.min(fromYs.length - 1, i * step);
-        lines.push({
-          x1: COL_X[from as keyof typeof COL_X] + (fromDef.kind === 'bar' ? 16 : 6),
-          y1: fromYs[fromIdx]!,
-          x2: COL_X[to as keyof typeof COL_X] - (toDef.kind === 'bar' ? 16 : 8),
-          y2: toYs[i]!,
-        });
+
+      // Build the path string with M/L commands.
+      const x1s = x1.toFixed(1);
+      const x2s = x2.toFixed(1);
+      let d = '';
+      for (const fy of fromYs) {
+        const fys = fy.toFixed(1);
+        for (const ty of toYs) {
+          d += `M${x1s},${fys}L${x2s},${ty.toFixed(1)} `;
+        }
       }
-      return { from, to, lines };
+
+      return { from, to, d, count: fromYs.length * toYs.length };
     });
   }, []);
 
@@ -379,30 +376,35 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
     >
       {/* ---- Connection lines (drawn first, behind nodes) ---------------- */}
       <g aria-hidden="true" style={{ pointerEvents: 'none' }}>
-        {connections.map(({ from, to, lines }) => (
-          <g key={`${from}-${to}`} style={{ pointerEvents: 'none' }}>
-            {lines.map((ln, i) => (
-              <line
-                key={`${from}-${to}-${i}`}
-                x1={ln.x1}
-                y1={ln.y1}
-                x2={ln.x2}
-                y2={ln.y2}
-                stroke={
-                  to === 'output'
-                    ? 'var(--accent)'
-                    : from === 'input' || to === 'fc1'
-                      ? 'var(--secondary)'
-                      : 'var(--rule-strong)'
-                }
-                strokeWidth={0.6}
-                opacity={connOpacity(from, to, to === 'output' ? 0.45 : 0.25)}
-                vectorEffect="non-scaling-stroke"
-                style={{ transition: 'opacity 0.3s var(--motion-ease-out)' }}
-              />
-            ))}
-          </g>
-        ))}
+        {connections.map(({ from, to, d }) => {
+          // Per-pair base opacity: with thousands of lines per path we
+          // need low values so the cumulative density reads as a soft
+          // gradient instead of a solid block.
+          const baseOpacity =
+            to === 'output'
+              ? 0.45
+              : from === 'input' || to === 'fc1'
+                ? 0.06
+                : 0.03;
+          return (
+            <path
+              key={`${from}-${to}`}
+              d={d}
+              fill="none"
+              stroke={
+                to === 'output'
+                  ? 'var(--accent)'
+                  : from === 'input' || to === 'fc1'
+                    ? 'var(--secondary)'
+                    : 'var(--rule-strong)'
+              }
+              strokeWidth={to === 'output' ? 0.6 : 0.35}
+              opacity={connOpacity(from, to, baseOpacity)}
+              vectorEffect="non-scaling-stroke"
+              style={{ transition: 'opacity 0.3s var(--motion-ease-out)' }}
+            />
+          );
+        })}
 
         {/* Skip connection — curved bezier below the backbone */}
         <path
