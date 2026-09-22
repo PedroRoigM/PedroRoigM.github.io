@@ -1,32 +1,76 @@
 ---
 /**
- * Homepage — English locale (/en/).
- * Mirror of the Spanish default page.
+ * Homepage — placeholder (English locale).
+ *
+ * The main portfolio now lives at /en/f1 (TFG: Multi-Agent System for F1).
+ * This page will be replaced with an "about me" page + highlights soon.
  */
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import Hero from '../../components/Hero.astro';
-import PhysicsSection from '../../components/sections/PhysicsSection.astro';
-import SimulationSection from '../../components/sections/SimulationSection.astro';
-import NeuroevolutionSection from '../../components/sections/NeuroevolutionSection.astro';
-import StrategyDataSection from '../../components/sections/StrategyDataSection.astro';
-import FastF1Section from '../../components/sections/FastF1Section.astro';
-import StackSection from '../../components/sections/StackSection.astro';
 import Footer from '../../components/global/Footer.astro';
 
 const locale = 'en' as const;
 ---
 
 <BaseLayout
-  title="Pedro Roig Morera — Multi-Agent System for F1"
-  description="Personal portfolio: vehicle physics, simulation, neuroevolution and real-world F1 data validation."
+  title="Pedro Roig Morera"
+  description="Personal portfolio — coming soon."
   locale={locale}
 >
-  <Hero locale={locale} />
-  <PhysicsSection locale={locale} />
-  <SimulationSection locale={locale} />
-  <NeuroevolutionSection locale={locale} />
-  <StrategyDataSection locale={locale} />
-  <FastF1Section locale={locale} />
-  <StackSection locale={locale} />
+  <section class="home-placeholder">
+    <div class="home-placeholder__inner">
+      <p class="home-placeholder__eyebrow">PR</p>
+      <h1 class="home-placeholder__title">Pedro Roig Morera</h1>
+      <p class="home-placeholder__lede">
+        This page is under construction. In the meantime, you can view my
+        <a href="/en/f1">TFG: Multi-Agent System for F1</a>.
+      </p>
+    </div>
+  </section>
+
   <Footer locale={locale} />
 </BaseLayout>
+
+<style>
+  .home-placeholder {
+    min-height: calc(100vh - 200px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--space-12) var(--space-5);
+  }
+  .home-placeholder__inner {
+    max-width: 560px;
+    text-align: center;
+  }
+  .home-placeholder__eyebrow {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin-bottom: var(--space-4);
+  }
+  .home-placeholder__title {
+    font-family: var(--font-display);
+    font-size: var(--text-2xl);
+    font-weight: 600;
+    letter-spacing: var(--tracking-snug);
+    color: var(--color-fg);
+    margin: 0 0 var(--space-4);
+  }
+  .home-placeholder__lede {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    color: var(--color-fg-muted);
+    line-height: 1.6;
+  }
+  .home-placeholder__lede a {
+    color: var(--color-brand);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+  .home-placeholder__lede a:hover {
+    color: var(--color-fg);
+  }
+</style>

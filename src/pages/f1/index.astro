@@ -1,0 +1,32 @@
+---
+/**
+ * /f1 — TFG: Sistema Multi-Agente para F1 (Español, locale por defecto).
+ * Contiene todas las secciones del portfolio de F1 + footer.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Hero from '../../components/Hero.astro';
+import PhysicsSection from '../../components/sections/PhysicsSection.astro';
+import SimulationSection from '../../components/sections/SimulationSection.astro';
+import NeuroevolutionSection from '../../components/sections/NeuroevolutionSection.astro';
+import StrategyDataSection from '../../components/sections/StrategyDataSection.astro';
+import FastF1Section from '../../components/sections/FastF1Section.astro';
+import StackSection from '../../components/sections/StackSection.astro';
+import Footer from '../../components/global/Footer.astro';
+
+const locale = 'es' as const;
+---
+
+<BaseLayout
+  title="Pedro Roig Morera — Sistema Multi-Agente para F1"
+  description="Portfolio personal: física vehicular, simulación, neuroevolución y validación con datos reales de F1."
+  locale={locale}
+>
+  <Hero locale={locale} />
+  <PhysicsSection locale={locale} />
+  <SimulationSection locale={locale} />
+  <NeuroevolutionSection locale={locale} />
+  <StrategyDataSection locale={locale} />
+  <FastF1Section locale={locale} />
+  <StackSection locale={locale} />
+  <Footer locale={locale} />
+</BaseLayout>

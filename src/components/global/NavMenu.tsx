@@ -1,5 +1,5 @@
 /**
- * NavMenu — Sticky navigation with monogram, section links and language
+ * NavMenu — Sticky navigation with monogram, top-level links and language
  * switcher, with a hamburger panel on small screens.
  *
  * Replaces the previous pure-Astro Nav. The previous Nav pushed the section
@@ -7,11 +7,16 @@
  * viewport on phones (the ES/EN toggle bumped the page wider than the
  * viewport, which made horizontal scroll appear across every section).
  *
+ * Link targets (top-level pages, not in-page anchors):
+ *   - Home (`/` or `/en/`) — placeholder personal page
+ *   - TFG (`/f1` or `/en/f1`) — F1 multi-agent system portfolio
+ *   - Contacto (`#contact`) — anchor in the footer (rendered on every page)
+ *
  * Layout strategy:
- *   - Desktop (≥900 px):  brand | section links (inline) | language switcher
+ *   - Desktop (≥900 px):  brand | top-level links (inline) | language switcher
  *   - Mobile  (<900 px):  brand | hamburger button; the button opens a
  *                         full-width dropdown panel that holds both the
- *                         section links and the language switcher
+ *                         top-level links and the language switcher
  *
  * State: `open` (boolean) toggled by the hamburger button, the backdrop,
  * and any nav link click (so the dropdown closes after navigation).
@@ -19,7 +24,7 @@
 import { useEffect, useState } from 'react';
 import LanguageSwitcher from './LanguageSwitcher';
 
-interface Section {
+interface NavLink {
   label: string;
   href: string;
 }
@@ -29,20 +34,16 @@ interface Props {
 }
 
 export default function NavMenu({ locale }: Props) {
-  const sections: Section[] = locale === 'es'
+  const links: NavLink[] = locale === 'es'
     ? [
-        { label: 'Física', href: '#physics' },
-        { label: 'Simulación', href: '#simulation' },
-        { label: 'IA', href: '#neuroevolution' },
-        { label: 'Datos', href: '#strategy-data' },
-        { label: 'Validación', href: '#fastf1' },
+        { label: 'Home', href: '/' },
+        { label: 'TFG', href: '/f1' },
+        { label: 'Contacto', href: '#contact' },
       ]
     : [
-        { label: 'Physics', href: '#physics' },
-        { label: 'Simulation', href: '#simulation' },
-        { label: 'AI', href: '#neuroevolution' },
-        { label: 'Data', href: '#strategy-data' },
-        { label: 'Validation', href: '#fastf1' },
+        { label: 'Home', href: '/en/' },
+        { label: 'TFG', href: '/en/f1' },
+        { label: 'Contact', href: '#contact' },
       ];
 
   const [open, setOpen] = useState(false);
@@ -86,7 +87,7 @@ export default function NavMenu({ locale }: Props) {
           {/* Desktop links — hidden below 900 px (the hamburger carries
               the same content on mobile). */}
           <ul className="nav__links">
-            {sections.map((s) => (
+            {links.map((s) => (
               <li key={s.href}>
                 <a href={s.href} className="nav__link">
                   {s.label}
@@ -122,7 +123,7 @@ export default function NavMenu({ locale }: Props) {
         aria-hidden={!open}
       >
         <ul className="nav-panel__links">
-          {sections.map((s) => (
+          {links.map((s) => (
             <li key={s.href}>
               <a
                 href={s.href}

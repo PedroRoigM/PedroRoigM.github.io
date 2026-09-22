@@ -1,0 +1,32 @@
+---
+/**
+ * /en/f1 — TFG: Multi-Agent System for F1 (English locale).
+ * Mirror of the Spanish /f1 page.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import Hero from '../../../components/Hero.astro';
+import PhysicsSection from '../../../components/sections/PhysicsSection.astro';
+import SimulationSection from '../../../components/sections/SimulationSection.astro';
+import NeuroevolutionSection from '../../../components/sections/NeuroevolutionSection.astro';
+import StrategyDataSection from '../../../components/sections/StrategyDataSection.astro';
+import FastF1Section from '../../../components/sections/FastF1Section.astro';
+import StackSection from '../../../components/sections/StackSection.astro';
+import Footer from '../../../components/global/Footer.astro';
+
+const locale = 'en' as const;
+---
+
+<BaseLayout
+  title="Pedro Roig Morera — Multi-Agent System for F1"
+  description="Personal portfolio: vehicle physics, simulation, neuroevolution and real-world F1 data validation."
+  locale={locale}
+>
+  <Hero locale={locale} />
+  <PhysicsSection locale={locale} />
+  <SimulationSection locale={locale} />
+  <NeuroevolutionSection locale={locale} />
+  <StrategyDataSection locale={locale} />
+  <FastF1Section locale={locale} />
+  <StackSection locale={locale} />
+  <Footer locale={locale} />
+</BaseLayout>
