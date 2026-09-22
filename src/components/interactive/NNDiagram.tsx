@@ -139,12 +139,14 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
       const x1 = COL_X[from as keyof typeof COL_X] + (fromDef.kind === 'bar' ? 16 : 6);
       const x2 = COL_X[to as keyof typeof COL_X] - (toDef.kind === 'bar' ? 16 : 8);
 
-      // For most pairs we use the layer's FULL conceptual neuron count
-      // (count field), so every source fans out to every target. For
-      // heads->output we use the visual dot count (5 heads * 3 outputs)
-      // because the heads/output columns are represented by discrete dots.
-      const fromCount = from === 'heads' ? fromDef.dots! : fromDef.count;
-      const toCount = to === 'output' ? toDef.dots! : toDef.count;
+      // Use the VISUAL representation count for both ends of every
+      // connection pair, so the mesh matches what's actually drawn on
+      // the diagram: 12 input dots -> 8 fc1 strokes, 8 fc1 -> 8 fc2,
+      // 8 fc2 -> 8 fc3, 8 fc3 -> 5 heads, 5 heads -> 3 outputs.
+      // (The conceptual neuron count in count is much higher and would
+      // blow up the SVG path data — 128 * 128 alone is 16k lines.)
+      const fromCount = fromDef.kind === 'dots' ? fromDef.dots! : 8;
+      const toCount = toDef.kind === 'dots' ? toDef.dots! : 8;
       const fromYs = dotPositions(fromCount, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
       const toYs = dotPositions(toCount, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
 
@@ -377,15 +379,16 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
       {/* ---- Connection lines (drawn first, behind nodes) ---------------- */}
       <g aria-hidden="true" style={{ pointerEvents: 'none' }}>
         {connections.map(({ from, to, d }) => {
-          // Per-pair base opacity: with thousands of lines per path we
-          // need low values so the cumulative density reads as a soft
-          // gradient instead of a solid block.
+          // Per-pair base opacity tuned for the visual mesh density:
+          // input->fc1 has 96 lines (densest), the inner bars have 64,
+          // fc3->heads has 40, and heads->output has 15. The output
+          // fan stays prominent at 0.45.
           const baseOpacity =
             to === 'output'
               ? 0.45
               : from === 'input' || to === 'fc1'
-                ? 0.06
-                : 0.03;
+                ? 0.22
+                : 0.28;
           return (
             <path
               key={`${from}-${to}`}
@@ -398,7 +401,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
                     ? 'var(--secondary)'
                     : 'var(--rule-strong)'
               }
-              strokeWidth={to === 'output' ? 0.6 : 0.35}
+              strokeWidth={to === 'output' ? 0.6 : 0.5}
               opacity={connOpacity(from, to, baseOpacity)}
               vectorEffect="non-scaling-stroke"
               style={{ transition: 'opacity 0.3s var(--motion-ease-out)' }}
