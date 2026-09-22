@@ -12,17 +12,30 @@
  *   - Build: scripts/compress-glb.mjs
  *
  * Livery: Renault R25 (2005) — Alonso championship-winning Mild Seven livery.
- * Predominantly **Mild Seven Blue** bodywork with **Mild Seven Yellow** accents.
+ * Body in **Mild Seven French Blue** + **Mild Seven Navy** accents (wing
+ * endplates, dark details) + **Mild Seven Yellow** stripes (livery band,
+ * front wing main plane, nose cone).
  *
- * Material mapping (post-recolor):
- *   - Material.001 (main bodywork, sidepods, chassis panels) → Mild Seven Blue
- *   - Material.047 (side stripe / accent livery)             → Mild Seven Yellow
- *   - front_wing_1 (front wing elements)                     → Mild Seven Blue
- *   - middle (livery accent stripe across the body)          → Mild Seven Yellow
- *   - dials / spin_dials (steering wheel accents)            → Mild Seven Yellow
+ * Material mapping (post-recolor, calced from the Museo Fernando Alonso
+ * R25 photo — CC-BY-SA 4.0 by Morio):
+ *   - Material.001 (53 meshes, 51k verts — main bodywork: sidepods,
+ *     chassis panels, engine cover, rear wing main plane, mirrors)
+ *     → Mild Seven French Blue (R25_BLUE)
+ *   - Material.047 (6 meshes, 2.5k verts — wing endplates and other dark
+ *     accents — the body-vs-endplate two-tone contrast is what gives the
+ *     R25 its characteristic depth)
+ *     → Mild Seven Navy (R25_NAVY)
+ *   - front_wing_1 (2 meshes, 402 verts — front wing main plane: YELLOW,
+ *     not blue. The iconic front wing of the R25 is yellow with Mild
+ *     Seven logos; only the endplates at the tips are navy.)
+ *     → Mild Seven Yellow
+ *   - middle (2 meshes, 4.7k verts — livery accent stripe across body,
+ *     the horizontal yellow band along the sidepod lower edge)
+ *     → Mild Seven Yellow
+ *   - dials / spin_dials (steering wheel displays)            → Mild Seven Yellow
  *   - screen (cockpit display)                               → dark cyan
- *   - tyre (all 4 wheels — single combined mesh)             → Pirelli ink black
- *   - unnamed (`null` material)                              → Mild Seven Blue
+ *   - tyre (all 4 wheels — single combined mesh)             → Pirelli ink black + procedural sidewall decal
+ *   - unnamed (`null` material)                              → Mild Seven French Blue
  *
  * Wheel detail (added procedurally on top of the GLB; positions
  * recovered by scripts/inspect-wheels.mjs via k-means clustering of the
@@ -210,19 +223,29 @@ function createTyreSidewallTexture(): THREE.CanvasTexture {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Renault R25 (2005) palette — Alonso championship-winning livery.
-// Predominantly blue bodywork with yellow accents on rims, side stripes,
-// and livery band.
+// Renault R25 (2005) palette — Alonso championship-winning Mild Seven livery.
 //
-// Colour reference (Mild Seven tobacco brand livery, 2005 spec):
-//   - Body blue (Mild Seven Blue): a saturated mid-tone, slightly darker
-//     than the previous #1B6FB8 value, closer to the photographic
-//     reality of the era (#16539C-ish).
-//   - Accent yellow (Mild Seven Yellow): a high-chroma yellow,
-//     #FFE500-ish, with a slight green undertone in the highlights.
+// Calcado del Museo Fernando Alonso (Renault R25, CC-BY-SA 4.0 by Morio).
+// El GLB original (2022 F1 model) viene con colores neutrales — esta paleta
+// es lo que CALZA encima para que parezca el R25 real:
+//
+//   - R25_BLUE  : bulk of bodywork (French Blue de Renault, "Mild Seven Blue")
+//   - R25_NAVY  : wing endplates, dark accents — más oscuro que R25_BLUE
+//                  para crear el contraste claro/oscuro que da profundidad
+//                  al coche (los endplates NO son del mismo color que el cuerpo)
+//   - R25_YELLOW: nose, front wing main plane, livery side stripe, rim lips
+//                  — el amarillo icónico del Mild Seven
+//
+// Distribución en el GLB (verificado vía scripts/inspect-glb.mjs):
+//   Material.001  (53 mallas, 51k verts) → R25_BLUE   cuerpo principal
+//   Material.047  (6 mallas, 2.5k verts) → R25_NAVY   endplates / accents oscuros
+//   front_wing_1  (2 mallas, 402 verts)  → R25_YELLOW front wing main plane (¡era azul!)
+//   middle        (2 mallas, 4.7k verts) → R25_YELLOW livery side stripe
+//   tyre          (1 malla)             → black con sidewall Pirelli procedural
 // ─────────────────────────────────────────────────────────────────────────────
-const R25_BLUE = '#16539C'; // Mild Seven Blue — dominant bodywork color
-const R25_YELLOW = '#FFE500'; // Mild Seven Yellow — accents, rims, side stripe
+const R25_BLUE = '#1A4789'; // Mild Seven French Blue — cuerpo principal
+const R25_NAVY = '#0E2A6E'; // Dark Mild Seven Blue — wing endplates / accents
+const R25_YELLOW = '#FFE500'; // Mild Seven Yellow — nose, stripe, rim lips
 const INK = '#08090c'; // Page ink — tyres, halo, structural black
 const RIM_INK = '#1a1d24'; // Slightly lighter than tyre for inner rim contrast
 const SCREEN_TINT = '#0d2230'; // Cockpit screen — dark with cyan undertone
@@ -500,10 +523,9 @@ function F1Car({ reducedMotion }: F1CarProps) {
     };
 
     const overrides: Record<string, Assignment> = {
-      // Main bodywork — Mild Seven Blue, glossy clearcoat
-      // (the varnish layer is what makes it look like real paint instead
-      // of coloured plastic). IBL reflections now provide the highlights
-      // that the previous emissive overlay was faking.
+      // Main bodywork — Mild Seven French Blue (R25_BLUE), glossy clearcoat.
+      // 53 meshes / 51k verts — the bulk of the car body (sidepods,
+      // chassis, engine cover, rear wing main plane, mirror housings).
       'Material.001': {
         color: R25_BLUE,
         metalness: 0.45,
@@ -511,26 +533,31 @@ function F1Car({ reducedMotion }: F1CarProps) {
         clearcoat: 1.0,
         clearcoatRoughness: 0.08,
       },
-      // Large body panels (rear wing assembly, side body, lower bodywork) —
-      // same recipe so the bulk of the car reads as one painted surface.
+      // Wing endplates / dark accents — R25_NAVY (more saturated and darker
+      // than the body blue). 6 meshes / 2.5k verts. The body-vs-endplate
+      // contrast is what gives the R25 its characteristic two-tone look —
+      // the endplates read as clearly DARKER than the bodywork, not the
+      // same blue.
       'Material.047': {
-        color: R25_BLUE,
+        color: R25_NAVY,
         metalness: 0.45,
         roughness: 0.4,
         clearcoat: 1.0,
         clearcoatRoughness: 0.08,
       },
-      // Front wing elements — Mild Seven Blue
+      // Front wing main plane — Mild Seven YELLOW, not blue.
+      // Calcado de la foto del museo: el plano principal del front wing
+      // (no los endplates) es amarillo con logos Mild Seven. Antes era
+      // azul, lo cual era incorrecto.
       front_wing_1: {
-        color: R25_BLUE,
-        metalness: 0.45,
-        roughness: 0.4,
+        color: R25_YELLOW,
+        metalness: 0.35,
+        roughness: 0.45,
         clearcoat: 1.0,
-        clearcoatRoughness: 0.08,
+        clearcoatRoughness: 0.18,
       },
-      // Livery accent stripe — Mild Seven Yellow, slightly different
-      // clearcoat roughness so it picks up a subtler highlight than the
-      // body paint (the band is supposed to read as graphics, not metal).
+      // Livery side stripe (middle) — Mild Seven Yellow, the iconic
+      // horizontal band running along the sidepod lower edge.
       middle: {
         color: R25_YELLOW,
         metalness: 0.35,
@@ -612,9 +639,10 @@ function F1Car({ reducedMotion }: F1CarProps) {
       },
     };
 
-    // Unmapped materials — treat as bodywork (blue). Same recipe as the
-    // main bodywork so null-material fallback meshes match the rest of the
-    // car visually instead of looking like a different plastic.
+    // Unmapped materials — treat as bodywork (Mild Seven French Blue).
+    // Same recipe as Material.001 so null-material fallback meshes (1 mesh,
+    // 2496 verts — Object_76, small rear-wing endplate) match the rest of
+    // the car visually instead of looking like a different finish.
     const fallback: Assignment = {
       color: R25_BLUE,
       metalness: 0.45,
