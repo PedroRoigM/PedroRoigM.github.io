@@ -14,7 +14,7 @@ const content = {
   kicker: '// PEDRO ROIG',
   name: ['Pedro', 'Roig'],
   role: 'Data Engineer',
-  roleSub: '4th-year Software Eng. student · Data track',
+  roleSub: 'Software Eng. · Data track',
   lede:
     'What drives me is the intersection of data and the motorsport world. How real-time telemetry and analysis can win a tenth in a race. My goal: work with the millions of data points a car generates and turn them into decisions that make a difference on track — in competition or in vehicle development.',
   meta: [
@@ -26,7 +26,7 @@ const content = {
   aboutKicker: '// 01 — ABOUT',
   aboutTitle: 'Who I am',
   aboutBody:
-    '4th-year Software Engineering student specializing in Data Engineering. Large-scale data processing, analysis and management — with the (literal) drive to bring that knowledge to motorsport.',
+    'Software Engineer specialising in Data Engineering. Large-scale data processing, analysis and management — with the (literal) drive to bring that knowledge to motorsport.',
   langsTitle: 'Languages',
   langs: [
     { name: 'Spanish', level: 'Native' },
@@ -95,7 +95,7 @@ const content = {
   ],
 
   skillsKicker: '// 04 — SKILLS',
-  skillsTitle: 'Toolbox',
+  skillsTitle: 'Skills',
   hardSkills: [
     'Python',
     'SQL & Database Management',
@@ -570,7 +570,10 @@ const content = {
       transform var(--motion-duration-moderate) var(--motion-ease-out);
     transition-delay: var(--reveal-delay, 0ms);
   }
-  .home__lang-item.is-visible {
+  /* Reveal cascade: when the parent <aside> gets .is-visible from the
+     IntersectionObserver, the children fade in with their per-item
+     --reveal-delay. */
+  .home__langs.is-visible .home__lang-item {
     opacity: 1;
     transform: translateY(0);
   }
@@ -798,7 +801,9 @@ const content = {
       color var(--motion-duration-short) var(--motion-ease-out);
     transition-delay: var(--reveal-delay, 0ms);
   }
-  .home__chip--skill.is-visible {
+  /* Reveal cascade: when the parent <ul> gets .is-visible from the IO,
+     the children fade in with their per-item stagger. */
+  .home__chips.is-visible .home__chip--skill {
     opacity: 1;
     transform: translateY(0) scale(1);
   }
