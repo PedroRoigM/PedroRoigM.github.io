@@ -377,10 +377,10 @@ const lapSpec: MetricSpec = {
     font-family: var(--font-display);
     font-variant-numeric: tabular-nums;
     line-height: 1;
-    /* On narrow screens, the two numbers stack instead of competing for
-       horizontal space. */
-    flex: 1 1 auto;
-    min-width: 0;
+    /* Natural sizing on the numbers (no flex-grow). Only the arrow grows
+       to fill the gap between them, so the row sits centered and the two
+       numbers anchor against the arrow at their natural width. */
+    flex: 0 0 auto;
   }
 
   .neuro-headline__num--start .neuro-headline__value {
@@ -409,7 +409,11 @@ const lapSpec: MetricSpec = {
   }
 
   .neuro-headline__arrow {
-    flex: 1 1 auto;
+    /* flex-basis: 0 → the arrow grows from zero to fill whatever the
+       numbers + gaps leave behind, instead of starting from its
+       intrinsic SVG size (which is browser-dependent and creates the
+       asymmetric left/right whitespace the user reported). */
+    flex: 1 1 0%;
     height: 32px;
     min-width: 96px;
     max-width: 320px;
