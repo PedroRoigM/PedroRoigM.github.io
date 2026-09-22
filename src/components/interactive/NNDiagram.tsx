@@ -48,10 +48,11 @@ interface LayerDef {
 }
 
 const VB_W = 800;
-// VB_H keeps the same 520 budget; we just push the plot down to open a
-// dedicated skip-projection band ABOVE the network (y=0–80) instead of
-// below the layer labels.
-const VB_H = 520;
+// VB_H tightened from 520 → 410: the previous value left a huge empty
+// band below the layer labels (y=358) and the stats footer (y=508).
+// 410 keeps the skip band on top (y=0–80) and tightens the bottom
+// margin to ~40px between the labels and the stats row.
+const VB_H = 410;
 const PAD_X = 70;
 // Plot vertical extent — shorter than the original 280 so the skip arc
 // has its own clean band above the columns.
@@ -128,19 +129,24 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
       const toCount = toDef.kind === 'dots' ? toDef.dots! : 8;
       const lines: Array<{ x1: number; y1: number; x2: number; y2: number }> = [];
 
-      // Special case: heads→output fan-out should connect from the heads
-      // column's center to each output node (3 lines).
+      // Special case: heads→output mesh — each head (gray dot) sends a line
+      // to each output (orange dot), so N_heads × N_outputs lines total.
+      // This visualises that every head feeds into every output, which is
+      // what the actor network actually does (heads = independent linear
+      // regressors over the same merged state h).
       if (to === 'output') {
-        const headCenterY = (PLOT_TOP + PLOT_BOTTOM) / 2;
+        const headYs = dotPositions(fromDef.dots!, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
         const outYs = dotPositions(OUTPUT_DETAILS.length, (PLOT_TOP + PLOT_BOTTOM) / 2, COL_H);
-        outYs.forEach((_, i) => {
-          lines.push({
-            x1: COL_X.heads + (fromDef.kind === 'bar' ? 16 : 8),
-            y1: headCenterY,
-            x2: COL_X.output - 8,
-            y2: outYs[i]!,
-          });
-        });
+        for (const headY of headYs) {
+          for (const outY of outYs) {
+            lines.push({
+              x1: COL_X.heads + 8,
+              y1: headY,
+              x2: COL_X.output - 8,
+              y2: outY,
+            });
+          }
+        }
         return { from, to, lines };
       }
 
@@ -390,7 +396,7 @@ export default function NNDiagram({ locale, className }: NNDiagramProps) {
                       : 'var(--rule-strong)'
                 }
                 strokeWidth={0.6}
-                opacity={connOpacity(from, to, to === 'output' ? 0.6 : 0.25)}
+                opacity={connOpacity(from, to, to === 'output' ? 0.45 : 0.25)}
                 vectorEffect="non-scaling-stroke"
                 style={{ transition: 'opacity 0.3s var(--motion-ease-out)' }}
               />
