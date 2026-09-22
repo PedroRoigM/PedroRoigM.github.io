@@ -27,7 +27,6 @@ const { locale } = Astro.props;
 const content = {
   es: {
     kicker: '// 03 — CONDUCCIÓN AUTÓNOMA',
-    titleLines: ['Neuroevolución:', '124s → 66s'],
     subtitle:
       '98 generaciones · −46.8% por vuelta · tres dimensiones de aprendizaje simultáneas',
     threeDim: {
@@ -75,7 +74,6 @@ const content = {
   },
   en: {
     kicker: '// 03 — AUTONOMOUS DRIVING',
-    titleLines: ['Neuroevolution:', '124s → 66s'],
     subtitle:
       '98 generations · −46.8% per lap · three simultaneous dimensions of learning',
     threeDim: {
@@ -171,18 +169,13 @@ const lapSpec: MetricSpec = {
 };
 ---
 
-<section id="neuroevolution" class="neuro-section" data-section="neuroevolution" aria-labelledby="neuro-title">
+<section id="neuroevolution" class="neuro-section" data-section="neuroevolution" aria-labelledby="neuro-heading">
   <div class="neuro-section__inner">
     <!-- ============================================================== -->
     <!-- Part 1 — Headline                                                -->
     <!-- ============================================================== -->
     <header class="neuro-section__header">
-      <span class="neuro-section__kicker">{content.kicker}</span>
-      <h2 id="neuro-title" class="neuro-section__title">
-        {content.titleLines.map((line) => (
-          <span class="neuro-section__title-line">{line}</span>
-        ))}
-      </h2>
+      <span id="neuro-heading" class="neuro-section__kicker">{content.kicker}</span>
     </header>
 
     <div class="neuro-headline" aria-hidden="true">
@@ -337,20 +330,6 @@ const lapSpec: MetricSpec = {
     text-transform: uppercase;
     letter-spacing: var(--tracking-widest);
     color: var(--color-brand);
-  }
-
-  .neuro-section__title {
-    font-family: var(--font-display);
-    font-weight: 600;
-    letter-spacing: var(--tracking-snug);
-    line-height: var(--leading-tight);
-    color: var(--color-fg);
-    margin: 0;
-    font-size: clamp(2rem, 5vw, 3.5rem);
-  }
-
-  .neuro-section__title-line {
-    display: block;
   }
 
   /* ---- Headline (124 → 66) --------------------------------------------- */
