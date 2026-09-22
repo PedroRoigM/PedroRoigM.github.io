@@ -272,25 +272,43 @@ export default function NavMenu({ locale }: Props) {
             opacity 180ms var(--motion-ease-out),
             top 220ms var(--motion-ease-out);
         }
-        .nav__burger-line:not(.is-x-top):not(.is-x-mid):not(.is-x-bot) {
+        /* Closed state: three stacked lines at 12 / 19 / 26 px.
+           The :not(.is-x-*) selector has higher specificity (0,2,1) than
+           the per-child :nth-child(N) alone (0,1,1), which makes the X
+           rules below win on open without needing !important. */
+        .nav__burger-line:not(.is-x-top):not(.is-x-mid):not(.is-x-bot):nth-child(1) {
           top: 12px;
         }
-        .nav__burger-line:nth-child(2):not(.is-x-mid) {
+        .nav__burger-line:not(.is-x-top):not(.is-x-mid):not(.is-x-bot):nth-child(2) {
           top: 19px;
         }
-        .nav__burger-line:nth-child(3) {
+        .nav__burger-line:not(.is-x-top):not(.is-x-mid):not(.is-x-bot):nth-child(3) {
           top: 26px;
         }
-        /* X transformation when open */
-        .is-x-top  { top: 19px; transform: rotate(45deg); }
-        .is-x-mid  { opacity: 0; }
-        .is-x-bot  { top: 19px; transform: rotate(-45deg); }
+        /* X transformation when open. The is-x modifiers raise
+           specificity past the closed-state rules, and these open
+           rules are listed AFTER them so source order wins any ties. */
+        .nav__burger-line.is-x-top {
+          top: 19px;
+          transform: rotate(45deg);
+        }
+        .nav__burger-line.is-x-mid {
+          opacity: 0;
+        }
+        .nav__burger-line.is-x-bot {
+          top: 19px;
+          transform: rotate(-45deg);
+        }
 
         /* ---- Responsive: collapse to hamburger below 900 px --------------- */
         @media (max-width: 900px) {
           .nav__links { display: none; }
           .nav__burger { display: inline-flex; }
           .nav__brand-text { display: none; }
+          /* 2026-09-22: the language switcher lives in the hamburger panel
+             only. Hiding it in the header on mobile avoids showing it
+             twice (header + panel). */
+          .nav__actions .lang-switcher { display: none; }
         }
 
         /* ---- Mobile dropdown panel ---------------------------------------- */
