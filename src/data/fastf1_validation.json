@@ -34,10 +34,14 @@
       },
       "validation": {
         "stops_match": true,
+        "compounds_match": true,
         "window_overlap_pct": 88,
-        "confidence": 0.91,
-        "quote_es": "Barcelona: el modelo anticipa dos paradas (M→H), igual que el stint real de Verstappen en 2024.",
-        "quote_en": "Barcelona: the model anticipates two stops (M→H), matching Verstappen's real 2024 stint."
+        "confidence": 0.88,
+        "match_class": "full",
+        "grid_pattern_es": "Parrilla 2024 mixta: mayoría 2-paradas (M→H); equipos top experimentaron con 1-parada (S→H).",
+        "grid_pattern_en": "Mixed 2024 grid: majority 2-stop (M→H); top teams experimented with 1-stop (S→H).",
+        "quote_es": "Barcelona: el modelo anticipa dos paradas (M→H) en la vuelta 24, alineando con la estrategia real ejecutada.",
+        "quote_en": "Barcelona: the model anticipates two stops (M→H) on lap 24, matching the strategy actually executed."
       }
     },
     {
@@ -71,10 +75,14 @@
       },
       "validation": {
         "stops_match": true,
+        "compounds_match": false,
         "window_overlap_pct": 85,
-        "confidence": 0.88,
-        "quote_es": "Las ventanas de pit coinciden con la estrategia ejecutada por Alpine en el Bahrain 2024.",
-        "quote_en": "Pit windows coincide with the strategy executed by Alpine at Bahrain 2024."
+        "confidence": 0.58,
+        "match_class": "partial",
+        "grid_pattern_es": "Parrilla 2024 diversa: 2-paradas dominante (S→H o M→H según degradación), con 1-parada estratégica en algunos equipos.",
+        "grid_pattern_en": "Diverse 2024 grid: 2-stop dominant (S→H or M→H depending on degradation), with strategic 1-stops at some teams.",
+        "quote_es": "Bahrain: el modelo plantea 2 paradas (M→H) en la ventana 16–22. La estrategia real (S→H, ventana 15–23) es estructuralmente equivalente pero usa un compuesto inicial distinto — la degradación extrema del blando se compensa con un stint medio más largo.",
+        "quote_en": "Bahrain: the model proposes 2 stops (M→H) in the 16–22 window. The actual strategy (S→H, 15–23 window) is structurally equivalent but uses a different starting compound — extreme soft degradation offset by a longer medium stint."
       }
     },
     {
@@ -108,15 +116,47 @@
       },
       "validation": {
         "stops_match": true,
+        "compounds_match": true,
         "window_overlap_pct": 92,
         "confidence": 0.94,
-        "quote_es": "Monza: parada única coincide con el patrón low-downforce del circuito.",
-        "quote_en": "Monza: single stop matches the circuit's low-downforce pattern."
+        "match_class": "full",
+        "grid_pattern_es": "Parrilla 2024 casi unánime en 1-parada (M→H). Solo Safety Cars forzaron variantes.",
+        "grid_pattern_en": "Near-unanimous 2024 grid on 1-stop (M→H). Only Safety Cars forced variants.",
+        "quote_es": "Monza: parada única coincide con el patrón low-downforce del circuito y con la estrategia dominante en el GP.",
+        "quote_en": "Monza: single stop matches the circuit's low-downforce pattern and the dominant race strategy."
       }
     }
   ],
   "footer": {
     "es": "Las predicciones del modelo se contrastan empíricamente con las paradas reales registradas en cada Gran Premio. La metodología es la misma que aplican los ingenieros de pista en cada carrera.",
     "en": "Model predictions are empirically contrasted with actual pit stops recorded at each Grand Prix. The methodology mirrors what race engineers apply on every race weekend."
+  },
+  "methodology": {
+    "es": {
+      "title": "Cómo se mide la coincidencia",
+      "intro": "Cada predicción se contrasta con la realidad en tres ejes independientes:",
+      "stops_match": "¿Coincide el número de paradas predichas con el de la estrategia dominante en el GP?",
+      "compounds_match": "¿Coincide la secuencia de neumáticos predicha con la observada?",
+      "window_overlap_pct": "Porcentaje de solape entre la ventana de pit del modelo y la ventana real.",
+      "confidence": "Valor entre 0 y 1 que resume la coincidencia global en los tres ejes. Se reporta como porcentaje en la insignia de cada circuito.",
+      "match_class_label": "Etiqueta cualitativa:",
+      "match_class_full": "FULL — los tres ejes alinean.",
+      "match_class_partial": "PARTIAL — paradas y ventana alinean; los compuestos difieren dentro de la misma clase estructural.",
+      "match_class_miss": "MISS — el número de paradas no coincide.",
+      "limitations": "Limitación: la referencia 'real' resume la estrategia dominante en cada GP. La diversidad entre equipos (muestras individuales) se documenta como contexto aparte."
+    },
+    "en": {
+      "title": "How the match is measured",
+      "intro": "Each prediction is contrasted with reality across three independent axes:",
+      "stops_match": "Does the predicted number of stops match the dominant strategy at the race?",
+      "compounds_match": "Does the predicted tyre sequence match the observed one?",
+      "window_overlap_pct": "Percentage overlap between the model's pit window and the real pit window.",
+      "confidence": "Value between 0 and 1 summarising the global match across the three axes. Reported as a percentage in each circuit's badge.",
+      "match_class_label": "Qualitative label:",
+      "match_class_full": "FULL — all three axes align.",
+      "match_class_partial": "PARTIAL — stops and window align; compounds differ within the same structural class.",
+      "match_class_miss": "MISS — number of stops does not match.",
+      "limitations": "Limitation: the 'real' reference summarises the dominant strategy at each GP. Diversity between teams (individual observed samples) is documented as context."
+    }
   }
 }

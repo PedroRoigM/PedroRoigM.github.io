@@ -60,7 +60,7 @@ const content = {
       {
         num: '01',
         title: 'Arquitectura compacta',
-        body: '~5.000 parámetros donde PPO no aporta. Sin gradientes, sin replay buffer. Cada red es una solución completa y evaluable de forma independiente.',
+        body: '~25K parámetros totales (la cabeza de decisión son apenas ~5K). Donde PPO no aporta: sin gradientes, sin replay buffer. Cada red es una solución completa y evaluable.',
       },
       {
         num: '02',
@@ -70,7 +70,7 @@ const content = {
       {
         num: '03',
         title: 'Paralelización masiva',
-        body: '100 individuos evaluados en paralelo por generación. Inferencia rápida (forward pass de 25K params). CPU utilization 100%.',
+        body: '100 individuos evaluados en paralelo por generación. Inferencia rápida (forward pass de ~25K params). CPU utilization 100%.',
       },
     ],
   },
@@ -109,7 +109,7 @@ const content = {
       {
         num: '01',
         title: 'Compact architecture',
-        body: '~5,000 parameters where PPO adds no value. No gradients, no replay buffer. Each network is a complete, independently evaluable solution.',
+        body: '~25K total parameters (the decision head is only ~5K). Where PPO adds no edge: no gradients, no replay buffer. Each network is a complete, evaluable solution.',
       },
       {
         num: '02',
@@ -119,7 +119,7 @@ const content = {
       {
         num: '03',
         title: 'Massive parallelization',
-        body: '100 individuals evaluated in parallel per generation. Fast inference (25K-param forward pass). 100% CPU utilization.',
+        body: '100 individuals evaluated in parallel per generation. Fast inference (~25K-param forward pass). 100% CPU utilization.',
       },
     ],
   },
