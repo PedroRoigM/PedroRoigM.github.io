@@ -78,6 +78,82 @@ const canonicalUrl =
           linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
         background-attachment: fixed;
       }
+
+      /* ================================================================
+       * Animated section dividers — every <section data-section> gets a
+       * thin brand-tinted line that draws from left to right when the
+       * section scrolls into the viewport. We do this via a pseudo
+       * element instead of the static border-top so the existing
+       * components don't need to be touched.
+       *
+       * Effect stays subtle (1px, ~600ms ease-out) so it doesn't
+       * compete with the section content. Reduced-motion: skip the
+       * animation and show the line statically.
+       * ================================================================ */
+      [data-section] {
+        position: relative;
+      }
+      [data-section]::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent 0%,
+          var(--rule) 8%,
+          var(--color-brand) 50%,
+          var(--rule) 92%,
+          transparent 100%
+        );
+        transform: scaleX(0);
+        transform-origin: left center;
+        transition: transform 700ms cubic-bezier(0.2, 0.9, 0.3, 1) 80ms;
+        pointer-events: none;
+        z-index: 1;
+      }
+      [data-section].is-divided::before {
+        transform: scaleX(1);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        [data-section]::before {
+          transform: scaleX(1);
+          transition: none;
+        }
+      }
     </style>
+
+    <script>
+      /**
+       * Section divider draw-in — single global observer. When any
+       * <section data-section> enters the viewport, we add .is-divided
+       * which triggers the CSS transition on its ::before. We only
+       * need to run once per section (unobserve after first hit) so
+       * the work stays cheap on long pages.
+       */
+      const initSectionDividers = () => {
+        const sections = document.querySelectorAll<HTMLElement>('[data-section]');
+        if (sections.length === 0) return;
+        const observer = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              entry.target.classList.add('is-divided');
+              observer.unobserve(entry.target);
+            }
+          },
+          { threshold: 0.05, rootMargin: '0px 0px -8% 0px' }
+        );
+        sections.forEach((s) => observer.observe(s));
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initSectionDividers, { once: true });
+      } else {
+        initSectionDividers();
+      }
+    </script>
   </body>
 </html>

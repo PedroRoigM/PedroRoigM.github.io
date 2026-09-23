@@ -205,46 +205,72 @@ const content = {
 
     {/* ============================================================
        Tech stack marquee — horizontal scrolling band between hero
-       and TFG. Two identical <ul>s back-to-back so the loop is
-       seamless (when the first one scrolls off, the second is exactly
-       where the first started). Linear timing, no easing — easing
-       would make it stutter at the loop point.
-       aria-hidden on the visual band; the same data is announced
-       semantically by the hero's chip list further down. */}
+       and TFG. One flat list of 28 direct children (14 techs × 2)
+       so the loop is seamless AND gap applies uniformly between every
+       item. Previously nested <ul>s lost the gap between the last
+       item of the first <ul> and the first item of the second, which
+       is what made 'Java' look glued to its preceding dot.
+       aria-hidden on the visual band; the section's aria-label
+       announces the content semantically. */}
     <section class="home__marquee" aria-label="Stack tecnológico">
-      <div class="home__marquee-track">
-        <ul class="home__marquee-list" aria-hidden="true">
-          <li>Java</li><li class="home__marquee-dot">◆</li>
-          <li>TypeScript</li><li class="home__marquee-dot">◆</li>
-          <li>React</li><li class="home__marquee-dot">◆</li>
-          <li>Python</li><li class="home__marquee-dot">◆</li>
-          <li>Astro</li><li class="home__marquee-dot">◆</li>
-          <li>Next.js</li><li class="home__marquee-dot">◆</li>
-          <li>Node.js</li><li class="home__marquee-dot">◆</li>
-          <li>MongoDB</li><li class="home__marquee-dot">◆</li>
-          <li>PostgreSQL</li><li class="home__marquee-dot">◆</li>
-          <li>GSAP</li><li class="home__marquee-dot">◆</li>
-          <li>Three.js</li><li class="home__marquee-dot">◆</li>
-          <li>AWS</li><li class="home__marquee-dot">◆</li>
-          <li>Claude Code</li><li class="home__marquee-dot">◆</li>
-          <li>Reinforcement Learning</li><li class="home__marquee-dot">◆</li>
-        </ul>
-        <ul class="home__marquee-list" aria-hidden="true">
-          <li>Java</li><li class="home__marquee-dot">◆</li>
-          <li>TypeScript</li><li class="home__marquee-dot">◆</li>
-          <li>React</li><li class="home__marquee-dot">◆</li>
-          <li>Python</li><li class="home__marquee-dot">◆</li>
-          <li>Astro</li><li class="home__marquee-dot">◆</li>
-          <li>Next.js</li><li class="home__marquee-dot">◆</li>
-          <li>Node.js</li><li class="home__marquee-dot">◆</li>
-          <li>MongoDB</li><li class="home__marquee-dot">◆</li>
-          <li>PostgreSQL</li><li class="home__marquee-dot">◆</li>
-          <li>GSAP</li><li class="home__marquee-dot">◆</li>
-          <li>Three.js</li><li class="home__marquee-dot">◆</li>
-          <li>AWS</li><li class="home__marquee-dot">◆</li>
-          <li>Claude Code</li><li class="home__marquee-dot">◆</li>
-          <li>Reinforcement Learning</li><li class="home__marquee-dot">◆</li>
-        </ul>
+      <div class="home__marquee-track" aria-hidden="true">
+        <span class="home__marquee-item">Java</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">TypeScript</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">React</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Python</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Astro</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Next.js</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Node.js</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">MongoDB</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">PostgreSQL</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">GSAP</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Three.js</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">AWS</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Claude Code</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Reinforcement Learning</span>
+        <span class="home__marquee-dot">◆</span>
+        {/* Second copy for seamless loop — same gap to every neighbour. */}
+        <span class="home__marquee-item">Java</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">TypeScript</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">React</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Python</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Astro</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Next.js</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Node.js</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">MongoDB</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">PostgreSQL</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">GSAP</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Three.js</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">AWS</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Claude Code</span>
+        <span class="home__marquee-dot">◆</span>
+        <span class="home__marquee-item">Reinforcement Learning</span>
+        <span class="home__marquee-dot">◆</span>
       </div>
     </section>
 
@@ -938,10 +964,11 @@ const content = {
 
   /* ============================================================
      Tech stack marquee — horizontal scrolling band. Pure CSS: a flex
-     row of two identical <ul>s scrolls left at 35s linear, then loops
-     seamlessly because the second <ul> is exactly where the first
-     one started (transform: translateX(-50%) on the track lands the
-     second copy at the original starting position).
+     row of 28 spans (14 techs × 2) scrolls left at 35s linear, then
+     loops seamlessly because the second copy lands exactly where the
+     first started (transform: translateX(-50%) on the track).
+     Flat list of spans (not <ul>/<li>) so the gap applies uniformly
+     between every neighbour — no more "Java glued to its ◆".
      ============================================================ */
   .home__marquee {
     overflow: hidden;
@@ -956,32 +983,28 @@ const content = {
   }
   .home__marquee-track {
     display: flex;
+    align-items: center;
+    gap: var(--space-6);
     width: max-content;
     animation: home-marquee-scroll 35s linear infinite;
   }
-  .home__marquee-list {
-    display: flex;
-    align-items: center;
-    gap: var(--space-6);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    flex-shrink: 0;
-  }
-  .home__marquee-list li {
+  .home__marquee-item {
     font-family: var(--font-display);
     font-size: var(--text-md);
     font-weight: 500;
     letter-spacing: var(--tracking-wide);
     color: var(--color-fg);
     white-space: nowrap;
+    flex-shrink: 0;
     transition: color var(--motion-duration-short) var(--motion-ease-out);
   }
-  .home__marquee-list li:hover { color: var(--color-brand); }
+  .home__marquee-item:hover { color: var(--color-brand); }
   .home__marquee-dot {
     color: var(--color-brand);
     font-size: 8px;
     opacity: 0.6;
+    flex-shrink: 0;
+    line-height: 1;
   }
   @keyframes home-marquee-scroll {
     from { transform: translateX(0); }
@@ -1209,52 +1232,12 @@ const content = {
     transform: translateX(6px);
   }
 
-  /* Border beam — rotating gradient ring around the CTA. The ::before
-     renders a conic gradient that orbits the button via CSS animation.
-     The mask trick (linear-gradient + mask-composite: exclude) keeps
-     only the outer border visible, so the button face stays solid
-     green with a glowing ring orbiting around it. Classic 21st.dev
-     "border beam" pattern. */
+  /* Border beam — removed 2026-09-23 per user feedback. The rotating
+     conic-gradient ring was too showy for the technical tone. The
+     magnetic + spotlight effects on this button stay. */
   .home__tfg-btn--primary.home__tfg-btn--magnetic {
     position: relative;
     background: var(--color-brand);
-    /* Extra padding so the beam has room to orbit without clipping
-       the inner background. */
-    padding: calc(var(--space-3) + 2px) calc(var(--space-6) + 2px);
-  }
-  .home__tfg-btn--primary.home__tfg-btn--magnetic::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    padding: 2px;
-    background: conic-gradient(
-      from 0deg,
-      transparent 0deg,
-      var(--color-brand) 50deg,
-      rgba(255, 255, 255, 0.85) 75deg,
-      var(--color-brand) 100deg,
-      transparent 130deg,
-      transparent 360deg
-    );
-    -webkit-mask:
-      linear-gradient(#000 0 0) content-box,
-      linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-    animation: home-cta-beam-rotate 3.2s linear infinite;
-    pointer-events: none;
-    z-index: 0;
-  }
-  @keyframes home-cta-beam-rotate {
-    to { transform: rotate(360deg); }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .home__tfg-btn--primary.home__tfg-btn--magnetic::before {
-      animation: none;
-      /* Static highlight on the top edge so the premium feel survives. */
-      background: linear-gradient(90deg, var(--color-brand), rgba(255, 255, 255, 0.6), var(--color-brand));
-    }
   }
 
   .home__tfg-btn--secondary {
