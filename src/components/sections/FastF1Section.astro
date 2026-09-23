@@ -64,28 +64,10 @@ type ValidationCircuit = {
   };
 };
 
-type MethodologyCopy = {
-  title: string;
-  intro: string;
-  stops_match: string;
-  compounds_match: string;
-  window_overlap_pct: string;
-  confidence: string;
-  match_class_label: string;
-  match_class_full: string;
-  match_class_partial: string;
-  match_class_miss: string;
-  limitations: string;
-};
-
 type ValidationPayload = {
   circuits: ValidationCircuit[];
   footer: { es: string; en: string };
-  methodology: { es: MethodologyCopy; en: MethodologyCopy };
 };
-
-const methodologyCopy =
-  (validationRaw as unknown as ValidationPayload).methodology[locale];
 
 const validationData = validationRaw as unknown as ValidationPayload;
 
@@ -141,47 +123,8 @@ const titleLines = content.title.split('\n');
       <FastF1Comparison client:visible locale={locale} data={validationData} />
     </div>
 
-    <!-- Methodology legend — defines every metric so the numbers above
-         aren't read in a vacuum. <details>/<summary> keeps the block
-         collapsed by default (saves scroll) but available to a curious
-         recruiter / strategy engineer who clicks through. -->
-    <details class="fastf1-section__methodology reveal" style="--reveal-delay: 320ms">
-      <summary class="fastf1-section__methodology-summary">
-        <span class="fastf1-section__methodology-kicker">// 05.1 — METODOLOGÍA</span>
-        <span class="fastf1-section__methodology-title">{methodologyCopy.title}</span>
-      </summary>
-      <div class="fastf1-section__methodology-body">
-        <p class="fastf1-section__methodology-intro">{methodologyCopy.intro}</p>
-        <dl class="fastf1-section__methodology-list">
-          <div>
-            <dt>stops_match</dt>
-            <dd>{methodologyCopy.stops_match}</dd>
-          </div>
-          <div>
-            <dt>compounds_match</dt>
-            <dd>{methodologyCopy.compounds_match}</dd>
-          </div>
-          <div>
-            <dt>window_overlap_pct</dt>
-            <dd>{methodologyCopy.window_overlap_pct}</dd>
-          </div>
-          <div>
-            <dt>confidence</dt>
-            <dd>{methodologyCopy.confidence}</dd>
-          </div>
-        </dl>
-        <p class="fastf1-section__methodology-classes">
-          <strong>{methodologyCopy.match_class_label}</strong>
-          <span class="fastf1-section__methodology-class is-full">{methodologyCopy.match_class_full}</span>
-          <span class="fastf1-section__methodology-class is-partial">{methodologyCopy.match_class_partial}</span>
-          <span class="fastf1-section__methodology-class is-miss">{methodologyCopy.match_class_miss}</span>
-        </p>
-        <p class="fastf1-section__methodology-limitation">{methodologyCopy.limitations}</p>
-      </div>
-    </details>
-
     <!-- Footer note -->
-    <p class="fastf1-section__footer reveal" style="--reveal-delay: 420ms">
+    <p class="fastf1-section__footer reveal" style="--reveal-delay: 320ms">
       {content.footer}
     </p>
   </div>
@@ -325,152 +268,6 @@ const titleLines = content.title.split('\n');
     border-top: 1px solid var(--rule);
     padding-top: var(--space-5);
   }
-
-  /* Methodology legend ------------------------------------------------------
-   * Defines every metric in the validation cards so a strategy engineer /
-   * recruiter reading the page top-to-bottom can decode the numbers
-   * (confidence, window_overlap_pct, match_class) without leaving the
-   * site. <details>/<summary> keeps it collapsed by default — it expands
-   * on click and stays open across navigations. */
-  .fastf1-section__methodology {
-    margin: 0 auto;
-    max-width: 760px;
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-md);
-    background: rgba(255, 255, 255, 0.02);
-    overflow: hidden;
-  }
-
-  .fastf1-section__methodology-summary {
-    list-style: none;
-    cursor: pointer;
-    padding: var(--space-4) var(--space-5);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    transition: background var(--motion-duration-short) var(--motion-ease-out);
-  }
-  .fastf1-section__methodology-summary::-webkit-details-marker {
-    display: none;
-  }
-  .fastf1-section__methodology-summary::after {
-    content: '+ Definir métricas';
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-brand);
-    align-self: flex-start;
-    margin-top: var(--space-1);
-  }
-  details[open] .fastf1-section__methodology-summary::after {
-    content: '− Ocultar';
-  }
-  .fastf1-section__methodology-summary:hover {
-    background: rgba(168, 216, 0, 0.04);
-  }
-
-  .fastf1-section__methodology-kicker {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-brand);
-  }
-
-  .fastf1-section__methodology-title {
-    font-family: var(--font-display);
-    font-weight: 600;
-    font-size: var(--text-md);
-    color: var(--color-fg);
-    letter-spacing: var(--tracking-snug);
-  }
-
-  .fastf1-section__methodology-body {
-    padding: var(--space-3) var(--space-5) var(--space-5);
-    border-top: 1px solid var(--rule);
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-4);
-  }
-
-  .fastf1-section__methodology-intro,
-  .fastf1-section__methodology-limitation {
-    font-family: var(--font-body);
-    font-size: var(--text-sm);
-    line-height: var(--leading-relaxed);
-    color: var(--color-fg-muted);
-    margin: 0;
-  }
-
-  .fastf1-section__methodology-list {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: var(--space-3);
-    margin: 0;
-  }
-  @media (min-width: 720px) {
-    .fastf1-section__methodology-list {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-  }
-  .fastf1-section__methodology-list > div {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    padding: var(--space-3);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-sm);
-  }
-  .fastf1-section__methodology-list dt {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-brand);
-    margin: 0;
-  }
-  .fastf1-section__methodology-list dd {
-    font-family: var(--font-body);
-    font-size: var(--text-sm);
-    line-height: var(--leading-relaxed);
-    color: var(--color-fg);
-    margin: 0;
-  }
-
-  .fastf1-section__methodology-classes {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-2);
-    margin: 0;
-    padding: var(--space-3);
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid var(--rule);
-    border-radius: var(--radius-sm);
-  }
-  .fastf1-section__methodology-classes strong {
-    font-family: var(--font-display);
-    font-size: var(--text-xs);
-    text-transform: uppercase;
-    letter-spacing: var(--tracking-widest);
-    color: var(--color-fg-muted);
-    font-weight: 500;
-  }
-  .fastf1-section__methodology-class {
-    font-family: var(--font-body);
-    font-size: var(--text-sm);
-    line-height: var(--leading-relaxed);
-    color: var(--color-fg-muted);
-    display: flex;
-    gap: 8px;
-    align-items: baseline;
-  }
-  /* Mirror the badge colours in the methodology legend so a reader
-     recognises the palette consistently. */
-  .fastf1-section__methodology-class.is-full { color: var(--color-highlight); }
-  .fastf1-section__methodology-class.is-partial { color: #e6b94d; }
-  .fastf1-section__methodology-class.is-miss { color: var(--color-fg-muted); }
 
   /* ============================================================================
    * Reveal animation — same pattern as StrategySection

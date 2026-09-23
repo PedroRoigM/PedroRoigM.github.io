@@ -1,0 +1,374 @@
+---
+/**
+ * MethodologySection — Sección 06 del portfolio de F1.
+ *
+ * Explica la metodología de validación empírica del modelo: qué mide
+ * cada métrica (stops_match, compounds_match, window_overlap_pct,
+ * confidence) y cómo se interpretan los tres estados cualitativos
+ * (FULL, PARTIAL, MISS).
+ *
+ * Se renderiza como una sección normal (mismo patrón que las demás:
+ * kicker + título + intro + grid de definiciones). Sin `<details>` ni
+ * contenedor — para que el lector no tenga que hacer click extra y la
+ * pieza fluya con el resto de la narrativa.
+ */
+import validationRaw from '../../data/fastf1_validation.json';
+
+interface Props {
+  locale: 'es' | 'en';
+}
+
+const { locale } = Astro.props;
+
+type MethodologyCopy = {
+  title: string;
+  intro: string;
+  stops_match: string;
+  compounds_match: string;
+  window_overlap_pct: string;
+  confidence: string;
+  match_class_label: string;
+  match_class_full: string;
+  match_class_partial: string;
+  match_class_miss: string;
+  limitations: string;
+};
+
+type ValidationPayload = {
+  methodology: { es: MethodologyCopy; en: MethodologyCopy };
+};
+
+const methodologyCopy =
+  (validationRaw as unknown as ValidationPayload).methodology[locale];
+
+const content = {
+  es: {
+    kicker: '// 06 — METODOLOGÍA',
+    title: 'Cómo se mide la coincidencia',
+  },
+  en: {
+    kicker: '// 06 — METHODOLOGY',
+    title: 'How the match is measured',
+  },
+}[locale];
+---
+
+<section
+  id="methodology"
+  class="methodology-section"
+  data-section="methodology"
+  aria-labelledby="methodology-title"
+>
+  <div class="methodology-section__container">
+    <header class="methodology-section__head">
+      <span class="methodology-section__kicker reveal" style="--reveal-delay: 0ms">
+        {content.kicker}
+      </span>
+      <h2
+        id="methodology-title"
+        class="methodology-section__title reveal"
+        style="--reveal-delay: 60ms"
+      >
+        {content.title}
+      </h2>
+      <p
+        class="methodology-section__lead reveal"
+        style="--reveal-delay: 140ms"
+      >
+        {methodologyCopy.intro}
+      </p>
+    </header>
+
+    <dl class="methodology-section__list reveal" style="--reveal-delay: 220ms">
+      <div class="methodology-section__item">
+        <dt>stops_match</dt>
+        <dd>{methodologyCopy.stops_match}</dd>
+      </div>
+      <div class="methodology-section__item">
+        <dt>compounds_match</dt>
+        <dd>{methodologyCopy.compounds_match}</dd>
+      </div>
+      <div class="methodology-section__item">
+        <dt>window_overlap_pct</dt>
+        <dd>{methodologyCopy.window_overlap_pct}</dd>
+      </div>
+      <div class="methodology-section__item">
+        <dt>confidence</dt>
+        <dd>{methodologyCopy.confidence}</dd>
+      </div>
+    </dl>
+
+    <div class="methodology-section__classes reveal" style="--reveal-delay: 300ms">
+      <p class="methodology-section__classes-label">{methodologyCopy.match_class_label}</p>
+      <ul class="methodology-section__classes-list">
+        <li class="is-full">
+          <span class="methodology-section__classes-tag">FULL</span>
+          <span>{methodologyCopy.match_class_full}</span>
+        </li>
+        <li class="is-partial">
+          <span class="methodology-section__classes-tag">PARTIAL</span>
+          <span>{methodologyCopy.match_class_partial}</span>
+        </li>
+        <li class="is-miss">
+          <span class="methodology-section__classes-tag">MISS</span>
+          <span>{methodologyCopy.match_class_miss}</span>
+        </li>
+      </ul>
+    </div>
+
+    <p class="methodology-section__limitation reveal" style="--reveal-delay: 380ms">
+      {methodologyCopy.limitations}
+    </p>
+  </div>
+</section>
+
+<style>
+  /* ============================================================================
+   * MethodologySection — flat section, same visual language as the rest of
+   * the F1 page (kicker + title + intro + grid + footer). No <details>,
+   * no boxed container, no collapse — the reader scrolls through it like
+   * any other section.
+   * ========================================================================= */
+  .methodology-section {
+    position: relative;
+    padding: var(--section-padding-y) var(--space-5);
+    border-top: 1px solid var(--rule);
+    scroll-margin-top: 96px;
+  }
+
+  @media (min-width: 768px) {
+    .methodology-section {
+      padding: var(--section-padding-y) var(--space-8);
+    }
+  }
+
+  .methodology-section__container {
+    max-width: 880px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+  }
+
+  .methodology-section__head {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    max-width: 64ch;
+  }
+
+  .methodology-section__kicker {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+  }
+
+  .methodology-section__title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: 1.1;
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0;
+    font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+  }
+
+  .methodology-section__lead {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    margin: 0;
+  }
+
+  /* The four metric definitions as a clean 2-column grid. Below 720px
+     the grid collapses to 1 column so the longer ES definitions fit. */
+  .methodology-section__list {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    margin: 0;
+  }
+
+  @media (min-width: 720px) {
+    .methodology-section__list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-5);
+    }
+  }
+
+  .methodology-section__item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-4) var(--space-5);
+    background: rgba(255, 255, 255, 0.02);
+    border-left: 2px solid var(--color-brand);
+    border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  }
+
+  .methodology-section__item dt {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .methodology-section__item dd {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg);
+    margin: 0;
+  }
+
+  /* match_class legend — three rows, each prefixed by a coloured tag
+     that mirrors the badge palette in the FastF1 cards so the reader
+     sees the colour correspondence instantly. */
+  .methodology-section__classes {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  .methodology-section__classes-label {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-fg-muted);
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .methodology-section__classes-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+  }
+
+  .methodology-section__classes-list li {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-3);
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+  }
+
+  .methodology-section__classes-tag {
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    padding: 2px 8px;
+    border-radius: var(--radius-sm);
+    flex-shrink: 0;
+    min-width: 80px;
+    text-align: center;
+  }
+
+  .methodology-section__classes-list li.is-full .methodology-section__classes-tag {
+    background: rgba(255, 91, 58, 0.12);
+    color: var(--color-highlight);
+  }
+
+  .methodology-section__classes-list li.is-partial .methodology-section__classes-tag {
+    background: rgba(230, 185, 77, 0.12);
+    color: #e6b94d;
+  }
+
+  .methodology-section__classes-list li.is-miss .methodology-section__classes-tag {
+    background: rgba(125, 151, 184, 0.12);
+    color: var(--color-fg-muted);
+  }
+
+  .methodology-section__limitation {
+    font-family: var(--font-body);
+    font-size: var(--text-sm);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    font-style: italic;
+    margin: 0;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--rule);
+  }
+
+  /* Reveal — same pattern as the other F1 sections. */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition:
+      opacity var(--motion-duration-long) var(--motion-ease-out),
+      transform var(--motion-duration-long) var(--motion-ease-out);
+    will-change: opacity, transform;
+  }
+
+  .is-visible.reveal {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Reveal-on-scroll — same pattern as FastF1Section. When the section
+   * enters the viewport, every child with the .reveal class gets
+   * .is-visible. Stagger is driven by the inline --reveal-delay.
+   */
+  const init = () => {
+    const section = document.querySelector<HTMLElement>('[data-section="methodology"]');
+    if (!section) return;
+
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const reveals = section.querySelectorAll<HTMLElement>('.reveal');
+
+    if (reducedMotion) {
+      reveals.forEach((el) => el.classList.add('is-visible'));
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const target = entry.target as HTMLElement;
+          target.classList.add('is-visible');
+          target.querySelectorAll<HTMLElement>('.reveal').forEach((el, idx) => {
+            const delayVar = parseFloat(el.style.getPropertyValue('--reveal-delay')) || idx * 80;
+            window.setTimeout(() => el.classList.add('is-visible'), delayVar);
+          });
+          observer.unobserve(target);
+        }
+      },
+      { threshold: 0.12, rootMargin: '0px 0px -8% 0px' }
+    );
+    observer.observe(section);
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init, { once: true });
+  } else {
+    init();
+  }
+</script>

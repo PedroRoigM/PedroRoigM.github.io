@@ -144,12 +144,10 @@ const content = {
   tfgLede:
     'Simulador de F1 con físicas realistas + IA con Reinforcement Learning que entrena desde cero. Validado empíricamente contra los Grandes Premios de Barcelona, Bahrain y Monza de 2024.',
   tfgStats: [
-    { value: '124s → 66s', label: 'vuelta rápida media', sublabel: 'en 98 generaciones' },
-    { value: '75.6%', label: 'finalizaciones TOP 3', sublabel: 'vs. pilotos reales (180 carreras)' },
-    { value: '3', label: 'circuitos validados', sublabel: 'estrategias coinciden con la parrilla' },
+    { value: '124s → 66s', label: 'vuelta rápida media', sublabel: 'en 98 generaciones', countUp: null },
+    { value: '75.6%', label: 'finalizaciones TOP 3', sublabel: 'modelo vs. estrategias estáticas', countUp: { target: 75.6, decimals: 1, suffix: '%' } },
+    { value: '3', label: 'circuitos validados', sublabel: 'estrategias coinciden con la parrilla', countUp: { target: 3, decimals: 0, suffix: '' } },
   ],
-  tfgCtaRepo: 'https://github.com/PedroRoigM/pedro-roig-r25-f1',
-  tfgCtaRepoLabel: 'Ver código en GitHub',
   tfgCtaPortfolio: '/f1',
   tfgCtaPortfolioLabel: 'Ver portfolio completo',
 };
@@ -165,6 +163,12 @@ const content = {
        Hero
        ============================================================ */}
     <section class="home__hero">
+      {/* Animated gradient mesh orb — gives the hero its "modern" tone
+         without resorting to a Three.js canvas. Pure CSS: two stacked
+         radial gradients that drift over 18s, blurred to read as a soft
+         glow. Pointer-events:none so it never intercepts clicks. */}
+      <div class="home__hero-orb" aria-hidden="true"></div>
+      <div class="home__hero-grain" aria-hidden="true"></div>
       <div class="home__hero-inner">
         <span class="home__hero-kicker hero-reveal" style="--hero-delay: 0ms">
           {content.kicker}
@@ -219,7 +223,12 @@ const content = {
         <ul class="home__tfg-stats reveal" style="--reveal-delay: 240ms">
           {content.tfgStats.map((s, i) => (
             <li class="home__tfg-stat" style={`--reveal-delay: ${320 + i * 80}ms`}>
-              <div class="home__tfg-stat-value">{s.value}</div>
+              <div
+                class="home__tfg-stat-value"
+                data-count-up={s.countUp ? s.countUp.target : null}
+                data-count-up-decimals={s.countUp ? s.countUp.decimals : 0}
+                data-count-up-suffix={s.countUp ? s.countUp.suffix : ''}
+              >{s.value}</div>
               <div class="home__tfg-stat-label">{s.label}</div>
               <div class="home__tfg-stat-sub">{s.sublabel}</div>
             </li>
@@ -227,17 +236,12 @@ const content = {
         </ul>
         <div class="home__tfg-actions reveal" style="--reveal-delay: 600ms">
           <a
-            href={content.tfgCtaRepo}
-            class="home__tfg-btn home__tfg-btn--primary"
-            target="_blank"
-            rel="noopener"
+            href={content.tfgCtaPortfolio}
+            class="home__tfg-btn home__tfg-btn--primary home__tfg-btn--magnetic"
+            data-magnetic="strong"
           >
-            <span aria-hidden="true">⟨/⟩</span>
-            {content.tfgCtaRepoLabel}
-          </a>
-          <a href={content.tfgCtaPortfolio} class="home__tfg-btn home__tfg-btn--secondary">
             {content.tfgCtaPortfolioLabel}
-            <span aria-hidden="true">→</span>
+            <span aria-hidden="true" class="home__tfg-btn-arrow">→</span>
           </a>
         </div>
       </div>
@@ -450,6 +454,138 @@ const content = {
   const init = () => {
     initHero();
     initReveals();
+    initSpotlight();
+    initMagnetic();
+    initCountUp();
+  };
+
+  /**
+   * Spotlight — for every [data-spotlight] element (TFG stat cards +
+   * any other cards we tag), track pointermove and write the cursor's
+   * local coordinates into CSS custom properties. The ::before
+   * pseudo-element on each card reads --spot-x / --spot-y to position
+   * the radial-gradient glow under the cursor.
+   *
+   * Using rAF coalescing — pointermove fires more often than we need
+   * to repaint, so we stash the latest coords and flush on the next
+   * animation frame. Skips work on touch devices (no fine pointer).
+   */
+  const initSpotlight = () => {
+    const cards = document.querySelectorAll<HTMLElement>('.home__tfg-stat');
+    if (cards.length === 0) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) return;
+    const supportsHover = window.matchMedia('(hover: hover)').matches;
+    if (!supportsHover) return;
+
+    cards.forEach((card) => {
+      let pendingX = 0;
+      let pendingY = 0;
+      let frameRequested = false;
+      const flush = () => {
+        card.style.setProperty('--spot-x', `${pendingX}px`);
+        card.style.setProperty('--spot-y', `${pendingY}px`);
+        frameRequested = false;
+      };
+      card.addEventListener('pointermove', (e) => {
+        const rect = card.getBoundingClientRect();
+        pendingX = e.clientX - rect.left;
+        pendingY = e.clientY - rect.top;
+        if (!frameRequested) {
+          frameRequested = true;
+          requestAnimationFrame(flush);
+        }
+      });
+    });
+  };
+
+  /**
+   * Magnetic button — for every [data-magnetic] anchor/button, slide
+   * the element slightly toward the cursor while the cursor is over
+   * it. Two strengths:
+   *   - "soft"   = 0.15 pull (subtle, for normal CTAs)
+   *   - "strong" = 0.25 pull (the TFG primary CTA — makes it pop)
+   *
+   * On leave we drop the transform with the springy CSS transition
+   * already on .home__tfg-btn, so the bounce-back feels intentional.
+   */
+  const initMagnetic = () => {
+    const buttons = document.querySelectorAll<HTMLElement>('[data-magnetic]');
+    if (buttons.length === 0) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reducedMotion) return;
+    const supportsHover = window.matchMedia('(hover: hover)').matches;
+    if (!supportsHover) return;
+
+    buttons.forEach((btn) => {
+      const strength = btn.dataset.magnetic === 'strong' ? 0.25 : 0.15;
+      let pendingX = 0;
+      let pendingY = 0;
+      let frameRequested = false;
+      const flush = () => {
+        btn.style.transform = `translate(${pendingX}px, ${pendingY}px)`;
+        frameRequested = false;
+      };
+      btn.addEventListener('pointermove', (e) => {
+        const rect = btn.getBoundingClientRect();
+        pendingX = (e.clientX - rect.left - rect.width / 2) * strength;
+        pendingY = (e.clientY - rect.top - rect.height / 2) * strength;
+        if (!frameRequested) {
+          frameRequested = true;
+          requestAnimationFrame(flush);
+        }
+      });
+      btn.addEventListener('pointerleave', () => {
+        btn.style.transform = '';
+      });
+    });
+  };
+
+  /**
+   * Count-up — for every [data-count-up] element, when it scrolls into
+   * view, animate the visible number from 0 to the target using
+   * easeOutCubic. Decimals and suffix come from data attributes so the
+   * same logic handles "75.6%" (one decimal, "%") and "3" (zero, "").
+   *
+   * We do NOT animate 124s→66s (range story, not a count) — those
+   * elements simply don't carry the data attribute.
+   */
+  const initCountUp = () => {
+    const counters = document.querySelectorAll<HTMLElement>('[data-count-up]');
+    if (counters.length === 0) return;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const animate = (el: HTMLElement) => {
+      const target = parseFloat(el.dataset.countUp || '0');
+      const decimals = parseInt(el.dataset.countUpDecimals || '0', 10);
+      const suffix = el.dataset.countUpSuffix || '';
+      if (reducedMotion || isNaN(target)) {
+        el.textContent = target.toFixed(decimals) + suffix;
+        return;
+      }
+      const duration = 1200;
+      const start = performance.now();
+      const step = (now: number) => {
+        const t = Math.min(1, (now - start) / duration);
+        const eased = 1 - Math.pow(1 - t, 3);
+        const value = target * eased;
+        el.textContent = value.toFixed(decimals) + suffix;
+        if (t < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          animate(entry.target as HTMLElement);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.4, rootMargin: '0px 0px -10% 0px' }
+    );
+    counters.forEach((c) => observer.observe(c));
   };
 
   if (document.readyState === 'loading') {
@@ -546,6 +682,46 @@ const content = {
     height: 1px;
     background: var(--rule);
   }
+
+  /* Animated gradient orb — two stacked radial gradients that drift over
+     18s, blurred so they read as a soft glow. Sets the "modern" tone
+     without needing a Three.js canvas. Reduced-motion just freezes the
+     animation at its starting frame (still readable, no flicker). */
+  .home__hero-orb {
+    position: absolute;
+    top: -10%;
+    left: 50%;
+    width: 1100px;
+    height: 1100px;
+    max-width: 140vw;
+    transform: translateX(-50%);
+    background:
+      radial-gradient(circle at 30% 30%, rgba(168, 216, 0, 0.28) 0%, transparent 50%),
+      radial-gradient(circle at 70% 60%, rgba(125, 151, 184, 0.22) 0%, transparent 55%),
+      radial-gradient(circle at 50% 80%, rgba(255, 91, 58, 0.10) 0%, transparent 60%);
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: home-hero-orb-drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes home-hero-orb-drift {
+    0%   { transform: translateX(-50%) translate(0, 0)   scale(1); }
+    33%  { transform: translateX(-50%) translate(40px, -20px) scale(1.08); }
+    66%  { transform: translateX(-50%) translate(-30px, 30px) scale(0.95); }
+    100% { transform: translateX(-50%) translate(20px, -10px) scale(1.04); }
+  }
+  /* Subtle film grain on top of the orb so it doesn't feel like a flat
+     radial gradient. Inline SVG as data-URI keeps the hero self-contained. */
+  .home__hero-grain {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.05;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.7'/></svg>");
+  }
+  .home__hero-inner { position: relative; z-index: 1; }
 
   .home__hero-inner {
     max-width: var(--max-width);
@@ -740,19 +916,42 @@ const content = {
   }
 
   .home__tfg-stat {
+    position: relative;
     background: var(--ink-2);
     border: 1px solid var(--rule);
     border-radius: var(--radius-lg);
     padding: var(--space-6) var(--space-4);
+    overflow: hidden;
     transition:
       border-color var(--motion-duration-short) var(--motion-ease-out),
       transform var(--motion-duration-short) var(--motion-ease-out);
   }
 
+  /* Spotlight — soft brand-coloured glow that follows the cursor.
+     Default position is off-card so we don't get a flash on load; the
+     JS only updates --spot-x / --spot-y after a pointermove, which
+     triggers the radial gradient to appear under the cursor. */
+  .home__tfg-stat::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(
+      320px circle at var(--spot-x, -100px) var(--spot-y, -100px),
+      rgba(168, 216, 0, 0.18) 0%,
+      transparent 55%
+    );
+    opacity: 0;
+    transition: opacity var(--motion-duration-moderate) var(--motion-ease-out);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .home__tfg-stat:hover::before { opacity: 1; }
   .home__tfg-stat:hover {
     border-color: var(--color-brand);
     transform: translateY(-2px);
   }
+  /* Lift child elements above the spotlight glow. */
+  .home__tfg-stat > * { position: relative; z-index: 1; }
 
   .home__tfg-stat-value {
     font-family: var(--font-display);
@@ -800,7 +999,7 @@ const content = {
     letter-spacing: var(--tracking-wide);
     text-decoration: none;
     transition:
-      transform var(--motion-duration-short) var(--motion-ease-out),
+      transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2),
       box-shadow var(--motion-duration-short) var(--motion-ease-out),
       border-color var(--motion-duration-short) var(--motion-ease-out);
   }
@@ -811,8 +1010,21 @@ const content = {
   }
 
   .home__tfg-btn--primary:hover {
-    transform: translateY(-2px);
     box-shadow: 0 0 0 4px rgba(168, 216, 0, 0.18);
+  }
+
+  /* Magnetic button — JS applies a translate transform on mousemove.
+     The transition is short + springy so it follows the cursor without
+     feeling laggy. The arrow nudges ahead of the text on hover. */
+  .home__tfg-btn--magnetic {
+    will-change: transform;
+  }
+  .home__tfg-btn-arrow {
+    display: inline-block;
+    transition: transform 220ms var(--motion-ease-out);
+  }
+  .home__tfg-btn--magnetic:hover .home__tfg-btn-arrow {
+    transform: translateX(6px);
   }
 
   .home__tfg-btn--secondary {
