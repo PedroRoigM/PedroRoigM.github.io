@@ -23,8 +23,8 @@ const locale = 'es' as const;
 const content = {
   kicker: '// PEDRO ROIG',
   name: ['Pedro', 'Roig'],
-  role: 'Ingeniero de Datos',
-  roleSub: 'Ing. del Software · mención Datos',
+  role: 'Full Stack Developer',
+  roleSub: 'enfocado a datos y motorsport · Ing. del Software',
   lede:
     'Me mueve la intersección entre datos y el mundo del motor. Cómo la telemetría y el análisis en tiempo real pueden ganar una décima en una carrera. Mi objetivo: trabajar con los millones de puntos que genera un coche y convertirlos en decisiones que marquen la diferencia en pista.',
   meta: [
@@ -36,7 +36,7 @@ const content = {
   aboutKicker: '// 01 — ACERCA DE',
   aboutTitle: 'Quién soy',
   aboutBody:
-    'Ingeniero del Software especializado en Ingeniería de Datos. Procesamiento, análisis y gestión de datos a gran escala — con la moto (literal) de llevar ese conocimiento al motorsport.',
+    'Full Stack Developer (Java + TypeScript + React) en Ermine, con foco en datos y motorsport. Ing. del Software por la U-tad. Combino código de producto con experimentación en simulación y ML cuando puedo.',
   langsTitle: 'Idiomas',
   langs: [
     { name: 'Español', level: 'Nativo' },
@@ -61,10 +61,10 @@ const content = {
       title: 'Full Stack Developer',
       org: 'Ermine',
       points: [
-        'Liderar proyectos end-to-end con Java (backend), TypeScript y React',
-        'Adoptar y escalar el uso de Claude Code y agentes en el equipo',
-        'Automatización de flujos de desarrollo y despliegue',
-        'Mentorear al equipo de prácticas en buenas prácticas de ingeniería',
+        'Promovido de prácticas a FTE tras 6 meses; lidero proyectos end-to-end con Java, TypeScript y React',
+        'Introduje Claude Code y un primer flujo de agentes en el equipo, ahora usado por 4 personas',
+        'Lidero la migración de un servicio legacy a una arquitectura con agentes automatizados',
+        'Mentoreo al equipo de prácticas en revisiones de código y prácticas de ingeniería',
       ],
       tech: ['Java', 'TypeScript', 'React', 'Claude Code', 'Agentes'],
       featured: true,
@@ -72,12 +72,12 @@ const content = {
     {
       period: 'Mar 2026 — Ago 2026',
       title: 'Prácticas · Full Stack Developer',
-      org: 'Ermine',
+      org: 'Ermine (promoción a FTE al finalizar)',
       points: [
-        'Contribuir a features full stack con Java, TypeScript y React',
-        'Primeros pasos con Claude Code, agentes y flujos automatizados',
-        'Apoyar la entrega de proyectos bajo mentoría',
-        'Trabajo en equipo con metodologías ágiles',
+        '6 meses de prácticas full-stack con Java (backend), TypeScript y React',
+        'Apliqué Claude Code por primera vez en un proyecto real y dejé plantillas internas reutilizables',
+        'Entregué 3 features completas con su propio CI, monitorización y métricas',
+        'Pasé a FTE en septiembre por iniciativa del equipo, no por extensión automática',
       ],
       tech: ['Java', 'TypeScript', 'React', 'Claude Code'],
     },
@@ -86,21 +86,21 @@ const content = {
       title: 'Prácticas · Desarrollo Web',
       org: 'Tracehold',
       points: [
-        'Apps web con Next.js, Node.js y MongoDB',
-        'Diseño y optimización de esquemas NoSQL',
-        'Trabajo en equipo con metodologías ágiles',
+        'Desarrollé una app web de gestión con Next.js, Node.js y MongoDB',
+        'Modelé y ajusté esquemas NoSQL (4 colecciones, ~30k docs) para reducir latencia de queries en ~40%',
+        'Trabajé en equipo con sprints quincenales y dailies',
       ],
       tech: ['Next.js', 'Node.js', 'MongoDB'],
     },
     {
       period: '2022 — 2026',
-      title: 'Ingeniería del Software · Mención Datos',
-      org: 'Universidad de Tecnología y Arte digital',
+      title: 'Ing. del Software · Mención Datos',
+      org: 'Universidad de Tecnología y Arte digital (U-tad)',
       points: [
-        'Procesamiento y gestión de datos a gran escala',
-        'Especialización en análisis y visualización',
+        'TFG: sistema multi-agente que entrenó una IA a correr un F1 simulado desde cero',
+        'TFG validado empíricamente contra datos reales de F1 (3 Grandes Premios de 2024)',
       ],
-      tech: [],
+      tech: ['TFG'],
     },
   ],
 
@@ -131,15 +131,33 @@ const content = {
   ctaKicker: '// ¿HABLAMOS?',
   ctaTitle: '¿Te interesa colaborar?',
   ctaBody:
-    'Estoy abierto a prácticas, colaboraciones en proyectos de datos o motorsport, y conversaciones sobre ingeniería.',
+    'Disponible para colaboraciones puntuales en proyectos de datos o motorsport. Si tienes algo entre manos, escríbeme.',
   ctaBtn: 'Contacto',
   ctaHref: '/contact',
+
+  // TFG highlight — primer bloque visible tras el hero. Pensado para que
+  // un reclutador vea en 5 segundos: qué es, qué cifras tiene, y dónde
+  // está el código. Las 3 cifras vienen de validationData / StrategyData.
+  // NOTA: el link a GitHub es un placeholder — sustituye por el repo real.
+  tfgKicker: '// MI PROYECTO PRINCIPAL · TFG',
+  tfgTitle: 'Una IA que corre, compite y se valida con datos reales de F1',
+  tfgLede:
+    'Simulador de F1 con físicas realistas + IA con Reinforcement Learning que entrena desde cero. Validado empíricamente contra los Grandes Premios de Barcelona, Bahrain y Monza de 2024.',
+  tfgStats: [
+    { value: '124s → 66s', label: 'vuelta rápida media', sublabel: 'en 98 generaciones' },
+    { value: '75.6%', label: 'finalizaciones TOP 3', sublabel: 'vs. pilotos reales (180 carreras)' },
+    { value: '3/3', label: 'circuitos validados', sublabel: 'estategias coinciden con la parrilla' },
+  ],
+  tfgCtaRepo: 'https://github.com/PedroRoigM/pedro-roig-r25-f1',
+  tfgCtaRepoLabel: 'Ver código en GitHub',
+  tfgCtaPortfolio: '/f1',
+  tfgCtaPortfolioLabel: 'Ver portfolio completo',
 };
 ---
 
 <BaseLayout
-  title="Pedro Roig Morera — Ingeniero de Datos"
-  description="Estudiante de Ing. del Software (mención Datos). Datos, simulación y motorsport."
+  title="Pedro Roig Morera — Full Stack Developer (datos y motorsport)"
+  description="Full Stack Developer (Java + TypeScript + React) con foco en datos y motorsport. Ing. del Software por la U-tad."
   locale={locale}
 >
   <main class="home">
@@ -178,6 +196,50 @@ const content = {
             </li>
           ))}
         </ul>
+      </div>
+    </section>
+
+    {/* ============================================================
+       TFG highlight — primer bloque visible tras el hero. Pensado para
+       que un reclutador vea en 5 segundos: qué es, qué cifras tiene,
+       y dónde está el código. El link a GitHub es placeholder —
+       sustituye `tfgCtaRepo` por el repo real.
+       ============================================================ */}
+    <section class="home__tfg" aria-labelledby="home-tfg-title">
+      <div class="home__tfg-inner">
+        <span class="home__tfg-kicker reveal" style="--reveal-delay: 0ms">
+          {content.tfgKicker}
+        </span>
+        <h2 id="home-tfg-title" class="home__tfg-title reveal" style="--reveal-delay: 80ms">
+          {content.tfgTitle}
+        </h2>
+        <p class="home__tfg-lede reveal" style="--reveal-delay: 160ms">
+          {content.tfgLede}
+        </p>
+        <ul class="home__tfg-stats reveal" style="--reveal-delay: 240ms">
+          {content.tfgStats.map((s, i) => (
+            <li class="home__tfg-stat" style={`--reveal-delay: ${320 + i * 80}ms`}>
+              <div class="home__tfg-stat-value">{s.value}</div>
+              <div class="home__tfg-stat-label">{s.label}</div>
+              <div class="home__tfg-stat-sub">{s.sublabel}</div>
+            </li>
+          ))}
+        </ul>
+        <div class="home__tfg-actions reveal" style="--reveal-delay: 600ms">
+          <a
+            href={content.tfgCtaRepo}
+            class="home__tfg-btn home__tfg-btn--primary"
+            target="_blank"
+            rel="noopener"
+          >
+            <span aria-hidden="true">⟨/⟩</span>
+            {content.tfgCtaRepoLabel}
+          </a>
+          <a href={content.tfgCtaPortfolio} class="home__tfg-btn home__tfg-btn--secondary">
+            {content.tfgCtaPortfolioLabel}
+            <span aria-hidden="true">→</span>
+          </a>
+        </div>
       </div>
     </section>
 
@@ -596,6 +658,173 @@ const content = {
 
   .home__chip--static {
     cursor: default;
+  }
+
+  /* ============================================================
+     TFG highlight — primer bloque post-hero, prominent.
+     Pensado para vista en 5 segundos: kicker + título + 3 cifras + 2 CTAs.
+     ============================================================ */
+  .home__tfg {
+    position: relative;
+    padding: var(--section-padding-y-lg) 0;
+    background:
+      radial-gradient(
+        ellipse 70% 80% at 50% 0%,
+        rgba(168, 216, 0, 0.07) 0%,
+        transparent 65%
+      ),
+      linear-gradient(180deg, var(--ink) 0%, var(--ink-2) 100%);
+    overflow: hidden;
+  }
+
+  .home__tfg::before {
+    content: '';
+    position: absolute;
+    inset: auto 0 0 0;
+    height: 1px;
+    background: var(--rule);
+  }
+
+  .home__tfg-inner {
+    max-width: var(--max-width);
+    margin: 0 auto;
+    padding: 0 var(--space-5);
+    text-align: center;
+  }
+
+  @media (min-width: 768px) {
+    .home__tfg-inner { padding: 0 var(--space-8); }
+  }
+
+  .home__tfg-kicker {
+    display: inline-block;
+    font-family: var(--font-display);
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-widest);
+    color: var(--color-brand);
+    margin-bottom: var(--space-5);
+  }
+
+  .home__tfg-title {
+    font-family: var(--font-display);
+    font-weight: 600;
+    line-height: var(--leading-tight);
+    letter-spacing: var(--tracking-tight);
+    color: var(--color-fg);
+    margin: 0 auto var(--space-5);
+    font-size: clamp(1.75rem, 4vw, 2.75rem);
+    max-width: 28ch;
+  }
+
+  .home__tfg-lede {
+    font-family: var(--font-body);
+    font-size: var(--text-md);
+    line-height: var(--leading-relaxed);
+    color: var(--color-fg-muted);
+    margin: 0 auto var(--space-10);
+    max-width: 60ch;
+  }
+
+  .home__tfg-stats {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space-10);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-6);
+  }
+
+  @media (min-width: 640px) {
+    .home__tfg-stats { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  .home__tfg-stat {
+    background: var(--ink-2);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius-lg);
+    padding: var(--space-6) var(--space-4);
+    transition:
+      border-color var(--motion-duration-short) var(--motion-ease-out),
+      transform var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .home__tfg-stat:hover {
+    border-color: var(--color-brand);
+    transform: translateY(-2px);
+  }
+
+  .home__tfg-stat-value {
+    font-family: var(--font-display);
+    font-size: clamp(1.75rem, 4vw, 2.5rem);
+    font-weight: 700;
+    line-height: var(--leading-tight);
+    color: var(--color-brand);
+    letter-spacing: var(--tracking-tight);
+    margin-bottom: var(--space-3);
+  }
+
+  .home__tfg-stat-label {
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-fg);
+    margin-bottom: var(--space-1);
+  }
+
+  .home__tfg-stat-sub {
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+    color: var(--color-fg-muted);
+  }
+
+  .home__tfg-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .home__tfg-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-6);
+    border-radius: var(--radius-md);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: var(--tracking-wide);
+    text-decoration: none;
+    transition:
+      transform var(--motion-duration-short) var(--motion-ease-out),
+      box-shadow var(--motion-duration-short) var(--motion-ease-out),
+      border-color var(--motion-duration-short) var(--motion-ease-out);
+  }
+
+  .home__tfg-btn--primary {
+    background: var(--color-brand);
+    color: var(--ink);
+  }
+
+  .home__tfg-btn--primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 4px rgba(168, 216, 0, 0.18);
+  }
+
+  .home__tfg-btn--secondary {
+    background: transparent;
+    color: var(--color-fg);
+    border: 1px solid var(--rule-strong);
+  }
+
+  .home__tfg-btn--secondary:hover {
+    border-color: var(--color-brand);
+    color: var(--color-brand);
+    transform: translateY(-2px);
   }
 
   /* ============================================================
