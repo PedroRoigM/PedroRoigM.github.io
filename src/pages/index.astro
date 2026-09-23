@@ -204,6 +204,51 @@ const content = {
     </section>
 
     {/* ============================================================
+       Tech stack marquee — horizontal scrolling band between hero
+       and TFG. Two identical <ul>s back-to-back so the loop is
+       seamless (when the first one scrolls off, the second is exactly
+       where the first started). Linear timing, no easing — easing
+       would make it stutter at the loop point.
+       aria-hidden on the visual band; the same data is announced
+       semantically by the hero's chip list further down. */}
+    <section class="home__marquee" aria-label="Stack tecnológico">
+      <div class="home__marquee-track">
+        <ul class="home__marquee-list" aria-hidden="true">
+          <li>Java</li><li class="home__marquee-dot">◆</li>
+          <li>TypeScript</li><li class="home__marquee-dot">◆</li>
+          <li>React</li><li class="home__marquee-dot">◆</li>
+          <li>Python</li><li class="home__marquee-dot">◆</li>
+          <li>Astro</li><li class="home__marquee-dot">◆</li>
+          <li>Next.js</li><li class="home__marquee-dot">◆</li>
+          <li>Node.js</li><li class="home__marquee-dot">◆</li>
+          <li>MongoDB</li><li class="home__marquee-dot">◆</li>
+          <li>PostgreSQL</li><li class="home__marquee-dot">◆</li>
+          <li>GSAP</li><li class="home__marquee-dot">◆</li>
+          <li>Three.js</li><li class="home__marquee-dot">◆</li>
+          <li>AWS</li><li class="home__marquee-dot">◆</li>
+          <li>Claude Code</li><li class="home__marquee-dot">◆</li>
+          <li>Reinforcement Learning</li><li class="home__marquee-dot">◆</li>
+        </ul>
+        <ul class="home__marquee-list" aria-hidden="true">
+          <li>Java</li><li class="home__marquee-dot">◆</li>
+          <li>TypeScript</li><li class="home__marquee-dot">◆</li>
+          <li>React</li><li class="home__marquee-dot">◆</li>
+          <li>Python</li><li class="home__marquee-dot">◆</li>
+          <li>Astro</li><li class="home__marquee-dot">◆</li>
+          <li>Next.js</li><li class="home__marquee-dot">◆</li>
+          <li>Node.js</li><li class="home__marquee-dot">◆</li>
+          <li>MongoDB</li><li class="home__marquee-dot">◆</li>
+          <li>PostgreSQL</li><li class="home__marquee-dot">◆</li>
+          <li>GSAP</li><li class="home__marquee-dot">◆</li>
+          <li>Three.js</li><li class="home__marquee-dot">◆</li>
+          <li>AWS</li><li class="home__marquee-dot">◆</li>
+          <li>Claude Code</li><li class="home__marquee-dot">◆</li>
+          <li>Reinforcement Learning</li><li class="home__marquee-dot">◆</li>
+        </ul>
+      </div>
+    </section>
+
+    {/* ============================================================
        TFG highlight — primer bloque visible tras el hero. Pensado para
        que un reclutador vea en 5 segundos: qué es, qué cifras tiene,
        y dónde está el código. El link a GitHub es placeholder —
@@ -460,15 +505,19 @@ const content = {
   };
 
   /**
-   * Spotlight — for every [data-spotlight] element (TFG stat cards +
-   * any other cards we tag), track pointermove and write the cursor's
-   * local coordinates into CSS custom properties. The ::before
-   * pseudo-element on each card reads --spot-x / --spot-y to position
-   * the radial-gradient glow under the cursor.
+   * Spotlight + 3D tilt + glare — every effect reads from the same
+   * pointermove listener so we only attach one handler per card and
+   * we only schedule one rAF flush per frame. We compute:
    *
-   * Using rAF coalescing — pointermove fires more often than we need
-   * to repaint, so we stash the latest coords and flush on the next
-   * animation frame. Skips work on touch devices (no fine pointer).
+   *   - --spot-x / --spot-y   : pixel offset of the cursor inside the
+   *                              card (for the radial-gradient glow)
+   *   - --glare-x             : percentage position for the diagonal
+   *                              sheen that sweeps the card
+   *   - rotateX / rotateY     : perspective tilt driven by the cursor
+   *                              position relative to the card centre
+   *
+   * On pointerleave we reset all of them in one go so the card springs
+   * back to flat via the CSS transition.
    */
   const initSpotlight = () => {
     const cards = document.querySelectorAll<HTMLElement>('.home__tfg-stat');
@@ -483,18 +532,37 @@ const content = {
       let pendingY = 0;
       let frameRequested = false;
       const flush = () => {
-        card.style.setProperty('--spot-x', `${pendingX}px`);
-        card.style.setProperty('--spot-y', `${pendingY}px`);
+        const rect = card.getBoundingClientRect();
+        // Cursor offset in pixels (0..rect.width / 0..rect.height)
+        const localX = pendingX - rect.left;
+        const localY = pendingY - rect.top;
+        // Spotlight at the cursor's local coords
+        card.style.setProperty('--spot-x', `${localX}px`);
+        card.style.setProperty('--spot-y', `${localY}px`);
+        // Glare: sweep the sheen across proportional to horizontal cursor
+        // position so the highlight tracks left-to-right as the user moves.
+        const pctX = Math.max(0, Math.min(100, (localX / rect.width) * 100));
+        card.style.setProperty('--glare-x', `${pctX}%`);
+        // 3D tilt: ±6° based on how far the cursor is from centre.
+        // Negative rotateX for "tilt top toward camera", positive for
+        // "tilt bottom toward camera" — feels natural on a card.
+        const tiltX = ((localY / rect.height) - 0.5) * -8;
+        const tiltY = ((localX / rect.width) - 0.5) * 8;
+        card.style.transform =
+          `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-2px)`;
         frameRequested = false;
       };
       card.addEventListener('pointermove', (e) => {
-        const rect = card.getBoundingClientRect();
-        pendingX = e.clientX - rect.left;
-        pendingY = e.clientY - rect.top;
+        pendingX = e.clientX;
+        pendingY = e.clientY;
         if (!frameRequested) {
           frameRequested = true;
           requestAnimationFrame(flush);
         }
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+        card.style.setProperty('--glare-x', '');
       });
     });
   };
@@ -757,6 +825,38 @@ const content = {
 
   .home__hero-name-line {
     display: block;
+    /* Animated gradient text — the headline reads as a sweep of brand
+       colour sliding across the name. Same trick as 21st.dev's
+       "Shining Text" but with the brand palette baked in. The two lines
+       share one animation (offset by 0% and 100% respectively) so the
+       effect looks coordinated rather than chaotic. */
+    background-image: linear-gradient(
+      100deg,
+      var(--color-fg) 0%,
+      var(--color-fg) 35%,
+      var(--color-brand) 50%,
+      var(--color-fg) 65%,
+      var(--color-fg) 100%
+    );
+    background-size: 220% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: home-hero-name-shimmer 7s ease-in-out infinite;
+  }
+  @keyframes home-hero-name-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  /* Reduced-motion: keep the gradient but freeze the animation so the
+     text stays readable and on-brand without the moving highlight. */
+  @media (prefers-reduced-motion: reduce) {
+    .home__hero-name-line {
+      animation: none;
+      background-image: linear-gradient(90deg, var(--color-fg) 0%, var(--color-brand) 100%);
+    }
   }
 
   .home__hero-role {
@@ -834,6 +934,61 @@ const content = {
 
   .home__chip--static {
     cursor: default;
+  }
+
+  /* ============================================================
+     Tech stack marquee — horizontal scrolling band. Pure CSS: a flex
+     row of two identical <ul>s scrolls left at 35s linear, then loops
+     seamlessly because the second <ul> is exactly where the first
+     one started (transform: translateX(-50%) on the track lands the
+     second copy at the original starting position).
+     ============================================================ */
+  .home__marquee {
+    overflow: hidden;
+    padding: var(--space-5) 0;
+    background: rgba(255, 255, 255, 0.025);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    /* Edge fade — the items disappear into the borders on the left/right
+       so the loop seam is invisible to the eye. */
+    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  }
+  .home__marquee-track {
+    display: flex;
+    width: max-content;
+    animation: home-marquee-scroll 35s linear infinite;
+  }
+  .home__marquee-list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .home__marquee-list li {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-fg);
+    white-space: nowrap;
+    transition: color var(--motion-duration-short) var(--motion-ease-out);
+  }
+  .home__marquee-list li:hover { color: var(--color-brand); }
+  .home__marquee-dot {
+    color: var(--color-brand);
+    font-size: 8px;
+    opacity: 0.6;
+  }
+  @keyframes home-marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home__marquee-track { animation: none; }
   }
 
   /* ============================================================
@@ -922,9 +1077,11 @@ const content = {
     border-radius: var(--radius-lg);
     padding: var(--space-6) var(--space-4);
     overflow: hidden;
+    /* 3D context for the JS-driven tilt transform. */
+    transform-style: preserve-3d;
     transition:
       border-color var(--motion-duration-short) var(--motion-ease-out),
-      transform var(--motion-duration-short) var(--motion-ease-out);
+      transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
   }
 
   /* Spotlight — soft brand-coloured glow that follows the cursor.
@@ -937,7 +1094,7 @@ const content = {
     inset: 0;
     background: radial-gradient(
       320px circle at var(--spot-x, -100px) var(--spot-y, -100px),
-      rgba(168, 216, 0, 0.18) 0%,
+      rgba(168, 216, 0, 0.20) 0%,
       transparent 55%
     );
     opacity: 0;
@@ -945,13 +1102,38 @@ const content = {
     pointer-events: none;
     z-index: 0;
   }
+  /* Glare — diagonal sheen that sweeps across the card. Its horizontal
+     offset is driven by --glare-x (default off-card). Sits above the
+     spotlight so the reader sees a single, layered effect. */
+  .home__tfg-stat::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.10) 47%,
+      rgba(255, 255, 255, 0.18) 50%,
+      rgba(255, 255, 255, 0.10) 53%,
+      transparent 65%
+    );
+    background-size: 220% 100%;
+    background-position: var(--glare-x, -50%) 50%;
+    opacity: 0;
+    transition: opacity var(--motion-duration-moderate) var(--motion-ease-out);
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
   .home__tfg-stat:hover::before { opacity: 1; }
+  .home__tfg-stat:hover::after { opacity: 1; }
   .home__tfg-stat:hover {
     border-color: var(--color-brand);
-    transform: translateY(-2px);
+    /* Tilt transform is applied via JS on pointermove (perspective +
+       rotateX/Y). Here we only set the baseline lift. */
   }
-  /* Lift child elements above the spotlight glow. */
-  .home__tfg-stat > * { position: relative; z-index: 1; }
+  /* Lift child elements above both the spotlight and the glare. */
+  .home__tfg-stat > * { position: relative; z-index: 2; }
 
   .home__tfg-stat-value {
     font-family: var(--font-display);
@@ -1025,6 +1207,54 @@ const content = {
   }
   .home__tfg-btn--magnetic:hover .home__tfg-btn-arrow {
     transform: translateX(6px);
+  }
+
+  /* Border beam — rotating gradient ring around the CTA. The ::before
+     renders a conic gradient that orbits the button via CSS animation.
+     The mask trick (linear-gradient + mask-composite: exclude) keeps
+     only the outer border visible, so the button face stays solid
+     green with a glowing ring orbiting around it. Classic 21st.dev
+     "border beam" pattern. */
+  .home__tfg-btn--primary.home__tfg-btn--magnetic {
+    position: relative;
+    background: var(--color-brand);
+    /* Extra padding so the beam has room to orbit without clipping
+       the inner background. */
+    padding: calc(var(--space-3) + 2px) calc(var(--space-6) + 2px);
+  }
+  .home__tfg-btn--primary.home__tfg-btn--magnetic::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      var(--color-brand) 50deg,
+      rgba(255, 255, 255, 0.85) 75deg,
+      var(--color-brand) 100deg,
+      transparent 130deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: home-cta-beam-rotate 3.2s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes home-cta-beam-rotate {
+    to { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home__tfg-btn--primary.home__tfg-btn--magnetic::before {
+      animation: none;
+      /* Static highlight on the top edge so the premium feel survives. */
+      background: linear-gradient(90deg, var(--color-brand), rgba(255, 255, 255, 0.6), var(--color-brand));
+    }
   }
 
   .home__tfg-btn--secondary {

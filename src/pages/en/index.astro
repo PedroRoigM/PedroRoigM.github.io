@@ -187,6 +187,45 @@ const content = {
       </div>
     </section>
 
+    {/* Tech stack marquee — see ES version for the rationale. Two
+       identical lists back-to-back so the loop is seamless. */}
+    <section class="home__marquee" aria-label="Tech stack">
+      <div class="home__marquee-track">
+        <ul class="home__marquee-list" aria-hidden="true">
+          <li>Java</li><li class="home__marquee-dot">◆</li>
+          <li>TypeScript</li><li class="home__marquee-dot">◆</li>
+          <li>React</li><li class="home__marquee-dot">◆</li>
+          <li>Python</li><li class="home__marquee-dot">◆</li>
+          <li>Astro</li><li class="home__marquee-dot">◆</li>
+          <li>Next.js</li><li class="home__marquee-dot">◆</li>
+          <li>Node.js</li><li class="home__marquee-dot">◆</li>
+          <li>MongoDB</li><li class="home__marquee-dot">◆</li>
+          <li>PostgreSQL</li><li class="home__marquee-dot">◆</li>
+          <li>GSAP</li><li class="home__marquee-dot">◆</li>
+          <li>Three.js</li><li class="home__marquee-dot">◆</li>
+          <li>AWS</li><li class="home__marquee-dot">◆</li>
+          <li>Claude Code</li><li class="home__marquee-dot">◆</li>
+          <li>Reinforcement Learning</li><li class="home__marquee-dot">◆</li>
+        </ul>
+        <ul class="home__marquee-list" aria-hidden="true">
+          <li>Java</li><li class="home__marquee-dot">◆</li>
+          <li>TypeScript</li><li class="home__marquee-dot">◆</li>
+          <li>React</li><li class="home__marquee-dot">◆</li>
+          <li>Python</li><li class="home__marquee-dot">◆</li>
+          <li>Astro</li><li class="home__marquee-dot">◆</li>
+          <li>Next.js</li><li class="home__marquee-dot">◆</li>
+          <li>Node.js</li><li class="home__marquee-dot">◆</li>
+          <li>MongoDB</li><li class="home__marquee-dot">◆</li>
+          <li>PostgreSQL</li><li class="home__marquee-dot">◆</li>
+          <li>GSAP</li><li class="home__marquee-dot">◆</li>
+          <li>Three.js</li><li class="home__marquee-dot">◆</li>
+          <li>AWS</li><li class="home__marquee-dot">◆</li>
+          <li>Claude Code</li><li class="home__marquee-dot">◆</li>
+          <li>Reinforcement Learning</li><li class="home__marquee-dot">◆</li>
+        </ul>
+      </div>
+    </section>
+
     {/* TFG highlight — first block after the hero, designed for the
        5-second recruiter scan. */}
     <section class="home__tfg" aria-labelledby="home-tfg-title">
@@ -419,7 +458,7 @@ const content = {
     initCountUp();
   };
 
-  /** Spotlight — see ES version for the rationale. */
+  /** Spotlight + 3D tilt + glare — see ES version for the full rationale. */
   const initSpotlight = () => {
     const cards = document.querySelectorAll<HTMLElement>('.home__tfg-stat');
     if (cards.length === 0) return;
@@ -432,18 +471,30 @@ const content = {
       let pendingY = 0;
       let frameRequested = false;
       const flush = () => {
-        card.style.setProperty('--spot-x', `${pendingX}px`);
-        card.style.setProperty('--spot-y', `${pendingY}px`);
+        const rect = card.getBoundingClientRect();
+        const localX = pendingX - rect.left;
+        const localY = pendingY - rect.top;
+        card.style.setProperty('--spot-x', `${localX}px`);
+        card.style.setProperty('--spot-y', `${localY}px`);
+        const pctX = Math.max(0, Math.min(100, (localX / rect.width) * 100));
+        card.style.setProperty('--glare-x', `${pctX}%`);
+        const tiltX = ((localY / rect.height) - 0.5) * -8;
+        const tiltY = ((localX / rect.width) - 0.5) * 8;
+        card.style.transform =
+          `perspective(900px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) translateY(-2px)`;
         frameRequested = false;
       };
       card.addEventListener('pointermove', (e) => {
-        const rect = card.getBoundingClientRect();
-        pendingX = e.clientX - rect.left;
-        pendingY = e.clientY - rect.top;
+        pendingX = e.clientX;
+        pendingY = e.clientY;
         if (!frameRequested) {
           frameRequested = true;
           requestAnimationFrame(flush);
         }
+      });
+      card.addEventListener('pointerleave', () => {
+        card.style.transform = '';
+        card.style.setProperty('--glare-x', '');
       });
     });
   };
@@ -652,7 +703,35 @@ const content = {
     color: var(--color-fg);
     margin: 0 0 var(--space-6);
   }
-  .home__hero-name-line { display: block; }
+  .home__hero-name-line {
+    display: block;
+    /* Animated gradient text — see ES version for the rationale. */
+    background-image: linear-gradient(
+      100deg,
+      var(--color-fg) 0%,
+      var(--color-fg) 35%,
+      var(--color-brand) 50%,
+      var(--color-fg) 65%,
+      var(--color-fg) 100%
+    );
+    background-size: 220% 100%;
+    background-position: 0% 50%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+    animation: home-hero-name-shimmer 7s ease-in-out infinite;
+  }
+  @keyframes home-hero-name-shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home__hero-name-line {
+      animation: none;
+      background-image: linear-gradient(90deg, var(--color-fg) 0%, var(--color-brand) 100%);
+    }
+  }
 
   .home__hero-role {
     display: flex;
@@ -714,6 +793,53 @@ const content = {
     transform: translateY(-1px);
   }
   .home__chip--static { cursor: default; }
+
+  /* Tech stack marquee — see ES version. Pure CSS scroll loop. */
+  .home__marquee {
+    overflow: hidden;
+    padding: var(--space-5) 0;
+    background: rgba(255, 255, 255, 0.025);
+    border-top: 1px solid var(--rule);
+    border-bottom: 1px solid var(--rule);
+    mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 8%, #000 92%, transparent 100%);
+  }
+  .home__marquee-track {
+    display: flex;
+    width: max-content;
+    animation: home-marquee-scroll 35s linear infinite;
+  }
+  .home__marquee-list {
+    display: flex;
+    align-items: center;
+    gap: var(--space-6);
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
+  }
+  .home__marquee-list li {
+    font-family: var(--font-display);
+    font-size: var(--text-md);
+    font-weight: 500;
+    letter-spacing: var(--tracking-wide);
+    color: var(--color-fg);
+    white-space: nowrap;
+    transition: color var(--motion-duration-short) var(--motion-ease-out);
+  }
+  .home__marquee-list li:hover { color: var(--color-brand); }
+  .home__marquee-dot {
+    color: var(--color-brand);
+    font-size: 8px;
+    opacity: 0.6;
+  }
+  @keyframes home-marquee-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home__marquee-track { animation: none; }
+  }
 
   /* TFG highlight — first block post-hero, prominent */
   .home__tfg {
@@ -789,9 +915,10 @@ const content = {
     border-radius: var(--radius-lg);
     padding: var(--space-6) var(--space-4);
     overflow: hidden;
+    transform-style: preserve-3d;
     transition:
       border-color var(--motion-duration-short) var(--motion-ease-out),
-      transform var(--motion-duration-short) var(--motion-ease-out);
+      transform 220ms cubic-bezier(0.2, 0.9, 0.3, 1.2);
   }
   .home__tfg-stat::before {
     content: '';
@@ -799,7 +926,7 @@ const content = {
     inset: 0;
     background: radial-gradient(
       320px circle at var(--spot-x, -100px) var(--spot-y, -100px),
-      rgba(168, 216, 0, 0.18) 0%,
+      rgba(168, 216, 0, 0.20) 0%,
       transparent 55%
     );
     opacity: 0;
@@ -807,12 +934,32 @@ const content = {
     pointer-events: none;
     z-index: 0;
   }
+  .home__tfg-stat::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      115deg,
+      transparent 35%,
+      rgba(255, 255, 255, 0.10) 47%,
+      rgba(255, 255, 255, 0.18) 50%,
+      rgba(255, 255, 255, 0.10) 53%,
+      transparent 65%
+    );
+    background-size: 220% 100%;
+    background-position: var(--glare-x, -50%) 50%;
+    opacity: 0;
+    transition: opacity var(--motion-duration-moderate) var(--motion-ease-out);
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: overlay;
+  }
   .home__tfg-stat:hover::before { opacity: 1; }
+  .home__tfg-stat:hover::after { opacity: 1; }
   .home__tfg-stat:hover {
     border-color: var(--color-brand);
-    transform: translateY(-2px);
   }
-  .home__tfg-stat > * { position: relative; z-index: 1; }
+  .home__tfg-stat > * { position: relative; z-index: 2; }
   .home__tfg-stat-value {
     font-family: var(--font-display);
     font-size: clamp(1.75rem, 4vw, 2.5rem);
@@ -875,6 +1022,46 @@ const content = {
   }
   .home__tfg-btn--magnetic:hover .home__tfg-btn-arrow {
     transform: translateX(6px);
+  }
+
+  /* Border beam — see ES version for the rationale. */
+  .home__tfg-btn--primary.home__tfg-btn--magnetic {
+    position: relative;
+    background: var(--color-brand);
+    padding: calc(var(--space-3) + 2px) calc(var(--space-6) + 2px);
+  }
+  .home__tfg-btn--primary.home__tfg-btn--magnetic::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: conic-gradient(
+      from 0deg,
+      transparent 0deg,
+      var(--color-brand) 50deg,
+      rgba(255, 255, 255, 0.85) 75deg,
+      var(--color-brand) 100deg,
+      transparent 130deg,
+      transparent 360deg
+    );
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    animation: home-cta-beam-rotate 3.2s linear infinite;
+    pointer-events: none;
+    z-index: 0;
+  }
+  @keyframes home-cta-beam-rotate {
+    to { transform: rotate(360deg); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .home__tfg-btn--primary.home__tfg-btn--magnetic::before {
+      animation: none;
+      background: linear-gradient(90deg, var(--color-brand), rgba(255, 255, 255, 0.6), var(--color-brand));
+    }
   }
 
   .home__about {
